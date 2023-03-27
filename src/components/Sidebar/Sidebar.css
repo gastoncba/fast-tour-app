@@ -1,0 +1,40 @@
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 10px;
+    background-color: #ffffff;
+    color: white;
+    transition: all 0.3s ease-in-out;
+    opacity: 0;
+    visibility: visible;
+    margin-top: 20px;
+    margin-bottom: 70px;
+    border-radius: 10px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  }
+  
+  .sidebar.expanded {
+    width: 270px;
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  .sidebar > * {
+    margin: 10px;
+  }
+
+  .sidebar-content {
+    opacity: 0;
+    transition: opacity 0.1s ease-in-out; 
+    color: black;
+    padding-left: 10px;
+  }
+  
+  .sidebar.expanded .sidebar-content {
+    opacity: 1;
+    transition: opacity 0.5s ease-in-out; 
+    padding-left: 10px;
+  }
+  
