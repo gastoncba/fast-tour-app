@@ -1,15 +1,15 @@
 .sidebar {
+    z-index: 9999;
     position: fixed;
     top: 0;
     left: 0;
     bottom: 0;
-    width: 10px;
+    width: 1px;
     background-color: #ffffff;
     color: white;
     transition: all 0.3s ease-in-out;
     opacity: 0;
     visibility: visible;
-    margin-top: 20px;
     margin-bottom: 70px;
     border-radius: 10px;
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);

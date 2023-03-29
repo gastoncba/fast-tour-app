@@ -1,29 +1,29 @@
-import React from 'react';
-import { Card as CardMUI, CardMedia, CardContent, Typography } from '@mui/material';
+import { Card as AntCard } from "antd";
+import { Typography } from "antd";
+import { CSSProperties } from "react";
 
-interface CardProps {
-  image: string;
+const { Title, Paragraph } = Typography;
+
+type CardProps = {
   title: string;
-  subtitle: string;
-}
+  description: string;
+  coverImage: string;
+  style?: CSSProperties;
+};
 
-export const Card: React.FC<CardProps> = ({ image, title, subtitle }) => {
+export const Card = ({ title, description, coverImage, style }: CardProps) => {
   return (
-    <CardMUI sx={{ maxWidth: 345 }} elevation={7}>
-      <CardMedia
-        component="img"
-        height="140"
-        image={image}
-        alt={title}
-      />
-      <CardContent>
-        <Typography variant="h5" component="h5">
+    <AntCard
+      hoverable
+      cover={<img alt="cover" src={coverImage} />}
+      style={{ borderRadius: "16px", ...style }}
+    >
+      <div style={{ display: "flex", alignItems: "center", marginBottom: "16px" }}>
+        <Title level={5} style={{ marginBottom: "0px", marginRight: "8px" }}>
           {title}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          {subtitle}
-        </Typography>
-      </CardContent>
-    </CardMUI>
+        </Title>
+      </div>
+      <Paragraph style={{ marginBottom: "0px" }}>{description}</Paragraph>
+    </AntCard>
   );
 };
