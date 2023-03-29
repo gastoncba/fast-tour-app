@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Box, SxProps, Theme } from "@mui/material";
 import { DatePicker, Button } from "antd";
 import "antd/dist/reset.css";
-// import './TemporalFilter.css';
 
 const { RangePicker } = DatePicker;
 
@@ -25,7 +24,7 @@ export const Filter: React.FC<FilterProps> = ({ onApplyFilter, sx }) => {
   };
 
   return (
-    <Box className="temporal-filter-container" sx={sx}>
+    <Box sx={sx}>
       <RangePicker
         onChange={(dates, dateStrings) => handleDateChange(dateStrings)}
       />
