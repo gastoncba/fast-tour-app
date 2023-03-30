@@ -1,29 +1,49 @@
+import React, { CSSProperties } from "react";
 import { Card as AntCard } from "antd";
-import { Typography } from "antd";
-import { CSSProperties } from "react";
+import { Paragraph } from "../Paragraph/Paragraph.component";
+// import { Typography } from "antd";
 
-const { Title, Paragraph } = Typography;
+// const { Title } = Typography;
 
 type CardProps = {
   title: string;
   description: string;
+  other?: string;
   coverImage: string;
   style?: CSSProperties;
 };
 
-export const Card = ({ title, description, coverImage, style }: CardProps) => {
+export const Card = ({
+  title,
+  description,
+  coverImage,
+  style,
+  other,
+}: CardProps) => {
   return (
     <AntCard
       hoverable
       cover={<img alt="cover" src={coverImage} />}
       style={{ borderRadius: "16px", ...style }}
     >
-      <div style={{ display: "flex", alignItems: "center", marginBottom: "16px" }}>
-        <Title level={5} style={{ marginBottom: "0px", marginRight: "8px" }}>
-          {title}
-        </Title>
+      <div
+        style={{ display: "flex", alignItems: "center", marginBottom: "2px" }}
+      >
+        <Paragraph type="title" levelTitle={5} text={title} />
       </div>
-      <Paragraph style={{ marginBottom: "0px" }}>{description}</Paragraph>
+      <div>
+        <Paragraph text={description} style={{ marginBottom: "0px" }} />
+      </div>
+      {other && (
+        <div>
+          <Paragraph
+            text={other}
+            style={{ marginBottom: "0px" }}
+            color="gray"
+            type="text"
+          />
+        </div>
+      )}
     </AntCard>
   );
 };

@@ -18,7 +18,6 @@ export const Input: React.FC<Props> = ({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
     if (isNumberInput) {
-      // Si el input es para números, solo permitimos números
       const regex = /^[0-9\b]+$/;
       if (regex.test(value)) {
         onChange(value);
@@ -27,7 +26,6 @@ export const Input: React.FC<Props> = ({
         setHasError(true);
       }
     } else {
-      // Si el input es para texto, permitimos cualquier caracter
       onChange(value);
       setHasError(false);
     }

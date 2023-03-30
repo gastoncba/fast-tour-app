@@ -43,7 +43,7 @@ export const get = (
 
       if (query_params) {
         params = new URLSearchParams(query_params);
-        route += params;
+        route += "?" + params;
         console.log(route)
       }
 
