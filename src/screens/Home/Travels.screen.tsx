@@ -10,7 +10,8 @@ import {
   Paragraph,
   Input,
   Button,
-  Form,
+  Toast,
+  Check
 } from "../../components/index";
 import { Travel } from "../../models/Travels.model";
 import { TravelService } from "../../services";
@@ -24,6 +25,16 @@ export const Travels: React.FC<Props> = (props: Props) => {
   const [option, setOption] = useState<string>("Fechas");
   const [minPrice, setMinPrice] = useState<string>("");
   const [maxPrice, setMaxPrice] = useState<string>("");
+  const [isChecked, setIsChecked] = useState(false);
+
+  const handleCheckboxChange = (checked: boolean) => {
+    setIsChecked(checked);
+
+    if(checked) {
+      setIsLoading(true)
+      getTravels();
+    }
+  };
 
   const handleApplyFilter = (startDate: string, endDate: string) => {
     let query = "";
@@ -39,9 +50,28 @@ export const Travels: React.FC<Props> = (props: Props) => {
     setOption(value);
   };
 
-  const onClick = () => {
-    let query = `min_price=${minPrice}&max_price=${maxPrice}`;
+  const handlerPriceFilter = () => {
+    let max_price = parseInt(maxPrice);
+    let min_price = parseInt(minPrice);
 
+    if (max_price <= min_price) {
+      Toast({
+        type: "error",
+        message: "El precio maximo no debe ser menor que el minimo",
+      });
+      return;
+    }
+    if (!minPrice || !maxPrice) {
+      Toast({
+        type: "error",
+        message: "Complete todos los campos para buscar",
+      });
+      return;
+    }
+
+    let query = `min_price=${minPrice}&max_price=${maxPrice}`;
+    setMinPrice("");
+    setMaxPrice("");
     setIsLoading(true);
     getTravels(query);
   };
@@ -51,9 +81,12 @@ export const Travels: React.FC<Props> = (props: Props) => {
       let travels_res = await TravelService.getTravels(query);
       setTravels(travels_res);
     } catch {
-      console.log('ERROR || GET_TRAVELS')
+      Toast({
+        type: "error",
+        message: "Algo a ocurrido en la busqueda de viajes",
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   };
 
@@ -63,7 +96,7 @@ export const Travels: React.FC<Props> = (props: Props) => {
 
   return (
     <>
-      <Paragraph text="Viajes disponibles" type='title'/>
+      <Paragraph text="Viajes disponibles" type="title" />
       {isLoading ? (
         <Loader sx={{ py: 6 }} />
       ) : (
@@ -78,7 +111,7 @@ export const Travels: React.FC<Props> = (props: Props) => {
               alignItems: "center",
             }}
           >
-            <Paragraph text="Filtrar por: " type="text" />
+            <Paragraph text="Buscar por: " type="text" />
             <Select
               onSelect={onSelect}
               defaultValue={"Fechas"}
@@ -96,37 +129,44 @@ export const Travels: React.FC<Props> = (props: Props) => {
                 >
                   <Input
                     isNumberInput={true}
-                    onChange={(value: string) => setMinPrice(value)}
+                    onInputChange={(value: string) => setMinPrice(value)}
                     placeholder={"minimo"}
                   />
                   <Input
                     isNumberInput={true}
-                    onChange={(value: string) => setMaxPrice(value)}
+                    onInputChange={(value: string) => setMaxPrice(value)}
                     placeholder={"maximo"}
                   />
-                  <Button text="buscar precios" onClick={onClick} />
+                  <Button text="buscar precios" onClick={handlerPriceFilter} />
                 </Box>
               )}
             </Box>
+            <Box>
+              <Check label="Obtener todos los viajes" checked={isChecked} onChange={handleCheckboxChange}/>
+            </Box>
           </Box>
-          {
-            (travels.length !== 0) ? 
+          {travels.length !== 0 ? (
             <GridList
-            direction="row"
-            items={travels}
-            renderItem={(item: Travel, index: number) => (
-              <Card
-                title={item.name}
-                description={`Salida y regreso: ${item.startDate} - ${item.endDate}`}
-                other={`Precio: $ ${item.price}`}
-                coverImage="https://www.civitatis.com/f/argentina/buenos-aires/guia/cataratas-iguazu.jpg"
+              direction="row"
+              items={travels}
+              renderItem={(item: Travel, index: number) => (
+                <Card
+                  title={item.name}
+                  description={`Salida y regreso: ${item.startDate} - ${item.endDate}`}
+                  other={`Precio: $ ${item.price}`}
+                  coverImage="https://www.civitatis.com/f/argentina/buenos-aires/guia/cataratas-iguazu.jpg"
+                />
+              )}
+            />
+          ) : (
+            <Box display={"flex"} justifyContent="center">
+              <Paragraph
+                text="No se encontraron viajes"
+                type="title"
+                levelTitle={4}
               />
-            )}
-          /> :
-          <Box display={'flex'} justifyContent='center'>
-            <Paragraph text="No se encontraron viajes" type='title' levelTitle={4}/>
-          </Box>
-          }
+            </Box>
+          )}
         </>
       )}
     </>

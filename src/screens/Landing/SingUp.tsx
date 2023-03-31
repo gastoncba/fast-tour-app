@@ -1,12 +1,10 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
 
-import { Form, Paragraph } from "../../components";
+import { Form } from "../../components";
 
 interface Props {}
 
 export const SingUp: React.FC<Props> = () => {
-  let navigate = useNavigate();
 
   return (
     <>
@@ -23,12 +21,6 @@ export const SingUp: React.FC<Props> = () => {
         submitText="Registrarme"
         loadingText="Registrando..."
         directionInputs="column"
-      />
-      <Paragraph
-        style={{paddingRight: '5px'}}
-        text={"Despues me registro.."}
-        type="link"
-        onClick={() => navigate("home")}
       />
     </>
   );

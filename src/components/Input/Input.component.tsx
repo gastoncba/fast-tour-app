@@ -3,33 +3,29 @@ import { Input as AntdInput, Alert } from "antd";
 
 interface Props {
   isNumberInput: boolean;
-  onChange: (value: string) => void;
+  onInputChange: (value: string) => void;
   placeholder?: string;
 }
 
 export const Input: React.FC<Props> = ({
   isNumberInput,
-  onChange,
+  onInputChange,
   placeholder,
   ...rest
 }) => {
   const [hasError, setHasError] = useState(false);
+  const regex = /^[0-9\b]+$/;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
-    if (isNumberInput) {
-      const regex = /^[0-9\b]+$/;
-      if (regex.test(value)) {
-        onChange(value);
-        setHasError(false);
-      } else {
-        setHasError(true);
-      }
-    } else {
-      onChange(value);
-      setHasError(false);
-    }
+    const isValid = isNumberInput ? regex.test(value) : true;
+    onInputChange(value);
+    setHasError(!isValid);
   };
+
+  const errorMessage = `El valor ingresado no es válido. Por favor, ingrese un ${
+    isNumberInput ? "número" : "texto"
+  }`;
 
   return (
     <div>
@@ -40,9 +36,7 @@ export const Input: React.FC<Props> = ({
       />
       {hasError && (
         <Alert
-          message={`El valor ingresado no es válido. Por favor, ingrese un ${
-            isNumberInput ? "número" : "texto"
-          }`}
+          message={errorMessage}
           type="error"
           showIcon
         />

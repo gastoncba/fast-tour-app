@@ -1,11 +1,8 @@
 import React, { CSSProperties } from "react";
 import { Card as AntCard } from "antd";
 import { Paragraph } from "../Paragraph/Paragraph.component";
-// import { Typography } from "antd";
 
-// const { Title } = Typography;
-
-type CardProps = {
+interface Props  {
   title: string;
   description: string;
   other?: string;
@@ -13,13 +10,13 @@ type CardProps = {
   style?: CSSProperties;
 };
 
-export const Card = ({
+export const Card:React.FC<Props> = ({
   title,
   description,
   coverImage,
   style,
   other,
-}: CardProps) => {
+}) => {
   return (
     <AntCard
       hoverable
