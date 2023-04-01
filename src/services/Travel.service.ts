@@ -15,5 +15,16 @@ export const TravelService = (() => {
     });
   };
 
-  return { getTravels };
+  const getTravel = (id: string) => {
+    return new Promise<Travel>(async (resolve, reject) => {
+      try {
+        let travel = (await get(`${SERVICE_ENDPOINT}/${id}`)) as Travel;
+        resolve(travel)
+      } catch {
+        reject("ERROR | GET_TRAVEL ")
+      }
+    })
+  }
+
+  return { getTravels, getTravel };
 })();

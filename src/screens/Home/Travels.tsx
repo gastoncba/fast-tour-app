@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import moment from "moment";
+import { Box } from "@mui/material";
 
 import {
   Card,
@@ -11,11 +12,12 @@ import {
   Input,
   Button,
   Toast,
-  Check
+  Check,
+  Modal
 } from "../../components/index";
 import { Travel } from "../../models/Travels.model";
 import { TravelService } from "../../services";
-import { Box } from "@mui/material";
+import { TripCard } from "./Trip";
 
 interface Props {}
 
@@ -25,13 +27,14 @@ export const Travels: React.FC<Props> = (props: Props) => {
   const [option, setOption] = useState<string>("Fechas");
   const [minPrice, setMinPrice] = useState<string>("");
   const [maxPrice, setMaxPrice] = useState<string>("");
-  const [isChecked, setIsChecked] = useState(false);
+  const [isChecked, setIsChecked] = useState<boolean>(false);
+  const [openModal, setOpenModal] = useState<boolean>(false);
+  const [trip, setTrip] = useState<any>(null);
 
   const handleCheckboxChange = (checked: boolean) => {
     setIsChecked(checked);
 
     if(checked) {
-      setIsLoading(true)
       getTravels();
     }
   };
@@ -42,7 +45,6 @@ export const Travels: React.FC<Props> = (props: Props) => {
     const startConvert = moment(startDate, "YYYY-MM-DD").format("DD/MM/YYYY");
     const endConvert = moment(endDate, "YYYY-MM-DD").format("DD/MM/YYYY");
     query = `fromDate=${startConvert}&toDate=${endConvert}`;
-    setIsLoading(true);
     getTravels(query);
   };
 
@@ -72,11 +74,11 @@ export const Travels: React.FC<Props> = (props: Props) => {
     let query = `min_price=${minPrice}&max_price=${maxPrice}`;
     setMinPrice("");
     setMaxPrice("");
-    setIsLoading(true);
     getTravels(query);
   };
 
   const getTravels = async (query?: string) => {
+    setIsLoading(true)
     try {
       let travels_res = await TravelService.getTravels(query);
       setTravels(travels_res);
@@ -89,6 +91,19 @@ export const Travels: React.FC<Props> = (props: Props) => {
       setIsLoading(false);
     }
   };
+
+  const detail = async (id: string) => {
+    try {
+      let travel = await TravelService.getTravel(id)
+      setTrip(travel)
+      setOpenModal(true)
+    } catch {
+      Toast({
+        type: "error",
+        message: `Algo a ocurrido al buscar el viaje`,
+      });
+    }
+  }
 
   useEffect(() => {
     getTravels();
@@ -114,7 +129,7 @@ export const Travels: React.FC<Props> = (props: Props) => {
             <Paragraph text="Buscar por: " type="text" />
             <Select
               onSelect={onSelect}
-              defaultValue={"Fechas"}
+              defaultValue={option}
               items={[{ value: "Precios" }, { value: "Fechas" }]}
             />
             <Box>
@@ -155,6 +170,7 @@ export const Travels: React.FC<Props> = (props: Props) => {
                   description={`Salida y regreso: ${item.startDate} - ${item.endDate}`}
                   other={`Precio: $ ${item.price}`}
                   coverImage="https://www.civitatis.com/f/argentina/buenos-aires/guia/cataratas-iguazu.jpg"
+                  onClick={() => detail(item.id)}
                 />
               )}
             />
@@ -169,6 +185,9 @@ export const Travels: React.FC<Props> = (props: Props) => {
           )}
         </>
       )}
+      <Modal open={openModal} onClose={() => setOpenModal(false)} title="Viaje">
+        <TripCard trip={trip}/>
+      </Modal>
     </>
   );
 };

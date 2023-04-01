@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Travels } from "./Travels.screen";
+import { Travels } from "./Travels";
 
 interface Props {}
 

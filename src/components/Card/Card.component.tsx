@@ -8,6 +8,7 @@ interface Props  {
   other?: string;
   coverImage: string;
   style?: CSSProperties;
+  onClick?: (value:any) => void
 };
 
 export const Card:React.FC<Props> = ({
@@ -16,12 +17,14 @@ export const Card:React.FC<Props> = ({
   coverImage,
   style,
   other,
+  onClick
 }) => {
   return (
     <AntCard
       hoverable
       cover={<img alt="cover" src={coverImage} />}
       style={{ borderRadius: "16px", ...style }}
+      onClick={onClick}
     >
       <div
         style={{ display: "flex", alignItems: "center", marginBottom: "2px" }}
