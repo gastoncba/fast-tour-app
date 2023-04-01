@@ -1,61 +1,59 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box } from "@mui/material";
 
-import { Loader, Paragraph, Toast, GridList, Card } from "../../components";
-import { Place } from "../../models/Place.model";
-import { PlaceService } from "../../services";
+import { Card, GridList, Loader, Paragraph, Toast } from "../../components";
+import { Country } from "../../models/Country.model";
+import { CountryService } from "../../services";
 
 interface Props {}
 
-export const PlaceScreen: React.FC<Props> = () => {
-  const [places, setPlaces] = useState<Place[]>([]);
+export const CountriesScreen: React.FC<Props> = () => {
+  const [countries, setCountries] = useState<Country[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const getPlaces = async () => {
+  const getCountries = async () => {
     setIsLoading(true);
+    let countries = await CountryService.getCountries();
+    setCountries(countries);
     try {
-      let places = await PlaceService.getPlaces();
-      console.log(places)
-      setPlaces(places);
     } catch {
       Toast({
         type: "error",
-        message: "Algo a ocurrido en la busqueda de lugares",
+        message: "Algo a ocurrido en la busqueda de paises",
       });
-      return;
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    getPlaces()
-  }, [])
+    getCountries();
+  }, []);
 
   return (
     <>
-      <Paragraph text="Top de lugares" type="title" levelTitle={1} />
+      <Paragraph text="Top de paises" type="title" />
       {isLoading ? (
         <Loader sx={{ py: 6 }} />
       ) : (
         <>
-          {places.length !== 0 ? (
+          {countries.length !== 0 ? (
             <GridList
               direction="row"
-              items={places}
-              renderItem={(item: Place, index: number) => (
+              items={countries}
+              renderItem={(item: Country, index: number) => (
                 <Card
                   title={item.name}
                   description={``}
                   coverImage="https://www.civitatis.com/f/argentina/buenos-aires/guia/cataratas-iguazu.jpg"
-                  onClick={() => console.log("item: ", item.id)}
+                  onClick={() => {}}
                 />
               )}
             />
           ) : (
             <Box display={"flex"} justifyContent="center">
               <Paragraph
-                text="No se encontraron lugares"
+                text="No se encontraron Paises"
                 type="title"
                 levelTitle={4}
               />

@@ -1,14 +1,14 @@
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { Modal as AntModal } from "antd";
 
-interface CustomModalProps {
+interface Props {
   open: boolean;
   title: string;
   onClose: () => void;
   children: React.ReactNode;
 }
 
-export const Modal = ({ open, title, onClose, children }: CustomModalProps) => {
+export const Modal:React.FC<Props> = ({ open, title, onClose, children }) => {
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {

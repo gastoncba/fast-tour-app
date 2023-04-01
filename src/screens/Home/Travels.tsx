@@ -168,7 +168,7 @@ export const Travels: React.FC<Props> = (props: Props) => {
                 <Card
                   title={item.name}
                   description={`Salida y regreso: ${item.startDate} - ${item.endDate}`}
-                  other={`Precio: $ ${item.price}`}
+                  other={`Precio: USD ${item.price}`}
                   coverImage="https://www.civitatis.com/f/argentina/buenos-aires/guia/cataratas-iguazu.jpg"
                   onClick={() => detail(item.id)}
                 />
