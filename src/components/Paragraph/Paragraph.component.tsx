@@ -8,7 +8,7 @@ interface Props {
   levelTitle?: 1 | 2 | 3 | 4 | 5;
   text: string;
   style?: CSSProperties;
-  color?: "black" | "gray";
+  color?: "black" | "gray" | "white";
   onClick?: (value?: any) => void;
 }
 
@@ -22,6 +22,7 @@ export const Paragraph: React.FC<Props> = ({
 }) => {
   const primaryStyle = { color: "black" };
   const grayStyle = { color: "gray" };
+  const whiteStyle = { color: "white" };
 
   return (
     <>
@@ -29,7 +30,7 @@ export const Paragraph: React.FC<Props> = ({
         <Text
           style={{
             ...style,
-            ...(color === 'black' ? primaryStyle : grayStyle),
+            ...(color === 'black' ? primaryStyle : (color === "white") ? whiteStyle : grayStyle),
           }}
         >
           {text}

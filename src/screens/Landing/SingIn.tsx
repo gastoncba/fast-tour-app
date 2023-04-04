@@ -29,7 +29,7 @@ export const SingIn: React.FC<Props> = () => {
         style={{ paddingRight: "5px" }}
         text={"Despues me registro.."}
         type="link"
-        onClick={() => navigate("home")}
+        onClick={() => navigate("app/home")}
       />
     </>
   );

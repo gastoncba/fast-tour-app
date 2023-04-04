@@ -6,7 +6,7 @@ interface Props {
   text: string;
   color?: string;
   style?: CSSProperties;
-  onClick?: (value: any) => void;
+  onClick?: (value?: any) => void;
 }
 
 export const Button: React.FC<Props> = ({
