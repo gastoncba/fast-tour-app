@@ -13,7 +13,8 @@ import {
   Button,
   Toast,
   Check,
-  Modal
+  Modal,
+  SearchBox
 } from "../../components/index";
 import { Travel } from "../../models/Travels.model";
 import { TravelService } from "../../services";
@@ -30,6 +31,7 @@ export const Travels: React.FC<Props> = (props: Props) => {
   const [isChecked, setIsChecked] = useState<boolean>(false);
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [trip, setTrip] = useState<any>(null);
+  const [names, setNames] = useState<{value: string}[]>([])
 
   const handleCheckboxChange = (checked: boolean) => {
     setIsChecked(checked);
@@ -105,8 +107,57 @@ export const Travels: React.FC<Props> = (props: Props) => {
     }
   }
 
+  const getConditionElement = (): JSX.Element => {
+    switch(option) {
+      case "Fechas": 
+        return <Filter onApplyFilter={handleApplyFilter} />
+      case "Precios": 
+        return <Box
+        display={"flex"}
+        flexDirection={"row"}
+        columnGap={2}
+        alignItems={"center"}
+      >
+        <Input
+          isNumberInput={true}
+          onInputChange={(value: string) => setMinPrice(value)}
+          placeholder={"minimo"}
+        />
+        <Input
+          isNumberInput={true}
+          onInputChange={(value: string) => setMaxPrice(value)}
+          placeholder={"maximo"}
+        />
+        <Button text="buscar precios" onClick={handlerPriceFilter} />
+      </Box>
+      case "Nombre": 
+        return <SearchBox 
+          items={names} 
+          placeholder="Nombre de viaje.. "
+          onSelect={(value:string) => {
+            const travelList = travels.filter(travel => travel.name === value)
+            setTravels(travelList)
+          }}
+          onClear={() => {
+            getTravels()
+          }}
+          />
+      default: 
+        return <></>
+    }
+  } 
+
+  const getNames = () => {
+    let namesData = travels.map(trip => ({value: trip.name}))
+    setNames(namesData)
+  }
+
   useEffect(() => {
-    getTravels();
+    const fetchData = async () => {
+      await getTravels();
+      getNames();
+    };
+    fetchData()
   }, []);
 
   return (
@@ -130,31 +181,10 @@ export const Travels: React.FC<Props> = (props: Props) => {
             <Select
               onSelect={onSelect}
               defaultValue={option}
-              items={[{ value: "Precios" }, { value: "Fechas" }]}
+              items={[{ value: "Precios" }, { value: "Fechas" }, {value: 'Nombre'}]}
             />
             <Box>
-              {option === "Fechas" ? (
-                <Filter onApplyFilter={handleApplyFilter} />
-              ) : (
-                <Box
-                  display={"flex"}
-                  flexDirection={"row"}
-                  columnGap={2}
-                  alignItems={"center"}
-                >
-                  <Input
-                    isNumberInput={true}
-                    onInputChange={(value: string) => setMinPrice(value)}
-                    placeholder={"minimo"}
-                  />
-                  <Input
-                    isNumberInput={true}
-                    onInputChange={(value: string) => setMaxPrice(value)}
-                    placeholder={"maximo"}
-                  />
-                  <Button text="buscar precios" onClick={handlerPriceFilter} />
-                </Box>
-              )}
+              {getConditionElement()}
             </Box>
             <Box>
               <Check label="Obtener todos los viajes" checked={isChecked} onChange={handleCheckboxChange}/>

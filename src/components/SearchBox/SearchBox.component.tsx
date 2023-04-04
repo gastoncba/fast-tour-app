@@ -10,9 +10,10 @@ interface SearchProps {
   placeholder: string;
   items: AutocompleteOption[];
   onSelect: (value: string) => void;
+  onClear?: () => void;
 }
 
-export const SearchBox: React.FC<SearchProps> = ({ placeholder, items, onSelect }) => {
+export const SearchBox: React.FC<SearchProps> = ({ placeholder, items, onSelect, onClear }) => {
   const [options, setOptions] = useState<AutocompleteOption[]>([]);
 
   const handleSearch = (value: string) => {
@@ -22,6 +23,12 @@ export const SearchBox: React.FC<SearchProps> = ({ placeholder, items, onSelect 
 
     setOptions(filteredOptions);
   };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.value === '' && onClear) {
+      onClear()
+    }
+  }
 
   return (
     <AutoComplete
@@ -33,6 +40,7 @@ export const SearchBox: React.FC<SearchProps> = ({ placeholder, items, onSelect 
         prefix={<SearchOutlined />}
         placeholder={placeholder}
         allowClear
+        onChange={handleChange}
       />
     </AutoComplete>
   );
