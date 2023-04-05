@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Input, AutoComplete } from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
+import React, { useState } from "react";
+import { Input, AutoComplete } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
 
 interface AutocompleteOption {
   value: string;
@@ -10,10 +10,15 @@ interface SearchProps {
   placeholder: string;
   items: AutocompleteOption[];
   onSelect: (value: string) => void;
-  onClear?: () => void;
+  onClear?: (value?: string) => void;
 }
 
-export const SearchBox: React.FC<SearchProps> = ({ placeholder, items, onSelect, onClear }) => {
+export const SearchBox: React.FC<SearchProps> = ({
+  placeholder,
+  items,
+  onSelect,
+  onClear,
+}) => {
   const [options, setOptions] = useState<AutocompleteOption[]>([]);
 
   const handleSearch = (value: string) => {
@@ -24,23 +29,21 @@ export const SearchBox: React.FC<SearchProps> = ({ placeholder, items, onSelect,
     setOptions(filteredOptions);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.value === '' && onClear) {
-      onClear()
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value, type } = e.target;
+
+    if (value === "" && type === "search" && onClear) {
+      onClear();
     }
-  }
+  };
 
   return (
-    <AutoComplete
-      options={options}
-      onSelect={onSelect}
-      onSearch={handleSearch}
-    >
+    <AutoComplete options={options} onSelect={onSelect} onSearch={handleSearch}>
       <Input
         prefix={<SearchOutlined />}
         placeholder={placeholder}
         allowClear
-        onChange={handleChange}
+        onChange={handleInputChange}
       />
     </AutoComplete>
   );

@@ -12,9 +12,7 @@ import {
   Input,
   Button,
   Toast,
-  Check,
-  Modal,
-  SearchBox
+  Modal
 } from "../../components/index";
 import { Travel } from "../../models/Travels.model";
 import { TravelService } from "../../services";
@@ -28,17 +26,11 @@ export const Travels: React.FC<Props> = (props: Props) => {
   const [option, setOption] = useState<string>("Fechas");
   const [minPrice, setMinPrice] = useState<string>("");
   const [maxPrice, setMaxPrice] = useState<string>("");
-  const [isChecked, setIsChecked] = useState<boolean>(false);
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [trip, setTrip] = useState<any>(null);
-  const [names, setNames] = useState<{value: string}[]>([])
 
-  const handleCheckboxChange = (checked: boolean) => {
-    setIsChecked(checked);
-
-    if(checked) {
-      getTravels();
-    }
+  const handleClick = () => {
+    getTravels()
   };
 
   const handleApplyFilter = (startDate: string, endDate: string) => {
@@ -130,34 +122,13 @@ export const Travels: React.FC<Props> = (props: Props) => {
         />
         <Button text="buscar precios" onClick={handlerPriceFilter} />
       </Box>
-      case "Nombre": 
-        return <SearchBox 
-          items={names} 
-          placeholder="Nombre de viaje.. "
-          onSelect={(value:string) => {
-            const travelList = travels.filter(travel => travel.name === value)
-            setTravels(travelList)
-          }}
-          onClear={() => {
-            getTravels()
-          }}
-          />
       default: 
         return <></>
     }
   } 
 
-  const getNames = () => {
-    let namesData = travels.map(trip => ({value: trip.name}))
-    setNames(namesData)
-  }
-
   useEffect(() => {
-    const fetchData = async () => {
-      await getTravels();
-      getNames();
-    };
-    fetchData()
+    getTravels()
   }, []);
 
   return (
@@ -181,13 +152,13 @@ export const Travels: React.FC<Props> = (props: Props) => {
             <Select
               onSelect={onSelect}
               defaultValue={option}
-              items={[{ value: "Precios" }, { value: "Fechas" }, {value: 'Nombre'}]}
+              items={[{ value: "Precios" }, { value: "Fechas" }]}
             />
             <Box>
               {getConditionElement()}
             </Box>
             <Box>
-              <Check label="Obtener todos los viajes" checked={isChecked} onChange={handleCheckboxChange}/>
+              <Button text="Obtener todos los viajes" onClick={handleClick}/>
             </Box>
           </Box>
           {travels.length !== 0 ? (

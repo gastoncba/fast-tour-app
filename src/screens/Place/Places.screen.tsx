@@ -8,6 +8,7 @@ import {
   GridList,
   Card,
   Modal,
+  SearchBox,
 } from "../../components";
 import { Place } from "../../models/Place.model";
 import { PlaceService, TravelService } from "../../services";
@@ -17,6 +18,7 @@ import { TripCard } from "../Home/Trip";
 interface Props {}
 
 export const PlacesScreen: React.FC<Props> = () => {
+  const [allPlaces, setAllPlaces] = useState<Place[]>([]);
   const [places, setPlaces] = useState<Place[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [openModal, setOpenModal] = useState<boolean>(false);
@@ -26,6 +28,7 @@ export const PlacesScreen: React.FC<Props> = () => {
     setIsLoading(true);
     try {
       let places = await PlaceService.getPlaces();
+      setAllPlaces(places);
       setPlaces(places);
     } catch {
       Toast({
@@ -40,6 +43,21 @@ export const PlacesScreen: React.FC<Props> = () => {
   useEffect(() => {
     getPlaces();
   }, []);
+
+  const filterPlaces = (query: string) => {
+    const filteredPlaces = allPlaces.filter((place) =>
+      place.name.toLowerCase().includes(query.toLowerCase())
+    );
+    setPlaces(filteredPlaces);
+  };
+
+  const handleSearch = (value: string) => {
+    if (value) {
+      filterPlaces(value);
+    } else {
+      setPlaces(allPlaces);
+    }
+  };
 
   const detailPlace = async (id: string) => {
     try {
@@ -69,6 +87,19 @@ export const PlacesScreen: React.FC<Props> = () => {
   return (
     <>
       <Paragraph text="Top de lugares" type="title" levelTitle={1} />
+      <Box sx={{ pb: 2, pt: 1 }}>
+        <SearchBox
+          items={places.map((place) => ({ value: place.name }))}
+          onSelect={(value: string) => {
+            const placesFilter = allPlaces.filter(
+              (place) => place.name === value
+            );
+            setPlaces(placesFilter);
+          }}
+          onClear={() => setPlaces(allPlaces)}
+          placeholder="Buscar lugar .. "
+        />
+      </Box>
       {isLoading ? (
         <Loader sx={{ py: 6 }} />
       ) : (
