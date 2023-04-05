@@ -1,6 +1,5 @@
 import React from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
-import { CardTravel } from '@mui/icons-material'
 import { Badge } from "@mui/material";
 import { observer } from 'mobx-react'
 
@@ -9,9 +8,10 @@ import {
   LandingScreen,
   PlacesScreen,
   CountriesScreen,
-  NotFoundScreen
+  NotFoundScreen,
+  PackagePurchaseScreen
 } from "../screens";
-import { Navbar, Sidebar, Paragraph, List } from "../components";
+import { Navbar, Sidebar, Paragraph, List, Icon } from "../components";
 import { cartProvider } from "../providers";
 
 interface Props {}
@@ -41,7 +41,7 @@ export const Router: React.FC<Props> = observer((props: Props) => {
   const IconCart: React.FC<IconProps> = ({cant}) => {
     return(
       <Badge badgeContent={cant} color="primary">
-        <CardTravel />
+        <Icon type='BAG' />
       </Badge>)
   }
 
@@ -60,7 +60,7 @@ export const Router: React.FC<Props> = observer((props: Props) => {
                 iconsList={[
                     {
                       icon: <IconCart cant={cartProvider.getCant()}/>, 
-                      onClick: () => console.log('abrir el modal de los viajes!')}
+                      onClick: () => navigate('/app/purchase')}
                 ]}
                 />
             <Sidebar>
@@ -76,6 +76,7 @@ export const Router: React.FC<Props> = observer((props: Props) => {
               <Route path="/home" element={<HomeScreen />} />
               <Route path="/places" element={<PlacesScreen />} />
               <Route path="/countries" element={<CountriesScreen />} />
+              <Route path="/purchase" element={<PackagePurchaseScreen />}/>
               <Route path="*" element={<NotFoundScreen message="La página que busca no existe." />} />
             </Routes>
           </>

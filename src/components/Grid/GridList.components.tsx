@@ -10,14 +10,14 @@ import { Theme, SxProps, Grid} from '@mui/material'
     md?: number;
     lg?: number;
     xl?: number;
-    direction: 'row' | 'column'
+    direction?: 'row' | 'column'
  }
 
  export const GridList:React.FC<Props> = (props:Props) => {
     return(
         <Grid
         container
-        direction={props.direction}
+        direction={props.direction || 'row'}
         justifyContent="flex-start"
         alignItems="flex-starts"
         rowSpacing={2}
