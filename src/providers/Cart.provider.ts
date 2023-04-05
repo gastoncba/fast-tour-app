@@ -49,6 +49,14 @@ class CartProvider {
     return false;
   }
 
+  getTotal(){
+    const total = this.travels.reduce((acc, travel) => {
+      return acc + travel.price;
+    }, 0);
+    
+    return total;
+  }
+
   load() {
     if(StorageService.hasCart()) {
       this.travels = StorageService.getCart()
