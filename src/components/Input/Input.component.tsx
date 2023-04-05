@@ -14,7 +14,7 @@ export const Input: React.FC<Props> = ({
   ...rest
 }) => {
   const [hasError, setHasError] = useState(false);
-  const regex = /^[0-9\b]+$/;
+  const regex = /^[1-9][0-9]*$/;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;

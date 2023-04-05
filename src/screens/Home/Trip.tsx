@@ -1,11 +1,11 @@
-import React from "react";
+import React, { useState, useCallback } from "react";
 import { observer } from "mobx-react";
-import { Box } from "@mui/material";
 
 import { Card, CardActions, CardContent, Typography } from "@mui/material";
 import { Travel } from "../../models/Travels.model";
-import { Button } from "../../components";
+import { Button, List } from "../../components";
 import { cartProvider } from "../../providers";
+import { Hotel } from "../../models/Hotel.model";
 
 type Props = {
   trip: Travel;
@@ -13,6 +13,11 @@ type Props = {
 
 export const TripCard: React.FC<Props> = observer(({ trip }) => {
   const { name, price, startDate, endDate, place, hotels } = trip;
+  const [selectedHotel, setSelectedHotel] = useState<Hotel>(hotels[0]);
+
+  const onHotelSelect = useCallback((hotel: Hotel) => {
+    setSelectedHotel(hotel);
+  }, []);
 
   return (
     <Card>
@@ -32,34 +37,31 @@ export const TripCard: React.FC<Props> = observer(({ trip }) => {
         <Typography variant="h6" color="textPrimary" component="p">
           Hoteles:
         </Typography>
-        {hotels.map((hotel) => (
-          <Typography
-            key={hotel.id}
-            variant="body2"
-            color="textSecondary"
-            component="p"
-          >
-            {hotel.name} ({hotel.star} estrellas)
-          </Typography>
-        ))}
+        {hotels.length > 0 && (
+          <List
+            items={hotels.map((hotel) => ({
+              title: hotel.name,
+              onClick: () => onHotelSelect(hotel),
+            }))}
+          />
+        )}
       </CardContent>
       <CardActions>
-        <Box sx={{ display: "flex", flexDirection: "row", columnGap: 2 }}>
+        {cartProvider.inCart(trip) ? (
+          <Button
+            text="Quitar"
+            onClick={() => {
+              cartProvider.delTrip(trip);
+            }}
+          />
+        ) : (
           <Button
             text="lo quiero"
             onClick={() => {
-              cartProvider.addTrip(trip);
+              cartProvider.addTrip({ ...trip, hotel: selectedHotel });
             }}
           />
-          {cartProvider.inCart(trip) && (
-            <Button
-              text="Quitar"
-              onClick={() => {
-                cartProvider.delTrip(trip);
-              }}
-            />
-          )}
-        </Box>
+        )}
       </CardActions>
     </Card>
   );

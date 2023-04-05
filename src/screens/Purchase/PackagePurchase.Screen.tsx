@@ -4,15 +4,16 @@ import { observer } from "mobx-react";
 
 import { cartProvider } from "../../providers";
 import { Travel } from "../../models/Travels.model";
+import { TravelWithSelectedHotel } from "../../providers/Cart.provider";
 import { Paragraph, GridList, Wrapper, Icon } from "../../components";
 
 interface Props {}
 
 export const PackagePurchaseScreen: React.FC<Props> = observer(() => {
-  const travels: Travel[] = cartProvider.getCart();
+  const travels = cartProvider.getCart();
 
   const handleDeleteTravel = (trip: Travel) => {
-    cartProvider.delTrip(trip)
+    cartProvider.delTrip(trip);
   };
 
   return (
@@ -21,13 +22,21 @@ export const PackagePurchaseScreen: React.FC<Props> = observer(() => {
       {travels.length > 0 ? (
         <GridList
           items={travels}
-          renderItem={(value: Travel, key: number) => (
+          renderItem={(value: TravelWithSelectedHotel, key: number) => (
             <Wrapper elevation={1}>
-              <Box sx={{ display: "flex", flexDirection: "column", rowGap: 0 }}>
-                <Box sx={{display: 'flex', flexDirection: 'row', columnGap: 1, justifyContent: 'space-between', alignItems: 'flex-start'}}>
+              <Box sx={{ display: "flex", flexDirection: "column", rowGap: 0 }} key={key}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    columnGap: 1,
+                    justifyContent: "space-between",
+                    alignItems: "flex-start",
+                  }}
+                >
                   <Paragraph text={value.name} type="title" levelTitle={4} />
                   <IconButton onClick={() => handleDeleteTravel(value)}>
-                    <Icon type='CLOSE'/>
+                    <Icon type="CLOSE" />
                   </IconButton>
                 </Box>
                 <Paragraph
@@ -46,7 +55,7 @@ export const PackagePurchaseScreen: React.FC<Props> = observer(() => {
                   style={{ fontSize: 15 }}
                 />
                 <Paragraph
-                  text="Hotel: test"
+                  text={`Hotel: ${value.hotel.name}`}
                   color="gray"
                   style={{ fontSize: 15 }}
                 />

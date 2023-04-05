@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import {
   AppBar,
   Toolbar,
@@ -10,6 +11,7 @@ import {
 import { Menu as MenuIcon } from "@mui/icons-material";
 
 import { Paragraph } from "../Paragraph/Paragraph.component";
+import { Icon } from "../Icon/Icon.component";
 
 interface NavbarProps {
   title: string;
@@ -33,6 +35,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   elevation,
   colorTitle = "black",
 }) => {
+  const navigate = useNavigate();
+
   return (
     <AppBar
       position="static"
@@ -56,11 +60,28 @@ export const Navbar: React.FC<NavbarProps> = ({
             levelTitle={3}
             color={colorTitle}
           />
+          <Box sx={{ px: 2 }}>
+            <IconButton
+              color="inherit"
+              aria-label="back"
+              onClick={() => navigate(-1)}
+            >
+              <Icon type="BACK" />
+            </IconButton>
+            <IconButton
+              color="inherit"
+              aria-label="forward"
+              onClick={() => navigate(1)}
+            >
+              <Icon type="FORWARD" />
+            </IconButton>
+          </Box>
         </Box>
         <Box sx={{ flexGrow: 1 }} />
         <Box>
-          {iconsList.map((item) => (
+          {iconsList.map((item, index) => (
             <IconButton
+              key={index}
               color="inherit"
               aria-label="account"
               onClick={item.onClick}
