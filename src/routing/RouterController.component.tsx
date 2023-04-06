@@ -13,6 +13,6 @@ export const RoutesController: React.FunctionComponent<Props> = observer(
       loaderProvider.init();
     }, []);
 
-    return <>{loaderProvider.isStarting ? <Loader sx={{py: 4}}/> : <Router />}</>;
+    return <>{loaderProvider.isStarting ? <Loader /> : <Router />}</>;
   }
 );
