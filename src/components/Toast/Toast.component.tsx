@@ -1,4 +1,5 @@
 import { notification } from 'antd';
+import "antd/dist/reset.css";
 
 interface Props {
   type: 'success' | 'error';

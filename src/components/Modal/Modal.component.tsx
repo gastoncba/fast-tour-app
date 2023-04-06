@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { Modal as AntModal } from "antd";
+import "antd/dist/reset.css";
 
 interface Props {
   open: boolean;

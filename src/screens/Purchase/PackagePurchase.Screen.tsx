@@ -12,6 +12,7 @@ import {
   Icon,
   Button,
   Modal,
+  Toast
 } from "../../components";
 
 interface Props {}
@@ -23,6 +24,15 @@ export const PackagePurchaseScreen: React.FC<Props> = observer(() => {
   const handleDeleteTravel = (trip: Travel) => {
     cartProvider.delTrip(trip);
   };
+
+  const finish = () => {
+    cartProvider.reset();
+    setOpenModal(false)
+    Toast({
+      type: 'success',
+      message: "Compra finalizada",
+    });
+  }
 
   return (
     <>
@@ -113,9 +123,9 @@ export const PackagePurchaseScreen: React.FC<Props> = observer(() => {
             pt: 2,
           }}
         >
-          <Button text="Revisar compra" />
-          <Button text="Confirmar compra" />
-          <Button text="Cancelar compra" />
+          <Button text="Revisar compra" onClick={() => setOpenModal(false)}/>
+          <Button text="Confirmar compra" onClick={finish}/>
+          <Button text="Cancelar compra" onClick={() => setOpenModal(false)} />
         </Box>
       </Modal>
     </>

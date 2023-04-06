@@ -1,5 +1,6 @@
 import React, { CSSProperties } from "react";
 import { Typography } from "antd";
+import "antd/dist/reset.css";
 
 const { Text, Title, Link } = Typography;
 

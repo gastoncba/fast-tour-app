@@ -1,5 +1,6 @@
 import React, { CSSProperties } from "react";
 import { Button as AntdButton } from "antd";
+import "antd/dist/reset.css";
 
 interface Props {
   type?: "primary" | "ghost" | "dashed" | "link" | "text" | "default";

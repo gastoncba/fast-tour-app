@@ -1,5 +1,5 @@
 import React from 'react'
-import { Theme, SxProps, Grid} from '@mui/material'
+import { Theme, SxProps, Grid } from '@mui/material'
 
  interface Props {
     items: any[];

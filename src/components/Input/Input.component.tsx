@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Input as AntdInput, Alert } from "antd";
+import "antd/dist/reset.css";
 
 interface Props {
   isNumberInput: boolean;

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Input, AutoComplete } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
+import "antd/dist/reset.css";
 
 interface AutocompleteOption {
   value: string;

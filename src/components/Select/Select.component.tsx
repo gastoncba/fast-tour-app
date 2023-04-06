@@ -1,5 +1,6 @@
 import React from "react";
 import { Select as SelectAnt } from 'antd'
+import "antd/dist/reset.css";
 
 interface Props {
     defaultValue: any; 

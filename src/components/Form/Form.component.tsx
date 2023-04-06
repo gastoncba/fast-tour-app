@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Form as AntForm, Input, Button } from "antd";
+import "antd/dist/reset.css";
 import { Box } from '@mui/material'
 
 import { Paragraph } from "../Paragraph/Paragraph.component";

@@ -1,5 +1,7 @@
 import React, { CSSProperties } from "react";
 import { Card as AntCard } from "antd";
+import "antd/dist/reset.css";
+
 import { Paragraph } from "../Paragraph/Paragraph.component";
 
 interface Props  {

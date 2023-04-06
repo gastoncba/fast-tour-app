@@ -57,6 +57,11 @@ class CartProvider {
     return total;
   }
 
+  reset(){
+    this.travels = []
+    StorageService.delCart()
+  }
+
   load() {
     if(StorageService.hasCart()) {
       this.travels = StorageService.getCart()

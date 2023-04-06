@@ -1,5 +1,6 @@
 import React from 'react';
 import { Checkbox } from 'antd';
+import "antd/dist/reset.css";
 
 interface Props {
   checked: boolean;

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Menu } from "antd";
+import "antd/dist/reset.css";
 
 interface ListItem {
   title: string;
