@@ -18,7 +18,7 @@ export const SingIn: React.FC<Props> = () => {
         ]}
         onFinish={(values) => {
           console.log(values);
-          navigate("home");
+          navigate("/app/home");
         }}
         onFinishFailed={(errorInfo) => console.log(errorInfo)}
         submitText="Iniciar sesión"

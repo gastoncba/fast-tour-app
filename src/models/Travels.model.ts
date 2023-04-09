@@ -7,6 +7,7 @@ export type Travel = {
     price: number,
     startDate: string,
     endDate: string,
+    img: string,
     place: Place,
     hotels: Hotel[]
 }

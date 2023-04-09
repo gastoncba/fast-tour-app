@@ -44,21 +44,6 @@ export const PlacesScreen: React.FC<Props> = () => {
     getPlaces();
   }, []);
 
-  const filterPlaces = (query: string) => {
-    const filteredPlaces = allPlaces.filter((place) =>
-      place.name.toLowerCase().includes(query.toLowerCase())
-    );
-    setPlaces(filteredPlaces);
-  };
-
-  const handleSearch = (value: string) => {
-    if (value) {
-      filterPlaces(value);
-    } else {
-      setPlaces(allPlaces);
-    }
-  };
-
   const detailPlace = async (id: string) => {
     try {
       let place = await PlaceService.getTravelsOf(id);
@@ -112,7 +97,7 @@ export const PlacesScreen: React.FC<Props> = () => {
                 <Card
                   title={item.name}
                   description={``}
-                  coverImage="https://www.civitatis.com/f/argentina/buenos-aires/guia/cataratas-iguazu.jpg"
+                  coverImage={item.img}
                   onClick={() => detailPlace(item.id)}
                 />
               )}

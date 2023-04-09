@@ -2,6 +2,7 @@ import React from "react";
 import {
   Card,
   CardContent,
+  CardMedia,
   List,
   ListItemButton,
   ListItemText,
@@ -16,10 +17,11 @@ interface Props {
 }
 
 export const PlaceDetail: React.FC<Props> = ({ place, onClick }) => {
-  const { name, travels, country } = place;
+  const { name, travels, country, img } = place;
 
   return (
     <Card>
+      <CardMedia image={img} sx={{ height: 140 }}/>
       <CardContent>
         <Typography variant="h5" component="h2">
           {name}

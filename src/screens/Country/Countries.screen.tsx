@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Box } from "@mui/material";
 
-import { Card, GridList, Loader, Paragraph, Toast } from "../../components";
+import { Card, GridList, Loader, Modal, Paragraph, Toast } from "../../components";
+import { CountryDetail } from "./Country";
 import { Country } from "../../models/Country.model";
 import { CountryService } from "../../services";
 
@@ -10,12 +11,14 @@ interface Props {}
 export const CountriesScreen: React.FC<Props> = () => {
   const [countries, setCountries] = useState<Country[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [openModal, setOpenModal] = useState<boolean>(false);
+  const [contenModal, setContentModal] = useState<any>(null);
 
   const getCountries = async () => {
-    setIsLoading(true);
-    let countries = await CountryService.getCountries();
-    setCountries(countries);
     try {
+      setIsLoading(true);
+      let countries = await CountryService.getCountries();
+      setCountries(countries);
     } catch {
       Toast({
         type: "error",
@@ -23,6 +26,19 @@ export const CountriesScreen: React.FC<Props> = () => {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const detailCountry = async (id: string) => {
+    try {
+      let country = await CountryService.getPlacesOf(id);
+      setOpenModal(true)
+      setContentModal(<CountryDetail country={country} />);
+    } catch (error) {
+      Toast({
+        type: "error",
+        message: "Algo ha ocurrido en la busqueda de los lugares"
+      })
     }
   };
 
@@ -45,8 +61,8 @@ export const CountriesScreen: React.FC<Props> = () => {
                 <Card
                   title={item.name}
                   description={``}
-                  coverImage="https://www.civitatis.com/f/argentina/buenos-aires/guia/cataratas-iguazu.jpg"
-                  onClick={() => {}}
+                  coverImage={item.img}
+                  onClick={() => detailCountry(item.id)}
                 />
               )}
             />
@@ -59,6 +75,14 @@ export const CountriesScreen: React.FC<Props> = () => {
               />
             </Box>
           )}
+          <Modal 
+            
+            open={openModal}
+            title=""
+            onClose={() => setOpenModal(false)}
+          >
+            {contenModal}
+          </Modal>
         </>
       )}
     </>

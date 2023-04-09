@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import moment from "moment";
 import { Box } from "@mui/material";
+import { useLocation } from 'react-router-dom'
 
 import {
   Card,
@@ -17,6 +18,7 @@ import {
 import { Travel } from "../../models/Travels.model";
 import { TravelService } from "../../services";
 import { TripCard } from "./Trip";
+import { Place } from "../../models/Place.model";
 
 interface Props {}
 
@@ -28,6 +30,8 @@ export const Travels: React.FC<Props> = (props: Props) => {
   const [maxPrice, setMaxPrice] = useState<string>("");
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [trip, setTrip] = useState<any>(null);
+
+  const location = useLocation()
 
   const handleClick = () => {
     getTravels()
@@ -128,7 +132,12 @@ export const Travels: React.FC<Props> = (props: Props) => {
   } 
 
   useEffect(() => {
-    getTravels()
+    let query = "";
+    if(location.state) {
+      const place = location.state as Place
+      query = `placeId=${place.id}`
+    } 
+    getTravels(query)
   }, []);
 
   return (
@@ -170,7 +179,7 @@ export const Travels: React.FC<Props> = (props: Props) => {
                   title={item.name}
                   description={`Salida y regreso: ${item.startDate} - ${item.endDate}`}
                   other={`Precio: USD ${item.price}`}
-                  coverImage="https://www.civitatis.com/f/argentina/buenos-aires/guia/cataratas-iguazu.jpg"
+                  coverImage={item.img}
                   onClick={() => detail(item.id)}
                 />
               )}

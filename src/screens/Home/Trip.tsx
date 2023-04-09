@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from "react";
 import { observer } from "mobx-react";
 
-import { Card, CardActions, CardContent, Typography } from "@mui/material";
+import { Card, CardActions, CardContent, CardMedia, Typography } from "@mui/material";
 import { Travel } from "../../models/Travels.model";
 import { Button, List } from "../../components";
 import { cartProvider } from "../../providers";
@@ -12,7 +12,7 @@ type Props = {
 };
 
 export const TripCard: React.FC<Props> = observer(({ trip }) => {
-  const { name, price, startDate, endDate, place, hotels } = trip;
+  const { name, price, startDate, endDate, place, hotels, img } = trip;
   const [selectedHotel, setSelectedHotel] = useState<Hotel>(hotels[0]);
 
   const onHotelSelect = useCallback((hotel: Hotel) => {
@@ -21,6 +21,7 @@ export const TripCard: React.FC<Props> = observer(({ trip }) => {
 
   return (
     <Card>
+      <CardMedia image={img} sx={{height: 140}}/>
       <CardContent>
         <Typography gutterBottom variant="h5" component="h2">
           {name}
@@ -29,7 +30,7 @@ export const TripCard: React.FC<Props> = observer(({ trip }) => {
           {place.name}
         </Typography>
         <Typography variant="body2" color="textSecondary" component="p">
-          {startDate} - {endDate}
+          {`Desde el ${startDate} al ${endDate}`}
         </Typography>
         <Typography variant="body2" color="textSecondary" component="p">
           {price} USD

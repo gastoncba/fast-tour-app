@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Box, IconButton } from "@mui/material";
 import { observer } from "mobx-react";
+import { useNavigate } from "react-router-dom";
 
 import { cartProvider } from "../../providers";
 import { Travel } from "../../models/Travels.model";
@@ -20,6 +21,8 @@ interface Props {}
 export const PackagePurchaseScreen: React.FC<Props> = observer(() => {
   const travels = cartProvider.getCart();
   const [openModal, setOpenModal] = useState<boolean>(false);
+
+  const navigate = useNavigate()
 
   const handleDeleteTravel = (trip: Travel) => {
     cartProvider.delTrip(trip);
@@ -102,7 +105,10 @@ export const PackagePurchaseScreen: React.FC<Props> = observer(() => {
             />
           </>
         ) : (
+          <Box display={'flex'} flexDirection={'row'} columnGap={1}>
           <Paragraph text="No tienes viajes..." />
+          <Paragraph text="volver" type='link' onClick={() => navigate('/app/home')} />
+          </Box>
         )}
       </Box>
       <Modal
