@@ -4,8 +4,8 @@ import { observer } from "mobx-react";
 import { useNavigate } from "react-router-dom";
 
 import { cartProvider } from "../../providers";
-import { Travel } from "../../models/Travels.model";
-import { TravelWithSelectedHotel } from "../../providers/Cart.provider";
+import { Trip } from "../../models/Trip.model";
+import { TripWithSelectedHotel } from "../../providers/Cart.provider";
 import {
   Paragraph,
   GridList,
@@ -13,7 +13,6 @@ import {
   Icon,
   Button,
   Modal,
-  Toast
 } from "../../components";
 
 interface Props {}
@@ -24,31 +23,31 @@ export const PackagePurchaseScreen: React.FC<Props> = observer(() => {
 
   const navigate = useNavigate()
 
-  const handleDeleteTravel = (trip: Travel) => {
+  const handleDeleteTravel = (trip: Trip) => {
     cartProvider.delTrip(trip);
   };
 
   const finish = () => {
     cartProvider.reset();
     setOpenModal(false)
-    Toast({
-      type: 'success',
-      message: "Compra finalizada",
-    });
+    // Toast({
+    //   type: 'success',
+    //   message: "Compra finalizada",
+    // });
   }
 
   return (
     <>
       <Box sx={{ m: 2 }}>
         <Box sx={{mb: 2}}>
-        <Paragraph text="Tus viajes" type="title" levelTitle={2} />
-        <Paragraph text={`Total USD ${cartProvider.getTotal()}`} color='gray' style={{fontSize: 15}}/>
+        <Paragraph text="Tus viajes" />
+        <Paragraph text={`Total USD ${cartProvider.getTotal()}`} />
         </Box>
         {travels.length > 0 ? (
           <>
             <GridList
               items={travels}
-              renderItem={(value: TravelWithSelectedHotel, key: number) => (
+              renderItem={(value: TripWithSelectedHotel, key: number) => (
                 <Wrapper elevation={1}>
                   <Box
                     sx={{ display: "flex", flexDirection: "column", rowGap: 0 }}
@@ -65,8 +64,6 @@ export const PackagePurchaseScreen: React.FC<Props> = observer(() => {
                     >
                       <Paragraph
                         text={value.name}
-                        type="title"
-                        levelTitle={4}
                       />
                       <IconButton onClick={() => handleDeleteTravel(value)}>
                         <Icon type="CLOSE" />
@@ -74,40 +71,26 @@ export const PackagePurchaseScreen: React.FC<Props> = observer(() => {
                     </Box>
                     <Paragraph
                       text={`Fecha: desde ${value.startDate} al ${value.endDate}`}
-                      color="gray"
-                      style={{ fontSize: 15 }}
                     />
                     <Paragraph
                       text={`Precio: USD ${value.price}`}
-                      color="gray"
-                      style={{ fontSize: 15 }}
-                    />
-                    <Paragraph
-                      text={`Destino: ${value.place.name}`}
-                      color="gray"
-                      style={{ fontSize: 15 }}
-                    />
-                    <Paragraph
-                      text={`Hotel: ${value.hotel.name}`}
-                      color="gray"
-                      style={{ fontSize: 15 }}
                     />
                   </Box>
                 </Wrapper>
               )}
             />
-            <Button
+            {/* <Button
               text="Comprar"
               onClick={() => {
                 setOpenModal(true);
               }}
               style={{ margin: "10px 0 10px 0" }}
-            />
+            /> */}
           </>
         ) : (
           <Box display={'flex'} flexDirection={'row'} columnGap={1}>
           <Paragraph text="No tienes viajes..." />
-          <Paragraph text="volver" type='link' onClick={() => navigate('/app/home')} />
+          <Paragraph text="volver" />
           </Box>
         )}
       </Box>
@@ -118,7 +101,6 @@ export const PackagePurchaseScreen: React.FC<Props> = observer(() => {
       >
         <Paragraph
           text="¿Está seguro de que desea comprar los siguientes viajes?"
-          style={{ fontSize: 20 }}
         />
         <Box
           sx={{
@@ -129,9 +111,9 @@ export const PackagePurchaseScreen: React.FC<Props> = observer(() => {
             pt: 2,
           }}
         >
-          <Button text="Revisar compra" onClick={() => setOpenModal(false)}/>
+          {/* <Button text="Revisar compra" onClick={() => setOpenModal(false)}/>
           <Button text="Confirmar compra" onClick={finish}/>
-          <Button text="Cancelar compra" onClick={() => setOpenModal(false)} />
+          <Button text="Cancelar compra" onClick={() => setOpenModal(false)} /> */}
         </Box>
       </Modal>
     </>

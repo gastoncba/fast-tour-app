@@ -10,7 +10,7 @@ export const SingUp: React.FC<Props> = () => {
 
   return (
     <>
-      <Form
+      {/* <Form
         title="Registrate"
         fields={[
           { name: "firstName", label: "Nombre", type: "text" },
@@ -26,7 +26,7 @@ export const SingUp: React.FC<Props> = () => {
         submitText="Registrarme"
         loadingText="Registrando..."
         directionInputs="column"
-      />
+      /> */}
     </>
   );
 };

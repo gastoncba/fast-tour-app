@@ -1,10 +1,10 @@
 import { Country } from "./Country.model"
-import { Travel } from "./Travels.model"
+import { Hotel } from "./Hotel.model"
 
 export type Place = {
     id: string
     name: string
-    img:string
+    img: string | null
     country: Country
-    travels: Travel[]
+    hotels: Hotel[]
 }

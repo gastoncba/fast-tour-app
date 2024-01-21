@@ -1,21 +1,21 @@
 import { makeAutoObservable } from "mobx";
 
-import { Travel } from "../models/Travels.model";
+import { Trip } from "../models/Trip.model";
 import { Hotel } from '../models/Hotel.model'
 import { StorageService } from "../services";
 
-export type TravelWithSelectedHotel = Travel & {
+export type TripWithSelectedHotel = Trip & {
   hotel: Hotel
 }
 
 class CartProvider {
-  private travels: TravelWithSelectedHotel[] = [];
+  private travels: TripWithSelectedHotel[] = [];
 
   constructor() {
     makeAutoObservable(this);
   }
 
-  addTrip(newTrip: TravelWithSelectedHotel) {
+  addTrip(newTrip: TripWithSelectedHotel) {
     if (this.travels.find((trip) => trip.id === newTrip.id)) {
       return;
     }
@@ -23,7 +23,7 @@ class CartProvider {
     StorageService.saveCart(this.travels)
   }
 
-  delTrip(oldTrip: Travel) {
+  delTrip(oldTrip: Trip) {
     const newTravels = this.travels.filter((trip) => trip.id !== oldTrip.id);
 
     try {
@@ -42,7 +42,7 @@ class CartProvider {
     return this.travels.length;
   }
 
-  inCart(trip: Travel) {
+  inCart(trip: Trip) {
     if (this.travels.find((tr) => tr.id === trip.id)) {
         return true;
     }

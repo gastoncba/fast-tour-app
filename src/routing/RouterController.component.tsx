@@ -7,12 +7,10 @@ import { Loader } from "../components";
 
 interface Props {}
 
-export const RoutesController: React.FunctionComponent<Props> = observer(
-  (props: Props) => {
-    useEffect(() => {
-      loaderProvider.init();
-    }, []);
+export const RoutesController: React.FunctionComponent<Props> = observer((props: Props) => {
+  useEffect(() => {
+    loaderProvider.init();
+  }, []);
 
-    return <>{loaderProvider.isStarting ? <Loader /> : <Router />}</>;
-  }
-);
+  return <>{loaderProvider.isStarting ? <Loader /> : <Router />}</>;
+});

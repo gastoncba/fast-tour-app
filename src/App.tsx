@@ -1,14 +1,31 @@
-import { Box } from "@mui/material";
+import { useRef, useEffect } from "react";
+import { ThemeProvider } from "@emotion/react";
+import { useLocation } from "react-router-dom";
+import "react-perfect-scrollbar/dist/css/styles.css";
+import PerfectScrollbar from "react-perfect-scrollbar";
 
 import { RoutesController } from "./routing/RouterController.component";
+import { Toaster } from "./components";
+import { THEME } from "./settings/materialStyles.setting";
 
-function App() {
+const App = () => {
+  const scrollbarRef = useRef<any>();
+  let location = useLocation();
+
+  useEffect(() => {
+    scrollbarRef.current.scrollTop = 0;
+  }, [location.pathname]);
 
   return (
-    <Box sx={{ px: 2, py: 1 }}>
-      <RoutesController />
-    </Box>
+    <>
+    <ThemeProvider theme={THEME}>
+      <PerfectScrollbar style={{ height: "100vh" }} ref={scrollbarRef}>
+        <RoutesController />
+      </PerfectScrollbar>
+      <Toaster />
+    </ThemeProvider>
+    </>
   );
-}
+};
 
 export default App;

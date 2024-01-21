@@ -1,49 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
-import { Badge } from "@mui/material";
-import { observer } from 'mobx-react'
+import { Box } from "@mui/material";
+import { observer } from "mobx-react";
 
-import {
-  HomeScreen,
-  LandingScreen,
-  PlacesScreen,
-  CountriesScreen,
-  NotFoundScreen,
-  PackagePurchaseScreen
-} from "../screens";
-import { Navbar, Sidebar, Paragraph, List, Icon } from "../components";
-import { cartProvider } from "../providers";
+import { HomeScreen, LandingScreen, NotFoundScreen } from "../screens";
+import { NavBar, Sidebar, RouterList } from "../components";
+import { RouterItemsController } from "./RouterItemsController";
+import { RouterItems } from "./RouterItems";
 
 interface Props {}
 
 export const Router: React.FC<Props> = observer((props: Props) => {
+  const [showSidebar, setShowSidebar] = useState<boolean>(false);
+  const generalItems = RouterItemsController();
   let navigate = useNavigate();
-
-  const items: { title: string; onClick: () => void }[] = [
-    {
-      title: "Home",
-      onClick: () => navigate("/app/home"),
-    },
-    {
-      title: "Top lugares",
-      onClick: () => navigate("/app/places"),
-    },
-    {
-      title: "Top paises",
-      onClick: () => navigate("/app/countries"),
-    },
-  ];
-
-  interface IconProps { 
-    cant: number
-  }
-
-  const IconCart: React.FC<IconProps> = ({cant}) => {
-    return(
-      <Badge badgeContent={cant} color="primary">
-        <Icon type='BAG' />
-      </Badge>)
-  }
 
   return (
     <Routes>
@@ -52,33 +22,16 @@ export const Router: React.FC<Props> = observer((props: Props) => {
         path="/app/*"
         element={
           <>
-            <Navbar 
-                sx={{borderRadius: '10px', mb: 2}}
-                color='default'
-                title="Fast Tour" 
-                onMenuClick={() => console.log("click")} 
-                iconsList={[
-                    {
-                      icon: <IconCart cant={cartProvider.getCant()}/>, 
-                      onClick: () => navigate('/app/purchase')}
-                ]}
-                />
-            <Sidebar>
-              <Paragraph
-                type="title"
-                levelTitle={4}
-                text="Bienvenido"
-                style={{ padding: "0 10px 0 10px" }}
-              />
-              <List items={items} />
+            <NavBar elevation={2} navigate handleClick={() => setShowSidebar(!showSidebar)} />
+            <Sidebar show={showSidebar} onClose={() => setShowSidebar(false)} variant="temporary" anchor="left" top={"0px"}>
+              <RouterItems generalItems={generalItems} />
             </Sidebar>
-            <Routes>
-              <Route path="/home" element={<HomeScreen />} />
-              <Route path="/places" element={<PlacesScreen />} />
-              <Route path="/countries" element={<CountriesScreen />} />
-              <Route path="/purchase" element={<PackagePurchaseScreen />}/>
-              <Route path="*" element={<NotFoundScreen message="La página que busca no existe." />} />
-            </Routes>
+            <Box sx={{ p: 2 }}>
+              <Routes>
+                <Route path="/home" element={<HomeScreen />} />
+                <Route path="*" element={<NotFoundScreen message="La página que busca no existe." />} />
+              </Routes>
+            </Box>
           </>
         }
       />

@@ -1,96 +1,55 @@
 import React from "react";
+import { AppBar, Toolbar, Box } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import {
-  AppBar,
-  Toolbar,
-  IconButton,
-  Box,
-  SxProps,
-  Theme,
-} from "@mui/material";
-import { Menu as MenuIcon } from "@mui/icons-material";
 
-import { Paragraph } from "../Paragraph/Paragraph.component";
 import { Icon } from "../Icon/Icon.component";
+import { IconButton } from "../IconButton/IconButton.component";
+import { Paragraph } from "../Paragraph/Paragraph.component";
+import { Menu } from "../Menu/Menu.component";
 
-interface NavbarProps {
-  title: string;
-  onMenuClick: () => void;
-  iconsList: {
-    icon: JSX.Element;
-    onClick?: () => void;
-  }[];
-  color?: "primary" | "inherit" | "default" | "secondary" | "transparent";
+interface Props {
+  icon?: JSX.Element;
+  handleClick?: () => void;
+  position?: "absolute" | "fixed" | "relative" | "static" | "sticky";
   elevation?: number;
-  colorTitle?: "black" | "gray" | "white";
-  sx?: SxProps<Theme>;
+  navigate?: boolean;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({
-  title,
-  onMenuClick,
-  iconsList,
-  color,
-  sx,
-  elevation,
-  colorTitle = "black",
-}) => {
+export const NavBar: React.FunctionComponent<Props> = (props: Props) => {
   const navigate = useNavigate();
 
   return (
-    <AppBar
-      position="static"
-      color={color || "inherit"}
-      elevation={elevation || 1}
-      sx={sx}
-    >
-      <Toolbar>
-        <Box sx={{ display: "flex", alignItems: "flex-start" }}>
-          <IconButton
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            onClick={onMenuClick}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Paragraph
-            text={title}
-            type="title"
-            levelTitle={3}
-            color={colorTitle}
-          />
-          <Box sx={{ px: 2 }}>
-            <IconButton
-              color="inherit"
-              aria-label="back"
-              onClick={() => navigate(-1)}
-            >
-              <Icon type="BACK" />
-            </IconButton>
-            <IconButton
-              color="inherit"
-              aria-label="forward"
-              onClick={() => navigate(1)}
-            >
-              <Icon type="FORWARD" />
-            </IconButton>
-          </Box>
-        </Box>
-        <Box sx={{ flexGrow: 1 }} />
-        <Box>
-          {iconsList.map((item, index) => (
-            <IconButton
-              key={index}
-              color="inherit"
-              aria-label="account"
-              onClick={item.onClick}
-            >
-              {item.icon}
-            </IconButton>
-          ))}
-        </Box>
-      </Toolbar>
-    </AppBar>
+    <>
+      <AppBar
+        position={props.position || "sticky"}
+        elevation={props.elevation || 0}
+        sx={{
+          backgroundColor: "white",
+        }}>
+        <Toolbar>
+          <IconButton icon={props.icon || <Icon type="MENU" />} onClick={() => props.handleClick && props.handleClick()} />
+          <Paragraph text={"FastTour"} color={"primary.dark"} variant="h5"/>
+          {props.navigate && (
+            <Box sx={{ display: "flex", flexDirection: "row", columnGap: 0, alignItems: "center" }}>
+              <Box>
+                <IconButton icon={<Icon type="BACK" />} onClick={() => navigate(-1)} />
+              </Box>
+              <Box>
+                <IconButton icon={<Icon type="FORWARD" />} onClick={() => navigate(1)} />
+              </Box>
+            </Box>
+          )}
+          <Box sx={{ flexGrow: 1 }} />
+          <IconButton icon={<Icon type="BAG" sx={{ color: "black" }}/>} />
+          {/* <IconButton icon={<Icon type="ACCOUNT" sx={{ color: "black" }}/>} /> */}
+          <Menu icon={<Icon type="ACCOUNT" sx={{ color: "black" }} />} items={[
+            {
+              id: 1,
+              name: "Iniciar Sesión"
+            }
+          ]} />
+        </Toolbar>
+      </AppBar>
+    </>
   );
 };

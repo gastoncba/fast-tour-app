@@ -1,6 +1,5 @@
-export { HomeScreen } from './Home/Home.screen'
 export { LandingScreen } from './Landing/Landing.screen'
-export { PlacesScreen } from './Place/Places.screen'
-export { CountriesScreen } from './Country/Countries.screen'
+export { HomeScreen } from './Home/Home.screen'
+export { AuthScreen } from './Auth/Auth.screen'
 export { NotFoundScreen } from './NotFound/NotFound.screen'
 export { PackagePurchaseScreen } from './Purchase/PackagePurchase.Screen'

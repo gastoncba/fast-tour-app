@@ -1,29 +1,31 @@
-import React, { CSSProperties } from "react";
-import { Button as AntdButton } from "antd";
-import "antd/dist/reset.css";
+import React from 'react'
+import { Button as MuiButton, SxProps, Theme } from "@mui/material";
 
-interface Props {
-  type?: "primary" | "ghost" | "dashed" | "link" | "text" | "default";
-  text: string;
-  color?: string;
-  style?: CSSProperties;
-  onClick?: (value?: any) => void;
+export interface ButtonI {
+  title?: string;
+  onClick: (params?: any) => void;
+  variant?: "contained" | "outlined" | "text";
+  style?: SxProps<Theme>;
+  startIcon?: any;
+  onMouseOver?: (params?: any) => any;
+  onMouseLeave?: (params?: any) => any;
+  color?: 'primary' | 'secondary' | 'inherit'
+  disabled?: boolean
 }
 
-export const Button: React.FC<Props> = ({
-  type,
-  text,
-  color,
-  onClick,
-  style
-}) => {
+export const Button: React.FunctionComponent<ButtonI> = (props: ButtonI) => {
   return (
-    <AntdButton
-      type={type || "primary"}
-      style={{ backgroundColor: color, ...style }}
-      onClick={onClick}
+    <MuiButton
+      sx={props.style}
+      variant={props.variant || "contained"}
+      startIcon={props.startIcon}
+      onClick={props.onClick}
+      onMouseOver={props.onMouseOver}
+      onMouseLeave={props.onMouseLeave}
+      color={props.color || 'primary'}
+      disabled={props.disabled || false}
     >
-      {text}
-    </AntdButton>
+      {props.title}
+    </MuiButton>
   );
 };

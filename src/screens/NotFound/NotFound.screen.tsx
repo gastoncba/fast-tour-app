@@ -10,7 +10,7 @@ interface NotFoundScreenProps {
 export const NotFoundScreen: React.FC<NotFoundScreenProps> = ({ message }) => {
   return (
     <Box>
-      <Paragraph text='404 - Página no encontrada' type='title'/>
+      <Paragraph text='404 - Página no encontrada'/>
       <Paragraph text={message} />
     </Box>
   );
