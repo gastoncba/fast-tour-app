@@ -3,7 +3,7 @@ import { Grid, Box } from "@mui/material";
 
 import { Wrapper, Paragraph, Button } from "../../components";
 import { Login } from "./Login";
-// import { Singup } from "./SingUp";
+import { Singup } from "./Signup";
 //import { Recovery } from "./Recovery";
 
 interface AuthProps {}
@@ -16,7 +16,7 @@ export const AuthScreen: React.FC<AuthProps> = () => {
       case "login":
         return <Login />;
       case "signup":
-        return <></>;
+        return <Singup />;
       case "recover":
         return <div>recuperar contraseña</div>;
       default:

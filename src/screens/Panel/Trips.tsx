@@ -2,14 +2,16 @@ import React, { useState, useEffect } from "react";
 import { Box } from "@mui/material";
 
 import { Divider, Heading, GridList, Card, Paragraph, showToast, Loader, Icon, Form, Modal, Tooltip, Range, SearchBar } from "../../components";
-import { Trip } from "../../models";
-import { TripService } from "../../services";
+import { Country, Trip } from "../../models";
+import { CountryService, TripService } from "../../services";
 import { IconButton } from "../../components/IconButton/IconButton.component";
 
 interface TripProps {}
 
 export const Trips: React.FC<TripProps> = () => {
   const [trips, setTrips] = useState<Trip[]>([]);
+  const [contries, setCountries] = useState<Country[]>([])
+  const [countriesNames, setCountriesNames] = useState<{value: string}[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [form, setForm] = useState<any>(null);
   const [openModal, setOpenModal] = useState<boolean>(false);
@@ -26,8 +28,19 @@ export const Trips: React.FC<TripProps> = () => {
     }
   };
 
+  const getCountries = async () => {
+    try {
+      let ct = await CountryService.getCountries();
+      setCountries(ct)
+      setCountriesNames(ct.map(c => ({ value: c.name})))
+    } catch (error) {
+      showToast("error", "Error al cargar los viajes disponibles");
+    }
+  }
+
   useEffect(() => {
     getTrips();
+    getCountries();
   }, []);
 
   const buildForm = () => {
@@ -45,21 +58,29 @@ export const Trips: React.FC<TripProps> = () => {
             type: "text",
             initialValue: { description: "" },
             multiline: true,
+            notRequired: true
           },
           {
             label: "Precio",
             type: "number",
             initialValue: { price: "" },
+            max: 999999999
           },
         ]}
         children={
-          <>
-          <Box sx={{ display: "flex", columnGap: 2, alignItems: "center" }}>
-            <Range format="YYYY-MM-DD" onChange={(dateStrings) => console.log("rango => ", dateStrings)} />
-            <Paragraph text={"Rango de fechas"} />
+          <Box sx={{ display: "flex", flexDirection: "column", rowGap: 2 }}>
+            <Box sx={{ display: "flex", columnGap: 2, alignItems: "center" }}>
+              <Range format="YYYY-MM-DD" onChange={(dateStrings) => console.log("rango => ", dateStrings)} />
+              <Paragraph text={"Rango de fechas"} />
+            </Box>
+            <Box sx={{ display: "flex", columnGap: 2 }}>
+              <SearchBar items={countriesNames} placeholder="Pais" onSelect={(value) => console.log(value)} />
+              <SearchBar items={[]} placeholder="Lugares" onSelect={() => {}} />
+            </Box>
+            <Box>
+              <Paragraph text={"Lugares: "} />
+            </Box>
           </Box>
-          <SearchBar items={[]} placeholder="Pais" onSelect={() => {}}/>
-          </>
         }
         submitText="Guardar"
         onAction={() => new Promise<void>(async (resolve, reject) => {})}
