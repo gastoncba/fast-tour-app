@@ -34,6 +34,14 @@ class UserProvider {
     return toJS(user);
   }
 
+  public get getRole(): Role {
+    let role = {
+      id: this.role.id,
+      name: this.role.name,
+    };
+    return toJS(role);
+  }
+
   public signup = (newUser: { firstName: string; lastName: string; email: string; password: string }) => {
     return new Promise<void>(async (resolve, reject) => {
       try {
@@ -65,7 +73,7 @@ class UserProvider {
       try {
         const user = await tokenProvider.isTokenValid();
         if (user) this.user = { ...user, isLogged: true };
-        //console.log("user | login by token => ", user);
+        //console.log("user | login by token => ", this.user);
         resolve();
       } catch (error) {
         resolve();
@@ -74,8 +82,8 @@ class UserProvider {
   };
 
   public isAdmin = () => {
-    return this.role.name === RoleType.ADMIN
-  }
+    return this.role.name === RoleType.ADMIN;
+  };
 }
 
 export const userProvider = new UserProvider();

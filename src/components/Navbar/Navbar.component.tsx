@@ -13,6 +13,7 @@ interface Props {
   position?: "absolute" | "fixed" | "relative" | "static" | "sticky";
   elevation?: number;
   navigate?: boolean;
+  icons?: JSX.Element;
 }
 
 export const NavBar: React.FunctionComponent<Props> = (props: Props) => {
@@ -28,7 +29,7 @@ export const NavBar: React.FunctionComponent<Props> = (props: Props) => {
         }}>
         <Toolbar>
           <IconButton icon={props.icon || <Icon type="MENU" />} onClick={() => props.handleClick && props.handleClick()} />
-          <Paragraph text={"FastTour"} color={"primary.dark"} variant="h5"/>
+          <Paragraph text={"FastTour"} color={"primary.dark"} variant="h5" />
           {props.navigate && (
             <Box sx={{ display: "flex", flexDirection: "row", columnGap: 0, alignItems: "center" }}>
               <Box>
@@ -40,14 +41,7 @@ export const NavBar: React.FunctionComponent<Props> = (props: Props) => {
             </Box>
           )}
           <Box sx={{ flexGrow: 1 }} />
-          <IconButton icon={<Icon type="BAG" sx={{ color: "black" }}/>} />
-          {/* <IconButton icon={<Icon type="ACCOUNT" sx={{ color: "black" }}/>} /> */}
-          <Menu icon={<Icon type="ACCOUNT" sx={{ color: "black" }} />} items={[
-            {
-              id: 1,
-              name: "Iniciar Sesión"
-            }
-          ]} />
+          {props.icons && props.icons}
         </Toolbar>
       </AppBar>
     </>

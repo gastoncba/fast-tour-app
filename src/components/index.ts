@@ -22,3 +22,4 @@ export { Menu } from "./Menu/Menu.component";
 export { Heading } from "./Heading/Heading.component";
 export { Range } from "./Range/Range.component";
 export { Tooltip } from "./Tooltip/Tooltip.component";
+export { IconButton } from './IconButton/IconButton.component'

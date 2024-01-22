@@ -18,7 +18,7 @@ export const UserService = (() => {
   const signUp = (newUser: { firstName: string; lastName: string; email: string; password: string }) => {
     return new Promise<User>(async (resolve, reject) => {
       try {
-        let new_user = (await post(SERVICE_ENDPOINT + "/create", newUser, false)) as User;
+        let new_user = (await post(SERVICE_ENDPOINT + "/create", { ...newUser, roleId: 2 }, false)) as User;
         resolve(new_user);
       } catch (error) {
         reject(newError("SIGN_UP-FAIL", error));

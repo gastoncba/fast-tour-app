@@ -15,10 +15,9 @@ class LoaderProvider {
 
   public init = async () => {
     try {
-      const user = userProvider.loginByToken();
+      await userProvider.loginByToken();
       this.setIsStarting(false);
-      cartProvider.load()
-      return user;
+      //cartProvider.load()
     } catch (error) {
       this.setIsStarting(false);
     }
