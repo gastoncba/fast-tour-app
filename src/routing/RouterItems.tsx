@@ -22,7 +22,6 @@ export const RouterItems: React.FC<PropsRouterItems> = ({ generalItems, logout }
       <Paragraph text={"Fast Tour"} fontWeight={"bold"} variant="h6" align="center"/>
       <Divider variant="fullWidth" />
       <RouterList itemsMenu={generalItems} sx={{ px: 2 }} isCurrent={isCurrent} />
-      <Divider variant="fullWidth" />
       {logout && <Button title="Cerrar sesión" onClick={logout} variant="text" />}
     </Box>
   );

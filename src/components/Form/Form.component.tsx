@@ -167,7 +167,7 @@ export const Form: React.FC<FormProps> = ({ fields, title, styles, children, sub
             </Grid>
           )}
           <Grid item xs={colButton || 12}>
-            <Button variant="contained" fullWidth type="submit" color="secondary" disabled={loading}>
+            <Button variant="contained" fullWidth type="submit" color="primary" disabled={loading}>
               {loading ? <Loader size={30} /> : submitText}
             </Button>
           </Grid>

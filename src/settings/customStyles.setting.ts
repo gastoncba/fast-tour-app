@@ -54,4 +54,17 @@ export const styles = {
     borderColor: THEME.palette.primary.light,
     borderRadius: "8px",
   },
+  navCollapse: {
+    position: "relative",
+    "&:after": {
+      content: "''",
+      position: "absolute",
+      left: "32px",
+      top: 0,
+      height: "100%",
+      width: "1px",
+      opacity: 0.2,
+      background: THEME.palette.primary.light,
+    },
+  }  
 };

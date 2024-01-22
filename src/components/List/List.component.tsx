@@ -1,35 +1,46 @@
-import { useState } from "react";
-import { Menu } from "antd";
-import "antd/dist/reset.css";
+import React from "react";
+import { List as ListMUI, ListItem, ListItemAvatar, ListItemText, ListItemButton } from "@mui/material";
 
-interface ListItem {
-  title: string;
-  icon?: React.ReactNode;
-  onClick: (value?: any) => void;
+import { Divider } from "../Divider/Divider.component";
+
+interface Item {
+  primaryText: string;
+  secondaryText?: string;
+  icon?: JSX.Element;
+  value: any;
+  id: number;
 }
 
 interface Props {
-  items: ListItem[];
+  items: Item[];
+  divider?: boolean;
+  button?: boolean;
+  onClick?: (item: Item) => void;
 }
 
-export const List: React.FC<Props> = ({ items}) => {
-  const [activeItemIndex, setActiveItemIndex] = useState(0);
-  const handleItemClick = (index: number, item: ListItem) => {
-    setActiveItemIndex(index);
-    item.onClick();
-  };
-
+export const List: React.FunctionComponent<Props> = (props: Props) => {
   return (
-    <Menu selectedKeys={[activeItemIndex.toString()]} mode="inline">
-      {items.map((item, index) => (
-        <Menu.Item
-          key={index}
-          icon={item.icon && item.icon}
-          onClick={() => handleItemClick(index, item)}
-        >
-          {item.title}
-        </Menu.Item>
-      ))}
-    </Menu>
+    <>
+      <ListMUI>
+        {props.items.map((item, index) => {
+          return (
+            <React.Fragment key={item.id}>
+              {props.button ? (
+                <ListItemButton onClick={() => props.onClick && props.onClick(item)}>
+                  {item.icon && <ListItemAvatar>{item.icon}</ListItemAvatar>}
+                  <ListItemText primary={item.primaryText} secondary={item.secondaryText} primaryTypographyProps={{ component: "div" }} secondaryTypographyProps={{ component: "div", style: { whiteSpace: "pre-line" } }} />
+                </ListItemButton>
+              ) : (
+                <ListItem>
+                  {item.icon && <ListItemAvatar>{item.icon}</ListItemAvatar>}
+                  <ListItemText primary={item.primaryText} secondary={item.secondaryText} primaryTypographyProps={{ component: "div" }} secondaryTypographyProps={{ component: "div", style: { whiteSpace: "pre-line" } }} />
+                </ListItem>
+              )}
+              {props.divider && index !== props.items.length - 1 && <Divider variant="middle" />}
+            </React.Fragment>
+          );
+        })}
+      </ListMUI>
+    </>
   );
 };

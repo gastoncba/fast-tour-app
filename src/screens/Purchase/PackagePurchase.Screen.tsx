@@ -48,7 +48,7 @@ export const PackagePurchaseScreen: React.FC<Props> = observer(() => {
             <GridList
               items={travels}
               renderItem={(value: TripWithSelectedHotel, key: number) => (
-                <Wrapper elevation={1}>
+                <Wrapper>
                   <Box
                     sx={{ display: "flex", flexDirection: "column", rowGap: 0 }}
                     key={key}

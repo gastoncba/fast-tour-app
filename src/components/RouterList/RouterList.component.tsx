@@ -8,8 +8,16 @@ export type ItemChildren = {
   title: string;
   url: string;
   icon: JSX.Element;
-  state?: any;
+  value?: any;
+  type: "item" | "collapse";
+  subItems?: SubItem[];
 };
+
+export type SubItem = {
+  id: number,
+  title: string,
+  value?: any
+}
 
 export type Item = {
   title: string;
@@ -42,10 +50,12 @@ export const RouterList: React.FunctionComponent<Props> = (props: Props) => {
   }, []);
 
   return (
-    <Box sx={{ ...props.sx }}>
-      {props.itemsMenu.map((itemMenu, index) => {
-        return <NavGroup item={itemMenu} key={index} isCurrent={props.isCurrent} selectedIndex={selectedIndex} handlerIndex={handlerIndex} />;
-      })}
-    </Box>
+    <>
+      <Box sx={{ ...props.sx }}>
+        {props.itemsMenu.map((itemMenu, index) => {
+          return <NavGroup item={itemMenu} key={index} isCurrent={props.isCurrent} selectedIndex={selectedIndex} handlerIndex={handlerIndex} />;
+        })}
+      </Box>
+    </>
   );
 };

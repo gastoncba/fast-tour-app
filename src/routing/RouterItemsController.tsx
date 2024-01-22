@@ -11,24 +11,39 @@ export const RouterItemsController = () => {
           title: "Home",
           icon: <Icon type="HOME" className="setting-item-icon" />,
           url: "home",
+          type: "item"
         },
         {
           id: 2,
           title: "Dashboard",
           icon: <Icon type="HOME" className="setting-item-icon" />,
           url: "dashboard",
-        },
-        {
-          id: 3,
-          title: "Panel",
-          icon: <Icon type="HOME" className="setting-item-icon" />,
-          url: "app",
+          type: "item"
         },
         {
           id: 4,
-          title: "Clientes",
+          title: "Panel",
           icon: <Icon type="HOME" className="setting-item-icon" />,
-          url: "app",
+          url: "panel",
+          type: "collapse",
+          value: "trips",
+          subItems: [
+            {
+              id: 6,
+              title: "Viajes",
+              value: "trip"
+            },
+            {
+              id: 7,
+              title: "Lugares",
+              value: "place"
+            },
+            {
+              id: 8,
+              title: "Paises",
+              value: "country"
+            }
+          ]
         },
       ],
     },
@@ -40,6 +55,7 @@ export const RouterItemsController = () => {
           title: "Cuenta",
           icon: <Icon type="PROFILE" className="setting-item-icon" />,
           url: "profile",
+          type: "item"
         },
       ],
     },
