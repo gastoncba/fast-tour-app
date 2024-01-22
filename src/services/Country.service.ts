@@ -4,29 +4,25 @@ import { Country } from "../models/Country.model";
 const SERVICE_ENDPOINT = "countries";
 
 export const CountryService = (() => {
-  const getCountries = (query?: string) => {
+  const getCountries = () => {
     return new Promise<Country[]>(async (resolve, reject) => {
       try {
-        let countries = (await get(SERVICE_ENDPOINT, query)) as Country[];
+        let countries = (await get(SERVICE_ENDPOINT)) as Country[];
         resolve(countries);
       } catch (error) {
-        reject("ERROR | GET_COUNTRIES");
+        reject(newError("GET-COUNTRIES-FAIL", error));
       }
     });
   };
 
-  const getPlacesOf = (id: string) => {
-    return new Promise<Country>(async (resolve, reject) => {
-      try {
-        let countries = (await get(
-          `${SERVICE_ENDPOINT}/${id}/places`
-        )) as Country;
-        resolve(countries);
-      } catch (error) {
-        reject("ERROR | GET_COUNTRY_PLACES");
-      }
-    });
+  type BrandServiceError = "GET-COUNTRIES-FAIL" | "GET-COUNTRY-FAIL";
+
+  const newError = (code: BrandServiceError, error?: any) => {
+    return {
+      code: code,
+      error: error,
+    };
   };
 
-  return { getCountries, getPlacesOf };
+  return { getCountries };
 })();

@@ -10,21 +10,19 @@ export const PlaceService = (() => {
         let places = (await get(SERVICE_ENDPOINT, query)) as Place[];
         resolve(places);
       } catch (error) {
-        reject("ERROR | GET_PLACES");
+        reject(newError("GET-PLACES-FAIL", error));
       }
     });
   };
 
-  const getTravelsOf = (id: string) => {
-    return new Promise<Place>(async (resolve, reject) => {
-      try {
-        let place = (await get(`${SERVICE_ENDPOINT}/${id}/travels`)) as Place
-        resolve(place)
-      } catch {
-        reject("ERROR | GET_TRAVELS_PLACES")
-      }
-    })
-  }
+  type BrandServiceError = "GET-PLACES-FAIL" | "GET-PLACE-FAIL";
 
-  return { getPlaces, getTravelsOf };
+  const newError = (code: BrandServiceError, error?: any) => {
+    return {
+      code: code,
+      error: error,
+    };
+  };
+
+  return { getPlaces };
 })();

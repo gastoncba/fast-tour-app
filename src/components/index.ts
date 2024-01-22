@@ -7,7 +7,7 @@ export { Filter } from "./Filter/Filter.component";
 export { Select } from "./Select/Select.component";
 export { Input } from "./Input/Input.component";
 export { Button } from "./Button/Button.component";
-export { SearchBox } from "./SearchBox/SearchBox.component";
+export { SearchBar } from "./SearchBar/SearchBar.component";
 export { Form } from "./Form/Form.component";
 export { Toaster, showToast } from "./Toaster/Toaster.component";
 export { Check } from "./Check/Check.component";

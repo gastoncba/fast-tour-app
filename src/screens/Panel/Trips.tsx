@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Box } from "@mui/material";
 
-import { Divider, Heading, GridList, Card, Paragraph, showToast, Loader, Icon, Form, Modal, Tooltip, Range } from "../../components";
+import { Divider, Heading, GridList, Card, Paragraph, showToast, Loader, Icon, Form, Modal, Tooltip, Range, SearchBar } from "../../components";
 import { Trip } from "../../models";
 import { TripService } from "../../services";
 import { IconButton } from "../../components/IconButton/IconButton.component";
@@ -53,10 +53,13 @@ export const Trips: React.FC<TripProps> = () => {
           },
         ]}
         children={
+          <>
           <Box sx={{ display: "flex", columnGap: 2, alignItems: "center" }}>
             <Range format="YYYY-MM-DD" onChange={(dateStrings) => console.log("rango => ", dateStrings)} />
             <Paragraph text={"Rango de fechas"} />
           </Box>
+          <SearchBar items={[]} placeholder="Pais" onSelect={() => {}}/>
+          </>
         }
         submitText="Guardar"
         onAction={() => new Promise<void>(async (resolve, reject) => {})}
