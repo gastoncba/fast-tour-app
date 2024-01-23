@@ -1,6 +1,6 @@
 
 export type Hotel = {
-    id: string, 
+    id: number, 
     name: string,
     description: string;
     stars: number,

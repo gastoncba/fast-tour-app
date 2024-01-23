@@ -3,7 +3,6 @@ export { Card } from "./Card/Card.component";
 export { GridList } from "./Grid/GridList.components";
 export { Paragraph } from "./Paragraph/Paragraph.component";
 export { Loader } from "./Loader/Loader.component";
-export { Filter } from "./Filter/Filter.component";
 export { Select } from "./Select/Select.component";
 export { Input } from "./Input/Input.component";
 export { Button } from "./Button/Button.component";
@@ -22,4 +21,6 @@ export { Menu } from "./Menu/Menu.component";
 export { Heading } from "./Heading/Heading.component";
 export { Range } from "./Range/Range.component";
 export { Tooltip } from "./Tooltip/Tooltip.component";
-export { IconButton } from './IconButton/IconButton.component'
+export { IconButton } from "./IconButton/IconButton.component";
+export { Chip } from "./Chip/Chip.component";
+export { Collapse } from "./Collapse/Collapse.component";

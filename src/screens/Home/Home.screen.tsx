@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
+import { Box } from "@mui/material";
 
-import { Card, GridList, Loader, Paragraph, showToast, Modal } from "../../components/index";
+import { Card, GridList, Loader, Paragraph, showToast, Modal, List, Collapse, Icon, IconButton } from "../../components/index";
 import { Trip } from "../../models/Trip.model";
 import { TripService } from "../../services";
 
@@ -13,6 +14,7 @@ export const HomeScreen: React.FC<HomeProps> = (props: HomeProps) => {
   const [modalTitle, setModalTitle] = useState<string>("");
   const [trip, setTrip] = useState<Trip>({ id: 0, name: "", description: null, img: null, price: 0, startDate: "", endDate: "", places: [] });
   const [open, setOpen] = useState<boolean>(false);
+  const [expanded, setExpanded] = useState<boolean>(false);
 
   const getTrips = async () => {
     setIsLoading(true);
@@ -55,7 +57,7 @@ export const HomeScreen: React.FC<HomeProps> = (props: HomeProps) => {
               renderItem={(item: Trip) => (
                 <Card
                   title={item.name}
-                  description={`Salida y Regreso: ${item.startDate} - ${item.endDate}`}
+                  description={`Salida y Regreso: ${item.startDate} al ${item.endDate}`}
                   other={`Precio: USD ${item.price}`}
                   coverImage={item.img}
                   onClickArea={() => {
@@ -78,6 +80,13 @@ export const HomeScreen: React.FC<HomeProps> = (props: HomeProps) => {
           ) : (
             <Card title={trip.name} description={trip.description ? trip.description : "Sin descripción"} other={trip.startDate + " al " + trip.endDate} onAction={{ onClick: () => {}, title: "agregar" }}>
               <Paragraph text={"Precio USD " + trip.price} />
+              <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                <Paragraph text={"Lugares"} sx={{ fontWeight: "bold" }} />
+                <IconButton icon={<Icon type="EXPAND-MORE" />} onClick={() => setExpanded(!expanded)} />
+              </Box>
+              <Collapse expanded={expanded}>
+                <List items={trip.places.map((p) => ({ id: 1, primaryText: p.name, secondaryText: p.country.name, value: p }))} />
+              </Collapse>
             </Card>
           )}
         </>

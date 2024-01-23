@@ -34,7 +34,7 @@ export const Menu: React.FunctionComponent<Props> = (props: Props) => {
           return (
             <MenuItem
               onClick={() => {
-                item.onClick();
+                item.onClick && item.onClick();
                 handleClose();
               }}
               key={item.id}

@@ -1,9 +1,9 @@
 import React from "react";
 import { SxProps, Theme } from "@mui/material";
-import { CardTravel, AddOutlined ,FiberManualRecord, Close, ArrowBack, ArrowForward, Visibility, VisibilityOff, Menu, AccountCircle, Home, Person, ArrowDropDown, ArrowDropUp } from "@mui/icons-material";
+import { CardTravel, MoreVert, ExpandMore, AddOutlined, FiberManualRecord, Close, ArrowBack, ArrowForward, Visibility, VisibilityOff, Menu, AccountCircle, Home, Person, ArrowDropDown, ArrowDropUp } from "@mui/icons-material";
 
 interface Props {
-  type: "PLUS" | "FIBER-MANUAL" | "ARROW-DROP-DOWN" | "ARROW-DROP-UP" | "BAG" | "CLOSE" | "FORWARD" | "BACK" | "VISIBILITY" | "VISIBILITY-OFF" | "MENU" | "ACCOUNT" | "PROFILE" | "HOME";
+  type: "EXPAND-MORE" | "MORE-VERT" | "PLUS" | "FIBER-MANUAL" | "ARROW-DROP-DOWN" | "ARROW-DROP-UP" | "BAG" | "CLOSE" | "FORWARD" | "BACK" | "VISIBILITY" | "VISIBILITY-OFF" | "MENU" | "ACCOUNT" | "PROFILE" | "HOME";
   sx?: SxProps<Theme>;
   className?: string;
 }
@@ -38,6 +38,10 @@ export const Icon: React.FC<Props> = ({ type, sx, className }) => {
       return <ArrowDropUp sx={sx} className={className} />;
     case "PLUS":
       return <AddOutlined sx={sx} className={className} />;
+    case "EXPAND-MORE":
+      return <ExpandMore sx={sx} className={className} />;
+    case "MORE-VERT": 
+      return <MoreVert sx={sx} className={className} />;
     default:
       return <></>;
   }

@@ -4,7 +4,6 @@ import { Grid, Box } from "@mui/material";
 import { Wrapper, Paragraph, Button } from "../../components";
 import { Login } from "./Login";
 import { Singup } from "./Signup";
-//import { Recovery } from "./Recovery";
 
 interface AuthProps {}
 
