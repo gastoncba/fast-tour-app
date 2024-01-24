@@ -2,6 +2,7 @@ import React from "react";
 import { useLocation } from 'react-router-dom'
 
 import { Trips } from './Trips'
+import { Countries } from "./Countries";
 
 interface PanelProps {}
 
@@ -19,11 +20,11 @@ export const PanelScreen: React.FC<PanelProps> = () => {
           case "trip":
             return <Trips />;
           case "place":
-            return <div></div>;
+            return <div>Destinos</div>;
           case "country":
-            return <div></div>;
+            return <Countries />;
           default:
-            return <div></div>;
+            return <Trips />;
         }
       };
 

@@ -1,4 +1,4 @@
-import { get, post } from "./Fetch.service";
+import { get, post, put } from "./Fetch.service";
 import { Trip } from "../models/Trip.model";
 
 const SERVICE_ENDPOINT = "trips";
@@ -37,7 +37,18 @@ export const TripService = (() => {
     });
   };
 
-  type BrandServiceError = "GET-TRIPS-FAIL" | "GET-TRIP-FAIL" | "POST-TRIP-FAIL";
+  const updateTrip = (tripId: number, changes: { name?: string; description?: string; price?: number; startDate?: string; endDate?: string; img?: string; placesId?: number[] }) => {
+    return new Promise<Trip>(async (resolve, reject) => {
+      try {
+        let trip = await put(SERVICE_ENDPOINT + "/" + tripId, changes);
+        resolve(trip);
+      } catch (error) {
+        reject(newError("POST-TRIP-FAIL", error));
+      }
+    });
+  };
+
+  type BrandServiceError = "GET-TRIPS-FAIL" | "GET-TRIP-FAIL" | "POST-TRIP-FAIL" | "PUT-TRIP-FAIL";
 
   const newError = (code: BrandServiceError, error?: any) => {
     return {
@@ -46,5 +57,5 @@ export const TripService = (() => {
     };
   };
 
-  return { getTrip, getTrips, createTrip };
+  return { getTrip, getTrips, createTrip, updateTrip };
 })();

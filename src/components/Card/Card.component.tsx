@@ -6,7 +6,7 @@ import { Button } from "../Button/Button.component";
 
 interface Props {
   title: string;
-  description: string;
+  description?: string;
   other?: string;
   coverImage?: string | null;
   sx?: SxProps<Theme>;
@@ -31,7 +31,7 @@ export const Card: React.FC<Props> = ({ title, description, coverImage, sx, othe
       )}
       <CardContent>
         <Paragraph variant="h5" text={title} />
-        <Paragraph variant="body1" text={description} color="GrayText" />
+        {description && <Paragraph variant="body1" text={description} color="GrayText" />}
         {other && <Paragraph variant="body1" text={other} color="GrayText" />}
         {children && children}
       </CardContent>

@@ -18,7 +18,7 @@ export const Trips: React.FC<TripProps> = () => {
   const [selectedPlaces, setSelectedPlaces] = useState<{ name: string; placeId: number }[]>([]);
   const [dates, setDates] = useState<string[]>([]);
   const [expanded, setExpanded] = useState<boolean>(false);
-  const [trip, setTrip] = useState<Trip>({ id: 0, name: "", description: null, img: null, price: 0, startDate: "", endDate: "", places: [] });
+  const [trip, setTrip] = useState<Trip>({ id: -1, name: "", description: null, img: null, price: 0, startDate: "", endDate: "", places: [] });
   const [isLoadingDetail, setIsLoadingDetail] = useState<boolean>(false);
   const [openModalDetail, setOpenDetail] = useState<boolean>(false);
 
@@ -94,8 +94,25 @@ export const Trips: React.FC<TripProps> = () => {
       showToast("error", "Error al agregar un nuevo viaje");
     } finally {
       setOpenModal(false);
+      setSelectedPlaces([])
+      setDates([])
     }
   };
+
+  const updateTrip = async (value: any) => {
+    try {
+      let placesId = selectedPlaces.map((p) => p.placeId);
+      await TripService.updateTrip(trip.id, { name: value.name, description: value.description, price: value.price, startDate: dates[0], endDate: dates[1], placesId });
+      showToast("success", "Viaje actualizado exitosamente");
+      getTrips();
+    } catch (error) {
+      showToast("error", "Error al actualizar el viaje");
+    } finally {
+      setOpenModal(false);
+      setSelectedPlaces([])
+      setDates([])
+    }
+  }
 
   const renderForm = () => {
     return (
@@ -123,7 +140,7 @@ export const Trips: React.FC<TripProps> = () => {
         children={
           <Box sx={{ display: "flex", flexDirection: "column", rowGap: 2 }}>
             <Box sx={{ display: "flex", columnGap: 2, alignItems: "center" }}>
-              <Range format="YYYY-MM-DD" onChange={(dateStrings) => setDates(dateStrings)} />
+              <Range format="YYYY-MM-DD" onChange={(dateStrings) => setDates(dateStrings)} initialDate={dates.length === 2 ? dates : undefined}/>
               <Paragraph text={"Rango de fechas"} />
             </Box>
             <Box sx={{ display: "flex", columnGap: 2 }}>
@@ -141,7 +158,7 @@ export const Trips: React.FC<TripProps> = () => {
           </Box>
         }
         submitText="Guardar"
-        onAction={createTrip}
+        onAction={trip.id === -1 ? createTrip : updateTrip}
       />
     );
   };
@@ -179,7 +196,9 @@ export const Trips: React.FC<TripProps> = () => {
                     onClick: () => {
                       setTrip(trip);
                       setOpenModal(true);
-                      setOpenDetail(false)
+                      setOpenDetail(false);
+                      setSelectedPlaces(trip.places.map(p => ({ name: p.name, placeId: p.id })))
+                      setDates([trip.startDate, trip.endDate])
                     },
                   },
                   {
@@ -209,7 +228,7 @@ export const Trips: React.FC<TripProps> = () => {
           <Box>
             <IconButton
               onClick={() => {
-                setTrip({ id: 0, name: "", description: null, img: null, price: 0, startDate: "", endDate: "", places: [] });
+                setTrip({ id: -1, name: "", description: null, img: null, price: 0, startDate: "", endDate: "", places: [] });
                 setOpenModal(true);
               }}
               icon={<Icon type="PLUS" />}
@@ -233,7 +252,6 @@ export const Trips: React.FC<TripProps> = () => {
                   other={`Precio: USD ${item.price}`}
                   coverImage={item.img}
                   onClickArea={() => {
-                    // setModalTitle(item.name);
                     setOpenDetail(true);
                     getTrip(item.id);
                   }}
@@ -254,7 +272,7 @@ export const Trips: React.FC<TripProps> = () => {
             {renderForm()}
           </Modal>
           <Modal
-            title="test"
+            title={trip.name}
             open={openModalDetail}
             onClose={() => {
               setOpenDetail(false);
