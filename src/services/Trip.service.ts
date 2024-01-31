@@ -48,9 +48,9 @@ export const TripService = (() => {
     });
   };
 
-  type BrandServiceError = "GET-TRIPS-FAIL" | "GET-TRIP-FAIL" | "POST-TRIP-FAIL" | "PUT-TRIP-FAIL";
+  type TripServiceError = "GET-TRIPS-FAIL" | "GET-TRIP-FAIL" | "POST-TRIP-FAIL" | "PUT-TRIP-FAIL";
 
-  const newError = (code: BrandServiceError, error?: any) => {
+  const newError = (code: TripServiceError, error?: any) => {
     return {
       code: code,
       error: error,

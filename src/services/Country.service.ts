@@ -37,9 +37,9 @@ export const CountryService = (() => {
     });
   };
 
-  type BrandServiceError = "GET-COUNTRIES-FAIL" | "POST-COUNTRY-FAIL" | "PUT-COUNTRY-FAIL";
+  type CountryServiceError = "GET-COUNTRIES-FAIL" | "POST-COUNTRY-FAIL" | "PUT-COUNTRY-FAIL";
 
-  const newError = (code: BrandServiceError, error?: any) => {
+  const newError = (code: CountryServiceError, error?: any) => {
     return {
       code: code,
       error: error,

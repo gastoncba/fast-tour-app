@@ -1,6 +1,5 @@
 import { Item } from "../components/RouterList/RouterList.component";
 import { Icon } from "../components";
-import { userProvider } from "../providers";
 
 export const RouterItemsController = () => {
   let generalItems: Item[] = [
@@ -43,6 +42,11 @@ export const RouterItemsController = () => {
               id: 8,
               title: "Paises",
               value: "country"
+            },
+            {
+              id: 9,
+              title: "Hoteles",
+              value: "hotel"
             }
           ]
         },

@@ -19,6 +19,7 @@ export const Login: React.FC<LoginProps> = ({}) => {
     try {
       await userProvider.login(values.email, values.password);
       navigate("/app/home", { replace: true });
+      showToast("success", "Bienvenido a Fast Tour");
     } catch (error) {
       showToast("error", "Email o constraseña incorrectos");
     }

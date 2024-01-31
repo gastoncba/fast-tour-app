@@ -1,4 +1,4 @@
-import { THEME } from "./materialStyles.setting";
+import { themeMaterial } from "./materialTheme.setting";
 
 export const styles = {
   containerView: {
@@ -51,7 +51,7 @@ export const styles = {
   },
   stylesItemSelected: {
     border: 1,
-    borderColor: THEME.palette.primary.light,
+    borderColor: themeMaterial.palette.primary.light,
     borderRadius: "8px",
   },
   navCollapse: {
@@ -64,7 +64,7 @@ export const styles = {
       height: "100%",
       width: "1px",
       opacity: 0.2,
-      background: THEME.palette.primary.light,
+      background: themeMaterial.palette.primary.light,
     },
   }  
 };

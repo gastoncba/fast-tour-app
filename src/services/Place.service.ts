@@ -1,4 +1,4 @@
-import { get } from "./Fetch.service";
+import { get, post, put } from "./Fetch.service";
 import { Place } from "../models/Place.model";
 
 const SERVICE_ENDPOINT = "places";
@@ -15,14 +15,47 @@ export const PlaceService = (() => {
     });
   };
 
-  type BrandServiceError = "GET-PLACES-FAIL" | "GET-PLACE-FAIL";
+  const getPlace = (placeId: number) => {
+    return new Promise<Place>(async(resolve, reject) => {
+      try {
+        let place = await get(SERVICE_ENDPOINT + "/" + placeId)
+        resolve(place)
+      } catch (error) {
+        reject(newError("GET-PLACE-FAIL", error))
+      }
+    })
+  }
 
-  const newError = (code: BrandServiceError, error?: any) => {
+  const createPlace = (data: { name: string; description?: string, img?: string, countryId: number }) => {
+    return new Promise<Place>(async(resolve, reject) => {
+      try {
+        let place = await post(SERVICE_ENDPOINT, data)
+        resolve(place)
+      } catch (error) {
+        reject(newError("POST-PLACE-FAIL", error))
+      }
+    })
+  }
+
+  const updatePlace = (placeId: number, changes: { name?: string; code?: string }) => {
+    return new Promise<Place>(async (resolve, reject) => {
+      try {
+        let place = await put(SERVICE_ENDPOINT + "/" + placeId, changes);
+        resolve(place);
+      } catch (error) {
+        reject(newError("PUT-PLACE-FAIL", error));
+      }
+    });
+  };
+
+  type PlaceServiceError = "GET-PLACES-FAIL" | "GET-PLACE-FAIL" | "POST-PLACE-FAIL" | "PUT-PLACE-FAIL";
+
+  const newError = (code: PlaceServiceError, error?: any) => {
     return {
       code: code,
       error: error,
     };
   };
 
-  return { getPlaces };
+  return { getPlaces, createPlace, getPlace, updatePlace };
 })();

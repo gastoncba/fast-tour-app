@@ -3,9 +3,9 @@ import { Box, SxProps, Theme } from "@mui/material";
 import { DatePicker, Button } from "antd";
 import dayjs from 'dayjs';
 import "antd/dist/reset.css";
-import { THEME } from "../../settings/materialStyles.setting";
+import { themeMaterial } from "../../settings/materialTheme.setting";
 import "./styles.css"
-const { main } = THEME.palette.primary;
+const { main } = themeMaterial.palette.primary;
 
 const { RangePicker } = DatePicker;
 

@@ -3,10 +3,12 @@ import { ThemeProvider } from "@emotion/react";
 import { useLocation } from "react-router-dom";
 import "react-perfect-scrollbar/dist/css/styles.css";
 import PerfectScrollbar from "react-perfect-scrollbar";
+import { ConfigProvider } from "antd";
 
 import { RoutesController } from "./routing/RouterController.component";
 import { Toaster } from "./components";
-import { THEME } from "./settings/materialStyles.setting";
+import { themeMaterial } from "./settings/materialTheme.setting";
+import { themeAntd } from "./settings/antdTheme.setting";
 
 const App = () => {
   const scrollbarRef = useRef<any>();
@@ -18,12 +20,14 @@ const App = () => {
 
   return (
     <>
-    <ThemeProvider theme={THEME}>
-      <PerfectScrollbar style={{ height: "100vh" }} ref={scrollbarRef}>
-        <RoutesController />
-      </PerfectScrollbar>
-      <Toaster />
-    </ThemeProvider>
+      <ThemeProvider theme={themeMaterial}>
+        <ConfigProvider theme={themeAntd}>
+          <PerfectScrollbar style={{ height: "100vh" }} ref={scrollbarRef}>
+            <RoutesController />
+          </PerfectScrollbar>
+          <Toaster />
+        </ConfigProvider>
+      </ThemeProvider>
     </>
   );
 };

@@ -94,8 +94,8 @@ export const Trips: React.FC<TripProps> = () => {
       showToast("error", "Error al agregar un nuevo viaje");
     } finally {
       setOpenModal(false);
-      setSelectedPlaces([])
-      setDates([])
+      setSelectedPlaces([]);
+      setDates([]);
     }
   };
 
@@ -109,10 +109,10 @@ export const Trips: React.FC<TripProps> = () => {
       showToast("error", "Error al actualizar el viaje");
     } finally {
       setOpenModal(false);
-      setSelectedPlaces([])
-      setDates([])
+      setSelectedPlaces([]);
+      setDates([]);
     }
-  }
+  };
 
   const renderForm = () => {
     return (
@@ -140,7 +140,7 @@ export const Trips: React.FC<TripProps> = () => {
         children={
           <Box sx={{ display: "flex", flexDirection: "column", rowGap: 2 }}>
             <Box sx={{ display: "flex", columnGap: 2, alignItems: "center" }}>
-              <Range format="YYYY-MM-DD" onChange={(dateStrings) => setDates(dateStrings)} initialDate={dates.length === 2 ? dates : undefined}/>
+              <Range format="YYYY-MM-DD" onChange={(dateStrings) => setDates(dateStrings)} initialDate={dates.length === 2 ? dates : undefined} />
               <Paragraph text={"Rango de fechas"} />
             </Box>
             <Box sx={{ display: "flex", columnGap: 2 }}>
@@ -174,6 +174,10 @@ export const Trips: React.FC<TripProps> = () => {
     }
   };
 
+  const resetTrip = () => {
+    setTrip({ id: -1, name: "", description: null, img: null, price: 0, startDate: "", endDate: "", places: [] });
+  }
+
   const renderDetail = () => {
     return (
       <>
@@ -182,8 +186,8 @@ export const Trips: React.FC<TripProps> = () => {
         ) : (
           <Card title={trip.name} description={trip.description ? trip.description : "Sin descripción"} other={trip.startDate + " al " + trip.endDate}>
             <Paragraph text={"Precio USD " + trip.price} />
-            <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-              <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
                 <Paragraph text={"Lugares"} sx={{ fontWeight: "bold" }} />
                 <IconButton icon={<Icon type="EXPAND-MORE" />} onClick={() => setExpanded(!expanded)} />
               </Box>
@@ -197,8 +201,8 @@ export const Trips: React.FC<TripProps> = () => {
                       setTrip(trip);
                       setOpenModal(true);
                       setOpenDetail(false);
-                      setSelectedPlaces(trip.places.map(p => ({ name: p.name, placeId: p.id })))
-                      setDates([trip.startDate, trip.endDate])
+                      setSelectedPlaces(trip.places.map((p) => ({ name: p.name, placeId: p.id })));
+                      setDates([trip.startDate, trip.endDate]);
                     },
                   },
                   {
@@ -228,7 +232,7 @@ export const Trips: React.FC<TripProps> = () => {
           <Box>
             <IconButton
               onClick={() => {
-                setTrip({ id: -1, name: "", description: null, img: null, price: 0, startDate: "", endDate: "", places: [] });
+                resetTrip();
                 setOpenModal(true);
               }}
               icon={<Icon type="PLUS" />}
@@ -261,28 +265,28 @@ export const Trips: React.FC<TripProps> = () => {
           ) : (
             <Paragraph text="No se encontraron viajes" variant="h5" align="center" />
           )}
-          <Modal
-            open={openModal}
-            onClose={() => {
-              setOpenModal(false);
-              setSelectedPlaces([]);
-              setDates([]);
-            }}
-            title="Viaje">
-            {renderForm()}
-          </Modal>
-          <Modal
-            title={trip.name}
-            open={openModalDetail}
-            onClose={() => {
-              setOpenDetail(false);
-              setExpanded(false);
-            }}
-            fullWidth>
-            {renderDetail()}
-          </Modal>
         </>
       )}
+      <Modal
+        open={openModal}
+        onClose={() => {
+          setOpenModal(false);
+          setSelectedPlaces([]);
+          setDates([]);
+        }}
+        title="Viaje">
+        {renderForm()}
+      </Modal>
+      <Modal
+        title={trip.name}
+        open={openModalDetail}
+        onClose={() => {
+          setOpenDetail(false);
+          setExpanded(false);
+        }}
+        fullWidth>
+        {renderDetail()}
+      </Modal>
     </>
   );
 };

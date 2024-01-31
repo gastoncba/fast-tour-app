@@ -24,3 +24,4 @@ export { Tooltip } from "./Tooltip/Tooltip.component";
 export { IconButton } from "./IconButton/IconButton.component";
 export { Chip } from "./Chip/Chip.component";
 export { Collapse } from "./Collapse/Collapse.component";
+export { Rate } from "./Rate/Rate.component";

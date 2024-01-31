@@ -1,6 +1,6 @@
 import { createTheme } from "@mui/material/styles";
 
-export const THEME = createTheme({
+export const themeMaterial = createTheme({
   typography: {
     fontFamily: "Epilogue, sans-serif;",
 
