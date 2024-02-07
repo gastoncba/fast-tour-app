@@ -77,6 +77,18 @@ export const Places: React.FC<PlacesProps> = () => {
     }
   };
 
+  const deletePlace = async (placeId: number) => {
+    try {
+      await PlaceService.deletePlace(placeId);
+      getPlaces();
+      showToast("success", "Destino eliminado con exito");
+    } catch (error) {
+      showToast("error", "Error al intentar eliminar destino");
+    } finally {
+      setOpenDetail(false);
+    }
+  };
+
   const handlerSelected = (value: string) => {
     const country = countries.find((c) => c.name === value);
 
@@ -111,7 +123,7 @@ export const Places: React.FC<PlacesProps> = () => {
 
   const resetPlace = () => {
     setPlace({ id: -1, name: "", description: null, img: null, country: { id: -1, name: "", img: null, code: "" }, hotels: [] });
-  }
+  };
 
   const renderDetail = () => {
     return (
@@ -139,7 +151,7 @@ export const Places: React.FC<PlacesProps> = () => {
                         setOpenDetail(false);
                       },
                     },
-                    { id: 2, name: "Eliminar" },
+                    { id: 2, name: "Eliminar", onClick: () => showToast("confirmation", "Eliminar destino", { onConfirm: () => deletePlace(place.id), description: "Desea eliminar destino ?" }) },
                   ]}
                 />
               </Box>

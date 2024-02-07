@@ -1,4 +1,4 @@
-import { get, post, put } from "./Fetch.service";
+import { del, get, post, put } from "./Fetch.service";
 import { Country } from "../models/Country.model";
 
 const SERVICE_ENDPOINT = "countries";
@@ -37,7 +37,18 @@ export const CountryService = (() => {
     });
   };
 
-  type CountryServiceError = "GET-COUNTRIES-FAIL" | "POST-COUNTRY-FAIL" | "PUT-COUNTRY-FAIL";
+  const deleteCountry = (countryId: number) => {
+    return new Promise<void>(async (resolve, reject) => {
+      try {
+        await del(SERVICE_ENDPOINT + "/" + countryId);
+        resolve();
+      } catch (error) {
+        reject(newError("DELETE-COUNTRY-FAIL", error));
+      }
+    });
+  };
+
+  type CountryServiceError = "GET-COUNTRIES-FAIL" | "POST-COUNTRY-FAIL" | "PUT-COUNTRY-FAIL" | "DELETE-COUNTRY-FAIL";
 
   const newError = (code: CountryServiceError, error?: any) => {
     return {
@@ -46,5 +57,5 @@ export const CountryService = (() => {
     };
   };
 
-  return { getCountries, createCountry, updateCountry };
+  return { getCountries, createCountry, updateCountry, deleteCountry };
 })();

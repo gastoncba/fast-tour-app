@@ -13,7 +13,7 @@ export const Hotels: React.FC<HotelProps> = () => {
   const [places, setPlaces] = useState<Place[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
-  const [stars, setStars] = useState<number>(0);
+  const [stars, setStars] = useState<number>(3);
   const [loadingPlaces, setLoadingPlaces] = useState<boolean>(false);
   const [selectedPlace, setSelectedPlace] = useState<Place>({ id: -1, name: "", description: null, img: null, country: { id: -1, name: "", code: "", img: null }, hotels: [] });
   const [loadinDetail, setLoadingDetail] = useState<boolean>(false);
@@ -56,9 +56,40 @@ export const Hotels: React.FC<HotelProps> = () => {
     }
   };
 
-  const createHotel = async () => {
+  const createHotel = async (value: any) => {
     try {
-    } catch (error) {}
+      await HotelService.createHotel({ ...value, placeId: selectedPlace.id, stars });
+      await getHotels();
+      showToast("success", "Hotel creado exitosamente");
+    } catch (error) {
+      showToast("error", "Error al crear nuevo hotel");
+    } finally {
+      setOpen(false);
+    }
+  };
+
+  const updateHotel = async (value: any) => {
+    try {
+      await HotelService.updateHotel(hotel.id, { ...value, placeId: selectedPlace.id, stars });
+      await getHotels();
+      showToast("success", "Hotel actualizado exitosamente");
+    } catch (error) {
+      showToast("error", "Error al actualizar hotel");
+    } finally {
+      setOpen(false);
+    }
+  };
+
+  const deleteHotel = async (hotelId: number) => {
+    try {
+      await HotelService.deleteHotel(hotelId);
+      getHotels();
+      showToast("success", "Hotel eliminado exitosamente");
+    } catch (error) {
+      showToast("error", "Error al intentar eliminar hotel");
+    } finally {
+      setOpenDetail(false);
+    }
   };
 
   const getCountries = async () => {
@@ -101,17 +132,17 @@ export const Hotels: React.FC<HotelProps> = () => {
           {
             label: "Nombre",
             type: "text",
-            initialValue: { name: "" },
+            initialValue: { name: hotel.name || "" },
           },
           {
             label: "Descripción",
             type: "text",
-            initialValue: { description: "" },
+            initialValue: { description: hotel.description || "" },
             multiline: true,
             notRequired: true,
           },
         ]}
-        onAction={createHotel}>
+        onAction={hotel.id === -1 ? createHotel : updateHotel}>
         <Box sx={{ display: "flex", flexDirection: "column", rowGap: 2 }}>
           <Box>
             <Paragraph text={"Estrellas: "} />
@@ -153,10 +184,19 @@ export const Hotels: React.FC<HotelProps> = () => {
                     {
                       id: 1,
                       name: "Editar",
+                      onClick: () => {
+                        setHotel(hotel);
+                        setOpen(true);
+                        setOpenDetail(false);
+                        //@ts-ignore
+                        setSelectedPlace(hotel.place);
+                        setStars(hotel.stars);
+                      },
                     },
                     {
                       id: 2,
                       name: "Eliminar",
+                      onClick: () => showToast("confirmation", "Eliminar hotel", { onConfirm: () => deleteHotel(hotel.id), description: "Desea eliminar hotel ?" }),
                     },
                   ]}
                 />
@@ -166,6 +206,10 @@ export const Hotels: React.FC<HotelProps> = () => {
         )}
       </>
     );
+  };
+
+  const resetHotel = () => {
+    setHotel({ id: -1, name: "", description: "", stars: 0 });
   };
 
   return (
@@ -179,6 +223,7 @@ export const Hotels: React.FC<HotelProps> = () => {
           <Box>
             <IconButton
               onClick={() => {
+                resetHotel();
                 resetSelectedPlace();
                 setOpen(true);
               }}
@@ -218,11 +263,20 @@ export const Hotels: React.FC<HotelProps> = () => {
         onClose={() => {
           setOpen(false);
           resetSelectedPlace();
+          setStars(3);
         }}
         title="Hotel">
         {renderForm()}
       </Modal>
-      <Modal title={hotel.name} open={openDetail} onClose={() => setOpenDetail(false)} fullWidth>
+      <Modal
+        title={hotel.name}
+        open={openDetail}
+        onClose={() => {
+          setOpenDetail(false);
+          resetSelectedPlace();
+          setStars(3);
+        }}
+        fullWidth>
         {renderDetail()}
       </Modal>
     </>

@@ -114,6 +114,18 @@ export const Trips: React.FC<TripProps> = () => {
     }
   };
 
+  const deleteTrip = async (tripId: number) => {
+    try {
+      await TripService.deleteTrip(tripId);
+      await getTrips();
+      showToast("success", "Viaje eliminado exitosamente");
+    } catch (error) {
+      showToast("error", "Error al eliminar el viaje");
+    } finally {
+      setOpenDetail(false);
+    }
+  };
+
   const renderForm = () => {
     return (
       <Form
@@ -176,7 +188,7 @@ export const Trips: React.FC<TripProps> = () => {
 
   const resetTrip = () => {
     setTrip({ id: -1, name: "", description: null, img: null, price: 0, startDate: "", endDate: "", places: [] });
-  }
+  };
 
   const renderDetail = () => {
     return (
@@ -208,6 +220,7 @@ export const Trips: React.FC<TripProps> = () => {
                   {
                     id: 2,
                     name: "Eliminar",
+                    onClick: () => showToast("confirmation", "Eliminar viaje", { onConfirm: () => deleteTrip(trip.id), description: "Desea eliminar el viaje ?" }),
                   },
                 ]}
               />

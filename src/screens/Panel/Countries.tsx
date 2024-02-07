@@ -53,6 +53,16 @@ export const Countries: React.FC<CountriesProps> = () => {
     }
   };
 
+  const deleteCountry = async (countryId: number) => {
+    try {
+      await CountryService.deleteCountry(countryId);
+      getCountries();
+      showToast("success", "País eliminado exitosamente");
+    } catch (error) {
+      showToast("error", "Error al intentar eliminar país");
+    }
+  };
+
   const buildForm = (item: any, action: any) => {
     setOpen(true);
     setForm(
@@ -109,6 +119,7 @@ export const Countries: React.FC<CountriesProps> = () => {
                         {
                           id: 2,
                           name: "Eliminar",
+                          onClick: () => showToast("confirmation", "Eliminar País", { onConfirm: () => deleteCountry(item.id), description: "Desea eliminar este país" }),
                         },
                       ]}
                     />

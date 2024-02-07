@@ -1,4 +1,4 @@
-import { get, post, put } from "./Fetch.service";
+import { del, get, post, put } from "./Fetch.service";
 import { Place } from "../models/Place.model";
 
 const SERVICE_ENDPOINT = "places";
@@ -16,26 +16,26 @@ export const PlaceService = (() => {
   };
 
   const getPlace = (placeId: number) => {
-    return new Promise<Place>(async(resolve, reject) => {
+    return new Promise<Place>(async (resolve, reject) => {
       try {
-        let place = await get(SERVICE_ENDPOINT + "/" + placeId)
-        resolve(place)
+        let place = await get(SERVICE_ENDPOINT + "/" + placeId);
+        resolve(place);
       } catch (error) {
-        reject(newError("GET-PLACE-FAIL", error))
+        reject(newError("GET-PLACE-FAIL", error));
       }
-    })
-  }
+    });
+  };
 
-  const createPlace = (data: { name: string; description?: string, img?: string, countryId: number }) => {
-    return new Promise<Place>(async(resolve, reject) => {
+  const createPlace = (data: { name: string; description?: string; img?: string; countryId: number }) => {
+    return new Promise<Place>(async (resolve, reject) => {
       try {
-        let place = await post(SERVICE_ENDPOINT, data)
-        resolve(place)
+        let place = await post(SERVICE_ENDPOINT, data);
+        resolve(place);
       } catch (error) {
-        reject(newError("POST-PLACE-FAIL", error))
+        reject(newError("POST-PLACE-FAIL", error));
       }
-    })
-  }
+    });
+  };
 
   const updatePlace = (placeId: number, changes: { name?: string; code?: string }) => {
     return new Promise<Place>(async (resolve, reject) => {
@@ -48,7 +48,18 @@ export const PlaceService = (() => {
     });
   };
 
-  type PlaceServiceError = "GET-PLACES-FAIL" | "GET-PLACE-FAIL" | "POST-PLACE-FAIL" | "PUT-PLACE-FAIL";
+  const deletePlace = (placeId: number) => {
+    return new Promise<void>(async (resolve, reject) => {
+      try {
+        await del(SERVICE_ENDPOINT + "/" + placeId);
+        resolve();
+      } catch (error) {
+        reject(newError("DELETE-PLACE-FAIL", error));
+      }
+    });
+  };
+
+  type PlaceServiceError = "GET-PLACES-FAIL" | "GET-PLACE-FAIL" | "POST-PLACE-FAIL" | "PUT-PLACE-FAIL" | "DELETE-PLACE-FAIL";
 
   const newError = (code: PlaceServiceError, error?: any) => {
     return {
@@ -57,5 +68,5 @@ export const PlaceService = (() => {
     };
   };
 
-  return { getPlaces, createPlace, getPlace, updatePlace };
+  return { getPlaces, createPlace, getPlace, updatePlace, deletePlace };
 })();

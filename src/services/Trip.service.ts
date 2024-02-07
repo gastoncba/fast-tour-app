@@ -1,4 +1,4 @@
-import { get, post, put } from "./Fetch.service";
+import { del, get, post, put } from "./Fetch.service";
 import { Trip } from "../models/Trip.model";
 
 const SERVICE_ENDPOINT = "trips";
@@ -48,7 +48,18 @@ export const TripService = (() => {
     });
   };
 
-  type TripServiceError = "GET-TRIPS-FAIL" | "GET-TRIP-FAIL" | "POST-TRIP-FAIL" | "PUT-TRIP-FAIL";
+  const deleteTrip = (tripId: number) => {
+    return new Promise<void>(async (resolve, reject) => {
+      try {
+        await del(SERVICE_ENDPOINT + "/" + tripId);
+        resolve();
+      } catch (error) {
+        reject(newError("DELETE-TRIP-FAIL", error));
+      }
+    });
+  };
+
+  type TripServiceError = "GET-TRIPS-FAIL" | "GET-TRIP-FAIL" | "POST-TRIP-FAIL" | "PUT-TRIP-FAIL" | "DELETE-TRIP-FAIL";
 
   const newError = (code: TripServiceError, error?: any) => {
     return {
@@ -57,5 +68,5 @@ export const TripService = (() => {
     };
   };
 
-  return { getTrip, getTrips, createTrip, updateTrip };
+  return { getTrip, getTrips, createTrip, updateTrip, deleteTrip };
 })();
