@@ -1,47 +1,18 @@
-import React, { useState } from "react";
-import { Input as AntdInput, Alert } from "antd";
-import "antd/dist/reset.css";
+import React, { ChangeEvent } from "react";
+import TextField, { StandardTextFieldProps } from "@mui/material/TextField";
 
-interface Props {
-  isNumberInput: boolean;
-  onInputChange: (value: string) => void;
-  placeholder?: string;
+interface InputProps extends StandardTextFieldProps {
+  label: string;
+  type?: string;
+  setValue: (value:string) => void
 }
 
-export const Input: React.FC<Props> = ({
-  isNumberInput,
-  onInputChange,
-  placeholder,
-  ...rest
-}) => {
-  const [hasError, setHasError] = useState(false);
-  const regex = /^[1-9][0-9]*$/;
+export const Input: React.FC<InputProps> = ({ label, value, setValue, type, ...props }) => {
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
-    const isValid = isNumberInput ? regex.test(value) : true;
-    onInputChange(value);
-    setHasError(!isValid);
-  };
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const { value } = event.target
+    setValue(value)
+  }
 
-  const errorMessage = `El valor ingresado no es válido. Por favor, ingrese un ${
-    isNumberInput ? "número" : "texto"
-  }`;
-
-  return (
-    <div>
-      <AntdInput
-        {...rest}
-        onChange={handleInputChange}
-        placeholder={placeholder || ""}
-      />
-      {hasError && (
-        <Alert
-          message={errorMessage}
-          type="error"
-          showIcon
-        />
-      )}
-    </div>
-  );
+  return <TextField {...props} label={label} onChange={handleChange} type={type} />;
 };

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Box } from "@mui/material";
 
-import { Divider, Collapse, List, Chip, Heading, GridList, Card, Paragraph, showToast, Loader, Icon, Form, Modal, Tooltip, Range, SearchBar, Menu } from "../../components";
+import { Divider, Collapse, List, Chip, Heading, GridList, Card, Paragraph, showToast, Loader, Icon, Form, Modal, Tooltip, Range, SearchBar, Menu, Button } from "../../components";
 import { Country, Place, Trip } from "../../models";
 import { CountryService, PlaceService, TripService } from "../../services";
 import { IconButton } from "../../components/IconButton/IconButton.component";
@@ -21,6 +21,7 @@ export const Trips: React.FC<TripProps> = () => {
   const [trip, setTrip] = useState<Trip>({ id: -1, name: "", description: null, img: null, price: 0, startDate: "", endDate: "", places: [] });
   const [isLoadingDetail, setIsLoadingDetail] = useState<boolean>(false);
   const [openModalDetail, setOpenDetail] = useState<boolean>(false);
+  const [name, setName] = useState<string>("");
 
   const handlerCountry = async (country: string) => {
     let selected = countries.find((c) => c.name === country);
@@ -58,10 +59,10 @@ export const Trips: React.FC<TripProps> = () => {
     setSelectedPlaces(newItems);
   };
 
-  const getTrips = async () => {
+  const getTrips = async (params?: string) => {
     setIsLoading(true);
     try {
-      let trips = await TripService.getTrips();
+      let trips = await TripService.getTrips(params);
       setTrips(trips);
     } catch {
       showToast("error", "Error al cargar los viajes disponibles");
@@ -190,6 +191,11 @@ export const Trips: React.FC<TripProps> = () => {
     setTrip({ id: -1, name: "", description: null, img: null, price: 0, startDate: "", endDate: "", places: [] });
   };
 
+  const searchByName = () => {
+    const params = name ? `?name=${encodeURIComponent(name)}` : "";
+    getTrips(params);
+  };
+
   const renderDetail = () => {
     return (
       <>
@@ -237,7 +243,12 @@ export const Trips: React.FC<TripProps> = () => {
   return (
     <>
       <Heading title="Viajes disponibles" />
-      <Box sx={{ py: 2 }}>
+      <Box sx={{ display: "flex", flexDirection: "column", rowGap: 1, py: 2 }}>
+        <Box sx={{ display: "flex", columnGap: 2, alignItems: "center" }}>
+          <SearchBar placeholder="Buscar por nombre" onChange={(value) => setName(value)} />
+          <Button title="Buscar" onClick={() => searchByName()} color="inherit" size="small" />
+          <IconButton icon={<Icon type="FILTER" />} />
+        </Box>
         <Divider />
       </Box>
       <Box sx={{ display: "flex", alignItems: "center", pb: 2 }}>

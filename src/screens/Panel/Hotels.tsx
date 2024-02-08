@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Box } from "@mui/material";
 
-import { Heading, Divider, IconButton, Icon, Tooltip, showToast, Paragraph, GridList, Card, Loader, Rate, Form, Modal, SearchBar, Menu } from "../../components";
+import { Heading, Button, Divider, IconButton, Icon, Tooltip, showToast, Paragraph, GridList, Card, Loader, Rate, Form, Modal, SearchBar, Menu } from "../../components";
 import { Country, Hotel, Place } from "../../models";
 import { CountryService, HotelService, PlaceService } from "../../services";
 
@@ -19,11 +19,12 @@ export const Hotels: React.FC<HotelProps> = () => {
   const [loadinDetail, setLoadingDetail] = useState<boolean>(false);
   const [hotel, setHotel] = useState<Hotel>({ id: -1, name: "", description: null, stars: 0 });
   const [openDetail, setOpenDetail] = useState<boolean>(false);
+  const [name, setName] = useState<string>("");
 
-  const getHotels = async () => {
+  const getHotels = async (params?:string) => {
     setLoading(true);
     try {
-      let hotels = await HotelService.getHotels();
+      let hotels = await HotelService.getHotels(params);
       setHotels(hotels);
     } catch (error) {
       showToast("error", "Error al cargar los hoteles disponibles");
@@ -212,10 +213,20 @@ export const Hotels: React.FC<HotelProps> = () => {
     setHotel({ id: -1, name: "", description: "", stars: 0 });
   };
 
+  const searchByName = () => {
+    const params = name ? `?name=${encodeURIComponent(name)}` : "";
+    getHotels(params)
+  }
+
   return (
     <>
       <Heading title="Hoteles disponibles" />
-      <Box sx={{ py: 2 }}>
+      <Box sx={{ display: "flex", flexDirection: "column", rowGap: 1, py: 2 }}>
+        <Box sx={{ display: "flex", columnGap: 2, alignItems: "center" }}>
+          <SearchBar placeholder="Buscar por nombre" onChange={(value) => setName(value)} />
+          <Button title="Buscar" onClick={() => searchByName()} color="inherit" size="small" />
+          <IconButton icon={<Icon type="FILTER" />} />
+        </Box>
         <Divider />
       </Box>
       <Box sx={{ display: "flex", alignItems: "center", pb: 2 }}>

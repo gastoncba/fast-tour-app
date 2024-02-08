@@ -4,10 +4,10 @@ import { Hotel } from "../models";
 const SERVICE_ENDPOINT = "hotels";
 
 export const HotelService = (() => {
-  const getHotels = () => {
+  const getHotels = (params?: string) => {
     return new Promise<Hotel[]>(async (resolve, reject) => {
       try {
-        let hotels = await get(SERVICE_ENDPOINT);
+        let hotels = await get(SERVICE_ENDPOINT, params);
         resolve(hotels);
       } catch (error) {
         reject(newError("GET-HOTELS-FAIL"));
@@ -48,7 +48,7 @@ export const HotelService = (() => {
     });
   };
 
-  const deleteHotel= (hotelId: number) => {
+  const deleteHotel = (hotelId: number) => {
     return new Promise<void>(async (resolve, reject) => {
       try {
         await del(SERVICE_ENDPOINT + "/" + hotelId);

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Box } from "@mui/material";
 
-import { Heading, Tooltip, Divider, IconButton, Icon, Loader, GridList, Paragraph, Card, showToast, Modal, Form, Menu } from "../../components";
+import { Heading, SearchBar, Button, Tooltip, Divider, IconButton, Icon, Loader, GridList, Paragraph, Card, showToast, Modal, Form, Menu } from "../../components";
 import { Country } from "../../models";
 import { CountryService } from "../../services";
 
@@ -12,11 +12,12 @@ export const Countries: React.FC<CountriesProps> = () => {
   const [countries, setCountries] = useState<Country[]>([]);
   const [form, setForm] = useState<any>(null);
   const [open, setOpen] = useState<boolean>(false);
+  const [name, setName] = useState<string>("");
 
-  const getCountries = async () => {
+  const getCountries = async (params?: string) => {
     setLoading(true);
     try {
-      let cts = await CountryService.getCountries();
+      let cts = await CountryService.getCountries(params);
       setCountries(cts);
     } catch (error) {
       showToast("error", "Error al consultar los paises");
@@ -84,10 +85,20 @@ export const Countries: React.FC<CountriesProps> = () => {
     );
   };
 
+  const searchByName = () => {
+    const params = name ? `?name=${encodeURIComponent(name)}` : "";
+    getCountries(params);
+  }
+
   return (
     <>
       <Heading title="Paises disponibles" />
-      <Box sx={{ py: 2 }}>
+      <Box sx={{ display: "flex", flexDirection: "column", rowGap: 1, py: 2 }}>
+        <Box sx={{ display: "flex", columnGap: 2, alignItems: "center" }}>
+          <SearchBar placeholder="Buscar por nombre" onChange={(value) => setName(value)} />
+          <Button title="Buscar" onClick={() => searchByName()} color="inherit" size="small" />
+          <IconButton icon={<Icon type="FILTER" />} />
+        </Box>
         <Divider />
       </Box>
       <Box sx={{ display: "flex", alignItems: "center", pb: 2 }}>

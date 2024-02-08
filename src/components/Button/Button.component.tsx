@@ -1,4 +1,4 @@
-import React from 'react'
+import React from "react";
 import { Button as MuiButton, SxProps, Theme } from "@mui/material";
 
 export interface ButtonI {
@@ -9,22 +9,23 @@ export interface ButtonI {
   startIcon?: any;
   onMouseOver?: (params?: any) => any;
   onMouseLeave?: (params?: any) => any;
-  color?: 'primary' | 'secondary' | 'inherit'
-  disabled?: boolean
+  color?: "primary" | "secondary" | "inherit";
+  disabled?: boolean;
+  size?: "large" | "medium" | "small"
 }
 
 export const Button: React.FunctionComponent<ButtonI> = (props: ButtonI) => {
   return (
     <MuiButton
       sx={props.style}
+      size={props.size}
       variant={props.variant || "contained"}
       startIcon={props.startIcon}
       onClick={props.onClick}
       onMouseOver={props.onMouseOver}
       onMouseLeave={props.onMouseLeave}
-      color={props.color || 'primary'}
-      disabled={props.disabled || false}
-    >
+      color={props.color || "primary"}
+      disabled={props.disabled || false}>
       {props.title}
     </MuiButton>
   );

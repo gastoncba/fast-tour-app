@@ -12,8 +12,8 @@ interface AutocompleteOption {
 
 interface Props {
   placeholder: string;
-  items: AutocompleteOption[];
-  onSelect: (value: string) => void;
+  items?: AutocompleteOption[];
+  onSelect?: (value: string) => void;
   onChange?: (value: string) => void;
   sx?: SxProps<Theme>;
   displayNotFound?: JSX.Element
@@ -24,10 +24,10 @@ export const SearchBar: React.FC<Props> = ({ placeholder, items, onSelect, sx, d
   const [notFound]  = useState<JSX.Element>(displayNotFound || <Paragraph text={'No hay resultados'} sx={{color: '#424242'}} fontSize={14} />)
   
   const filteredOptions = useMemo(() => {
-    const uniqueOptions = items.filter((option, index) => {
+    const uniqueOptions = items?.filter((option, index) => {
       return items.findIndex((opt) => opt.value === option.value) === index;
     });
-    return uniqueOptions.filter((option) =>
+    return uniqueOptions?.filter((option) =>
       option.value.toLowerCase().includes(searchValue.toLowerCase())
     );
   }, [items, searchValue]);
@@ -37,7 +37,7 @@ export const SearchBar: React.FC<Props> = ({ placeholder, items, onSelect, sx, d
   };
 
   const renderNotFoundContent = () => {
-    return notFound;
+    return (filteredOptions) ? notFound : undefined;
   };
 
   return (

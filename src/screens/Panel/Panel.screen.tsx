@@ -16,8 +16,7 @@ export const PanelScreen: React.FC<PanelProps> = () => {
 
     let location = useLocation();
     const { value } = location.state as CustomizedState;
-    console.log(value)
-
+    
     const renderScreen = () => {
         switch (value) {
           case "trip":

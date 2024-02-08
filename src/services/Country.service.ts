@@ -4,10 +4,10 @@ import { Country } from "../models/Country.model";
 const SERVICE_ENDPOINT = "countries";
 
 export const CountryService = (() => {
-  const getCountries = () => {
+  const getCountries = (params?: string) => {
     return new Promise<Country[]>(async (resolve, reject) => {
       try {
-        let countries = (await get(SERVICE_ENDPOINT)) as Country[];
+        let countries = (await get(SERVICE_ENDPOINT, params)) as Country[];
         resolve(countries);
       } catch (error) {
         reject(newError("GET-COUNTRIES-FAIL", error));
