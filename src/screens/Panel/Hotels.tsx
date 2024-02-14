@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Box } from "@mui/material";
 
-import { Heading, Button, Divider, IconButton, Icon, Tooltip, showToast, Paragraph, GridList, Card, Loader, Rate, Form, Modal, SearchBar, Menu } from "../../components";
+import { Heading, IconButton, Icon, Tooltip, showToast, Paragraph, GridList, Card, Loader, Rate, Form, Modal, SearchBar, Menu, Filter } from "../../components";
 import { Country, Hotel, Place } from "../../models";
 import { CountryService, HotelService, PlaceService } from "../../services";
 
@@ -19,9 +19,8 @@ export const Hotels: React.FC<HotelProps> = () => {
   const [loadinDetail, setLoadingDetail] = useState<boolean>(false);
   const [hotel, setHotel] = useState<Hotel>({ id: -1, name: "", description: null, stars: 0 });
   const [openDetail, setOpenDetail] = useState<boolean>(false);
-  const [name, setName] = useState<string>("");
 
-  const getHotels = async (params?:string) => {
+  const getHotels = async (params?: string) => {
     setLoading(true);
     try {
       let hotels = await HotelService.getHotels(params);
@@ -129,7 +128,7 @@ export const Hotels: React.FC<HotelProps> = () => {
   const renderForm = () => {
     return (
       <Form
-        fields={[
+        inputs={[
           {
             label: "Nombre",
             type: "text",
@@ -213,22 +212,15 @@ export const Hotels: React.FC<HotelProps> = () => {
     setHotel({ id: -1, name: "", description: "", stars: 0 });
   };
 
-  const searchByName = () => {
+  const searchByName = (name: string) => {
     const params = name ? `?name=${encodeURIComponent(name)}` : "";
-    getHotels(params)
-  }
+    getHotels(params);
+  };
 
   return (
     <>
       <Heading title="Hoteles disponibles" />
-      <Box sx={{ display: "flex", flexDirection: "column", rowGap: 1, py: 2 }}>
-        <Box sx={{ display: "flex", columnGap: 2, alignItems: "center" }}>
-          <SearchBar placeholder="Buscar por nombre" onChange={(value) => setName(value)} />
-          <Button title="Buscar" onClick={() => searchByName()} color="inherit" size="small" />
-          <IconButton icon={<Icon type="FILTER" />} />
-        </Box>
-        <Divider />
-      </Box>
+      <Filter type="hotel" searchByName={searchByName} apply={() => {}} />
       <Box sx={{ display: "flex", alignItems: "center", pb: 2 }}>
         <Tooltip text="Agregar hotel" position="right">
           <Box>

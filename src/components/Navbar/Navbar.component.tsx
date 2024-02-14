@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Icon } from "../Icon/Icon.component";
 import { IconButton } from "../IconButton/IconButton.component";
 import { Paragraph } from "../Paragraph/Paragraph.component";
-import { Menu } from "../Menu/Menu.component";
+import { iconStyles } from "./styles"
 
 interface Props {
   icon?: JSX.Element;
@@ -28,7 +28,7 @@ export const NavBar: React.FunctionComponent<Props> = (props: Props) => {
           backgroundColor: "white",
         }}>
         <Toolbar>
-          <IconButton icon={props.icon || <Icon type="MENU" />} onClick={() => props.handleClick && props.handleClick()} />
+          <IconButton icon={props.icon || <Icon type="MENU" sx={iconStyles} />} onClick={() => props.handleClick && props.handleClick()} />
           <Paragraph text={"FastTour"} color={"primary.dark"} variant="h5" />
           {props.navigate && (
             <Box sx={{ display: "flex", flexDirection: "row", columnGap: 0, alignItems: "center" }}>

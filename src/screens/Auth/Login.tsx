@@ -27,9 +27,9 @@ export const Login: React.FC<LoginProps> = ({}) => {
 
   return (
     <Box>
-    <Paragraph text={"Fast Tour"} variant="h1" align="center" sx={{ pb: 4, fontSize: 50 }}/>
+      <Paragraph text={"Fast Tour"} variant="h1" align="center" sx={{ pb: 4, fontSize: 50 }} />
       <Form
-        fields={[
+        inputs={[
           {
             label: "Email",
             type: "email",

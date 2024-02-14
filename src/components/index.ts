@@ -25,3 +25,7 @@ export { IconButton } from "./IconButton/IconButton.component";
 export { Chip } from "./Chip/Chip.component";
 export { Collapse } from "./Collapse/Collapse.component";
 export { Rate } from "./Rate/Rate.component";
+export { Banner } from "./Banner/Banner.component";
+export { Filter } from "./Filter/Filter.component";
+export { Slider } from "./Slider/Slider.component";
+export { Switch } from "./Switch/Switch.component";

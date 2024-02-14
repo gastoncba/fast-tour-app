@@ -7,7 +7,7 @@ export const PlaceService = (() => {
   const getPlaces = (query?: string) => {
     return new Promise<Place[]>(async (resolve, reject) => {
       try {
-        let places = (await get(SERVICE_ENDPOINT, query)) as Place[];
+        let places = (await get(SERVICE_ENDPOINT, query, false)) as Place[];
         resolve(places);
       } catch (error) {
         reject(newError("GET-PLACES-FAIL", error));

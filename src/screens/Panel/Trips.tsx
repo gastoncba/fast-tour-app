@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Box } from "@mui/material";
 
-import { Divider, Collapse, List, Chip, Heading, GridList, Card, Paragraph, showToast, Loader, Icon, Form, Modal, Tooltip, Range, SearchBar, Menu, Button } from "../../components";
+import { Collapse, List, Chip, Heading, GridList, Card, Paragraph, showToast, Loader, Icon, Form, Modal, Tooltip, Range, SearchBar, Menu, Filter } from "../../components";
 import { Country, Place, Trip } from "../../models";
 import { CountryService, PlaceService, TripService } from "../../services";
 import { IconButton } from "../../components/IconButton/IconButton.component";
@@ -21,7 +21,6 @@ export const Trips: React.FC<TripProps> = () => {
   const [trip, setTrip] = useState<Trip>({ id: -1, name: "", description: null, img: null, price: 0, startDate: "", endDate: "", places: [] });
   const [isLoadingDetail, setIsLoadingDetail] = useState<boolean>(false);
   const [openModalDetail, setOpenDetail] = useState<boolean>(false);
-  const [name, setName] = useState<string>("");
 
   const handlerCountry = async (country: string) => {
     let selected = countries.find((c) => c.name === country);
@@ -44,7 +43,7 @@ export const Trips: React.FC<TripProps> = () => {
     }
   };
 
-  const handleSelect = (value: string) => {
+  const handlerSelect = (value: string) => {
     if (selectedPlaces.find((p) => p.name === value)) {
       return;
     }
@@ -54,7 +53,7 @@ export const Trips: React.FC<TripProps> = () => {
     }
   };
 
-  const handleDelete = (value: string) => {
+  const handlerDelete = (value: string) => {
     const newItems = selectedPlaces.filter((place) => place.name !== value);
     setSelectedPlaces(newItems);
   };
@@ -76,7 +75,7 @@ export const Trips: React.FC<TripProps> = () => {
       let ct = await CountryService.getCountries();
       setCountries(ct);
     } catch (error) {
-      showToast("error", "Error al cargar los viajes disponibles");
+      showToast("error", "Error al cargar los paises disponibles");
     }
   };
 
@@ -130,7 +129,7 @@ export const Trips: React.FC<TripProps> = () => {
   const renderForm = () => {
     return (
       <Form
-        fields={[
+        inputs={[
           {
             label: "Nombre",
             type: "text",
@@ -158,13 +157,13 @@ export const Trips: React.FC<TripProps> = () => {
             </Box>
             <Box sx={{ display: "flex", columnGap: 2 }}>
               <SearchBar items={countries.map((c) => ({ value: c.name }))} placeholder="Pais" onSelect={(value) => handlerCountry(value)} />
-              {loadingPlaces ? <Loader /> : <SearchBar items={places.map((p) => ({ value: p.name }))} placeholder="Lugares" onSelect={(value) => handleSelect(value)} />}
+              {loadingPlaces ? <Loader /> : <SearchBar items={places.map((p) => ({ value: p.name }))} placeholder="Lugares" onSelect={(value) => handlerSelect(value)} />}
             </Box>
             <Box>
               <Paragraph text={"Lugares: "} />
               <Box display={"flex"} flexDirection={"row"} columnGap={1} sx={{ mt: 1 }}>
                 {selectedPlaces.map((place) => (
-                  <Chip key={place.placeId} label={place.name} onDelete={() => handleDelete(place.name)} color="default" />
+                  <Chip key={place.placeId} label={place.name} onDelete={() => handlerDelete(place.name)} color="default" />
                 ))}
               </Box>
             </Box>
@@ -191,7 +190,7 @@ export const Trips: React.FC<TripProps> = () => {
     setTrip({ id: -1, name: "", description: null, img: null, price: 0, startDate: "", endDate: "", places: [] });
   };
 
-  const searchByName = () => {
+  const searchByName = (name: string) => {
     const params = name ? `?name=${encodeURIComponent(name)}` : "";
     getTrips(params);
   };
@@ -240,17 +239,14 @@ export const Trips: React.FC<TripProps> = () => {
     );
   };
 
+  const applyFilter = (params: string) => {
+    getTrips(params)
+  }
+
   return (
     <>
       <Heading title="Viajes disponibles" />
-      <Box sx={{ display: "flex", flexDirection: "column", rowGap: 1, py: 2 }}>
-        <Box sx={{ display: "flex", columnGap: 2, alignItems: "center" }}>
-          <SearchBar placeholder="Buscar por nombre" onChange={(value) => setName(value)} />
-          <Button title="Buscar" onClick={() => searchByName()} color="inherit" size="small" />
-          <IconButton icon={<Icon type="FILTER" />} />
-        </Box>
-        <Divider />
-      </Box>
+      <Filter type="trip" filter searchByName={searchByName} apply={applyFilter} places={places.map(p => ({ value: p.name, other: p }))} countries={countries.map(c => ({ value: c.name, other: c }))} selectCountry={handlerCountry} onCloseFilter={() => setPlaces([])}/>
       <Box sx={{ display: "flex", alignItems: "center", pb: 2 }}>
         <Tooltip text="Agregar viaje" position="right">
           <Box>
@@ -296,6 +292,7 @@ export const Trips: React.FC<TripProps> = () => {
         onClose={() => {
           setOpenModal(false);
           setSelectedPlaces([]);
+          setPlaces([]);
           setDates([]);
         }}
         title="Viaje">

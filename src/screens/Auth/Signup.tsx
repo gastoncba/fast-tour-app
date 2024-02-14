@@ -30,7 +30,7 @@ export const Singup: React.FC<SingupProps> = ({}) => {
     <Box>
       <Form
         title="Registrate en FastTour!"
-        fields={[
+        inputs={[
           {
             label: "Nombre",
             type: "text",

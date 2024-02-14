@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Box } from "@mui/material";
 
-import { Heading, SearchBar, Button, Tooltip, Divider, IconButton, Icon, Loader, GridList, Paragraph, Card, showToast, Modal, Form, Menu } from "../../components";
+import { Heading, Tooltip, IconButton, Icon, Loader, GridList, Paragraph, Card, showToast, Modal, Form, Menu, Filter } from "../../components";
 import { Country } from "../../models";
 import { CountryService } from "../../services";
 
@@ -12,7 +12,6 @@ export const Countries: React.FC<CountriesProps> = () => {
   const [countries, setCountries] = useState<Country[]>([]);
   const [form, setForm] = useState<any>(null);
   const [open, setOpen] = useState<boolean>(false);
-  const [name, setName] = useState<string>("");
 
   const getCountries = async (params?: string) => {
     setLoading(true);
@@ -68,7 +67,7 @@ export const Countries: React.FC<CountriesProps> = () => {
     setOpen(true);
     setForm(
       <Form
-        fields={[
+        inputs={[
           {
             label: "Nombre",
             type: "text",
@@ -85,22 +84,15 @@ export const Countries: React.FC<CountriesProps> = () => {
     );
   };
 
-  const searchByName = () => {
+  const searchByName = (name: string) => {
     const params = name ? `?name=${encodeURIComponent(name)}` : "";
     getCountries(params);
-  }
+  };
 
   return (
     <>
       <Heading title="Paises disponibles" />
-      <Box sx={{ display: "flex", flexDirection: "column", rowGap: 1, py: 2 }}>
-        <Box sx={{ display: "flex", columnGap: 2, alignItems: "center" }}>
-          <SearchBar placeholder="Buscar por nombre" onChange={(value) => setName(value)} />
-          <Button title="Buscar" onClick={() => searchByName()} color="inherit" size="small" />
-          <IconButton icon={<Icon type="FILTER" />} />
-        </Box>
-        <Divider />
-      </Box>
+      <Filter searchByName={searchByName} type="country" apply={() => {}} />
       <Box sx={{ display: "flex", alignItems: "center", pb: 2 }}>
         <Tooltip text="Agregar país" position="right">
           <Box>

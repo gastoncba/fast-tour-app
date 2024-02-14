@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Box } from "@mui/material";
 
-import { Heading, Button, Tooltip, IconButton, Icon, Divider, showToast, Form, SearchBar, Paragraph, Modal, Loader, GridList, Card, Menu } from "../../components";
+import { Heading, Tooltip, IconButton, Icon, showToast, Form, SearchBar, Paragraph, Modal, Loader, GridList, Card, Menu, Filter } from "../../components";
 import { Country, Place } from "../../models";
 import { CountryService, PlaceService } from "../../services";
 
@@ -16,7 +16,6 @@ export const Places: React.FC<PlacesProps> = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [loadingDetail, setLoadingDetail] = useState<boolean>(true);
   const [openDetail, setOpenDetail] = useState<boolean>(false);
-  const [name, setName] = useState<string>("");
 
   const getPlaces = async (params?: string) => {
     setLoading(true);
@@ -99,7 +98,7 @@ export const Places: React.FC<PlacesProps> = () => {
   const renderForm = () => {
     return (
       <Form
-        fields={[
+        inputs={[
           {
             label: "Nombre",
             type: "text",
@@ -163,22 +162,15 @@ export const Places: React.FC<PlacesProps> = () => {
     );
   };
 
-  const searchByName = () => {
+  const searchByName = (name: string) => {
     const params = name ? `?name=${encodeURIComponent(name)}` : "";
     getPlaces(params);
-  }
+  };
 
   return (
     <>
       <Heading title="Destinos disponibles" />
-      <Box sx={{ display: "flex", flexDirection: "column", rowGap: 1, py: 2 }}>
-        <Box sx={{ display: "flex", columnGap: 2, alignItems: "center" }}>
-          <SearchBar placeholder="Buscar por nombre" onChange={(value) => setName(value)} />
-          <Button title="Buscar" onClick={() => searchByName()} color="inherit" size="small" />
-          <IconButton icon={<Icon type="FILTER" />} />
-        </Box>
-        <Divider />
-      </Box>
+      <Filter type="place" searchByName={searchByName} apply={() => {}} />
       <Box sx={{ display: "flex", alignItems: "center", pb: 2 }}>
         <Tooltip text="Agregar destino" position="right">
           <Box>
