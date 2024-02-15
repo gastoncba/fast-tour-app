@@ -163,7 +163,7 @@ export const Places: React.FC<PlacesProps> = () => {
   };
 
   const searchByName = (name: string) => {
-    const params = name ? `?name=${encodeURIComponent(name)}` : "";
+    const params = name ? `name=${encodeURIComponent(name)}` : "";
     getPlaces(params);
   };
 

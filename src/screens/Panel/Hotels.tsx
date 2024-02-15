@@ -213,7 +213,7 @@ export const Hotels: React.FC<HotelProps> = () => {
   };
 
   const searchByName = (name: string) => {
-    const params = name ? `?name=${encodeURIComponent(name)}` : "";
+    const params = name ? `name=${encodeURIComponent(name)}` : "";
     getHotels(params);
   };
 

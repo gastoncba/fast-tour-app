@@ -191,7 +191,7 @@ export const Trips: React.FC<TripProps> = () => {
   };
 
   const searchByName = (name: string) => {
-    const params = name ? `?name=${encodeURIComponent(name)}` : "";
+    const params = name ? `name=${encodeURIComponent(name)}` : "";
     getTrips(params);
   };
 
