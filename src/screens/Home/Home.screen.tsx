@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Box } from "@mui/material";
+import { useNavigate } from "react-router-dom"
 
 import { Card, GridList, Loader, Paragraph, showToast, Modal, List, Collapse, Icon, IconButton, Banner, Filter } from "../../components/index";
 import { Trip } from "../../models/Trip.model";
@@ -19,6 +20,8 @@ export const HomeScreen: React.FC<HomeProps> = (props: HomeProps) => {
   const [countries, setCountries] = useState<Country[]>([]);
   const [places, setPlaces] = useState<Place[]>([]);
 
+  let navigate = useNavigate();
+
   const getTrips = async (params?: string) => {
     setIsLoading(true);
     try {
@@ -34,7 +37,6 @@ export const HomeScreen: React.FC<HomeProps> = (props: HomeProps) => {
   const getCountries = async () => {
     try {
       let ct = await CountryService.getCountries();
-      console.log("countries => ", ct);
       setCountries(ct);
     } catch (error) {
       console.log("error => ", error);
@@ -96,6 +98,7 @@ export const HomeScreen: React.FC<HomeProps> = (props: HomeProps) => {
         countries={countries.map((c) => ({ value: c.name, other: c }))}
         selectCountry={handlerCountry}
         onCloseFilter={() => setPlaces([])}
+        onCloseSearch={async () => await getTrips()}
       />
       {isLoading ? (
         <Loader sx={{ py: 6 }} />
@@ -124,15 +127,22 @@ export const HomeScreen: React.FC<HomeProps> = (props: HomeProps) => {
           )}
         </>
       )}
-      <Modal open={open} onClose={() => setOpen(false)} title={modalTitle} fullWidth>
+      <Modal
+        open={open}
+        onClose={() => {
+          setOpen(false);
+          setExpanded(false);
+        }}
+        title={modalTitle}
+        fullWidth>
         <>
           {isLoadingDetail ? (
             <Loader />
           ) : (
-            <Card title={trip.name} description={trip.description ? trip.description : "Sin descripción"} other={trip.startDate + " al " + trip.endDate} onAction={{ onClick: () => {}, title: "agregar" }}>
+            <Card title={trip.name} description={trip.description ? trip.description : "Sin descripción"} other={trip.startDate + " al " + trip.endDate} onAction={{ onClick: () => navigate("/app/purchase", { state: { trip } }), title: "comprar" }}>
               <Paragraph text={"Precio USD " + trip.price} />
               <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-                <Paragraph text={"Lugares"} sx={{ fontWeight: "bold" }} />
+                <Paragraph text={"Lugares a visitar"} sx={{ fontWeight: "bold" }} />
                 <IconButton icon={<Icon type="EXPAND-MORE" />} onClick={() => setExpanded(!expanded)} />
               </Box>
               <Collapse expanded={expanded}>

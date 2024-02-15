@@ -170,7 +170,7 @@ export const Places: React.FC<PlacesProps> = () => {
   return (
     <>
       <Heading title="Destinos disponibles" />
-      <Filter type="place" searchByName={searchByName} apply={() => {}} />
+      <Filter type="place" searchByName={searchByName} apply={() => {}} onCloseSearch={async () => await getPlaces()} />
       <Box sx={{ display: "flex", alignItems: "center", pb: 2 }}>
         <Tooltip text="Agregar destino" position="right">
           <Box>

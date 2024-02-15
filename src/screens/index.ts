@@ -2,5 +2,5 @@ export { LandingScreen } from "./Landing/Landing.screen";
 export { HomeScreen } from "./Home/Home.screen";
 export { AuthScreen } from "./Auth/Auth.screen";
 export { NotFoundScreen } from "./NotFound/NotFound.screen";
-export { PackagePurchaseScreen } from "./Purchase/PackagePurchase.Screen";
+export { PurchaseScreen } from "./Purchase/Purchase.Screen";
 export { PanelScreen } from "./Panel/Panel.screen";

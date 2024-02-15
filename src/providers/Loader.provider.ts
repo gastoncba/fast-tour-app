@@ -1,6 +1,5 @@
 import { makeAutoObservable } from "mobx";
 
-import { cartProvider } from "./Cart.provider";
 import { userProvider } from "./User.provider";
 
 class LoaderProvider {
@@ -17,7 +16,6 @@ class LoaderProvider {
     try {
       await userProvider.loginByToken();
       this.setIsStarting(false);
-      //cartProvider.load()
     } catch (error) {
       this.setIsStarting(false);
     }

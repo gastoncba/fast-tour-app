@@ -240,13 +240,23 @@ export const Trips: React.FC<TripProps> = () => {
   };
 
   const applyFilter = (params: string) => {
-    getTrips(params)
-  }
+    getTrips(params);
+  };
 
   return (
     <>
       <Heading title="Viajes disponibles" />
-      <Filter type="trip" filter searchByName={searchByName} apply={applyFilter} places={places.map(p => ({ value: p.name, other: p }))} countries={countries.map(c => ({ value: c.name, other: c }))} selectCountry={handlerCountry} onCloseFilter={() => setPlaces([])}/>
+      <Filter
+        type="trip"
+        filter
+        searchByName={searchByName}
+        apply={applyFilter}
+        places={places.map((p) => ({ value: p.name, other: p }))}
+        countries={countries.map((c) => ({ value: c.name, other: c }))}
+        selectCountry={handlerCountry}
+        onCloseFilter={() => setPlaces([])}
+        onCloseSearch={async () => await getTrips()}
+      />
       <Box sx={{ display: "flex", alignItems: "center", pb: 2 }}>
         <Tooltip text="Agregar viaje" position="right">
           <Box>

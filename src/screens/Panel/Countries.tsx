@@ -92,7 +92,7 @@ export const Countries: React.FC<CountriesProps> = () => {
   return (
     <>
       <Heading title="Paises disponibles" />
-      <Filter searchByName={searchByName} type="country" apply={() => {}} />
+      <Filter searchByName={searchByName} type="country" apply={() => {}} onCloseSearch={async () => await getCountries()} />
       <Box sx={{ display: "flex", alignItems: "center", pb: 2 }}>
         <Tooltip text="Agregar país" position="right">
           <Box>

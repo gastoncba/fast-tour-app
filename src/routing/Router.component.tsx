@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { Box } from "@mui/material";
 import { observer } from "mobx-react";
 
-import { AuthScreen, HomeScreen, LandingScreen, NotFoundScreen, PanelScreen } from "../screens";
+import { AuthScreen, HomeScreen, LandingScreen, NotFoundScreen, PanelScreen, PurchaseScreen } from "../screens";
 import { NavBar, Sidebar, Icon, IconButton, Menu } from "../components";
 import { RouterItemsController } from "./RouterItemsController";
 import { RouterItems } from "./RouterItems";
@@ -16,6 +16,8 @@ export const Router: React.FC<Props> = observer((props: Props) => {
   const [showSidebar, setShowSidebar] = useState<boolean>(false);
   const generalItems = RouterItemsController();
   let navigate = useNavigate();
+  let location = useLocation();
+  const { state } = location;
 
   const logout = () => {
     tokenProvider.clearTokens();
@@ -64,6 +66,9 @@ export const Router: React.FC<Props> = observer((props: Props) => {
               <Routes>
                 <Route path="/auth" element={<AuthScreen />} />
                 <Route path="/home" element={<HomeScreen />} />
+                <Route element={<ProtectedRoute conditions={[{ redirectIf: () => !state, redirectTo: "/app/home" }]} />}>
+                  <Route path="/purchase" element={<PurchaseScreen />} />
+                </Route>
                 <Route
                   element={
                     <ProtectedRoute

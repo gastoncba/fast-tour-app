@@ -220,7 +220,7 @@ export const Hotels: React.FC<HotelProps> = () => {
   return (
     <>
       <Heading title="Hoteles disponibles" />
-      <Filter type="hotel" searchByName={searchByName} apply={() => {}} />
+      <Filter type="hotel" searchByName={searchByName} apply={() => {}} onCloseFilter={async () => await getHotels()} />
       <Box sx={{ display: "flex", alignItems: "center", pb: 2 }}>
         <Tooltip text="Agregar hotel" position="right">
           <Box>

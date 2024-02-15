@@ -16,16 +16,17 @@ import { Input } from "../Input/Input.component";
 
 interface FilterProps {
   type: "trip" | "place" | "hotel" | "country";
-  filter?: boolean; 
+  filter?: boolean;
   searchByName: (name: string) => void;
   countries?: { value: string; other: any }[];
   places?: { value: string; other: any }[];
   selectCountry?: (countryName: string) => Promise<any>;
   apply: (params: string) => void;
   onCloseFilter?: () => void;
+  onCloseSearch?: () => Promise<void> | void;
 }
 
-export const Filter: React.FC<FilterProps> = ({ type, searchByName, countries, selectCountry, places, apply, filter = false, onCloseFilter }) => {
+export const Filter: React.FC<FilterProps> = ({ type, searchByName, countries, selectCountry, places, apply, filter = false, onCloseFilter, onCloseSearch }) => {
   const [open, setOpen] = useState<boolean>(false);
   const [selectedPlaces, setSelectedPlaces] = useState<{ name: string; placeId: number }[]>([]);
   const [minPrice, setMinPrice] = useState<number>(10);
@@ -130,11 +131,14 @@ export const Filter: React.FC<FilterProps> = ({ type, searchByName, countries, s
                       value={minPrice}
                       setValue={(value) => {
                         let min = parseFloat(value);
-                        if(isNaN(min)) { setMinPrice(0); return }
+                        if (isNaN(min)) {
+                          setMinPrice(0);
+                          return;
+                        }
                         if (min <= maxPrice) {
                           setMinPrice(min);
                         } else {
-                          setMinPrice(10)
+                          setMinPrice(10);
                         }
                       }}
                       size="small"
@@ -147,11 +151,14 @@ export const Filter: React.FC<FilterProps> = ({ type, searchByName, countries, s
                       value={maxPrice}
                       setValue={(value) => {
                         let max = parseFloat(value);
-                        if(isNaN(max)) { setMaxPrice(100); return }
+                        if (isNaN(max)) {
+                          setMaxPrice(100);
+                          return;
+                        }
                         if (max >= minPrice) {
                           setMaxPrice(max);
                         } else {
-                          setMaxPrice(100)
+                          setMaxPrice(100);
                         }
                       }}
                       size="small"
@@ -187,9 +194,9 @@ export const Filter: React.FC<FilterProps> = ({ type, searchByName, countries, s
     <>
       <Box sx={{ display: "flex", flexDirection: "column", rowGap: 1, py: 2 }}>
         <Box sx={{ display: "flex", columnGap: 2, alignItems: "center" }}>
-          <SearchBar placeholder="Buscar por nombre" onChange={(value) => setName(value)} />
+          <SearchBar placeholder="Buscar por nombre" onChange={(value) => setName(value)} onClose={onCloseSearch} />
           <Button title="Buscar" onClick={() => searchByName(name)} color="inherit" size="small" />
-          {(filter) && <IconButton icon={<Icon type="FILTER" />} onClick={() => setOpen(true)} />}
+          {filter && <IconButton icon={<Icon type="FILTER" />} onClick={() => setOpen(true)} />}
         </Box>
         <Divider />
       </Box>
