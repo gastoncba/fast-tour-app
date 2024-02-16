@@ -1,64 +1,24 @@
-import React, { CSSProperties } from "react";
-import { Typography } from "antd";
-import "antd/dist/reset.css";
-
-const { Text, Title, Link } = Typography;
+import React from "react";
+import { Typography } from "@mui/material";
+import { SxProps, Theme } from "@mui/material/styles";
 
 interface Props {
-  type?: "text" | "title" | "link";
-  levelTitle?: 1 | 2 | 3 | 4 | 5;
-  text: string;
-  style?: CSSProperties;
-  color?: "black" | "gray" | "white";
-  onClick?: (value?: any) => void;
+  align?: "center" | "inherit" | "justify" | "left" | "right";
+  variant?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "body1" | "caption" | "overline";
+  text: string | number;
+  fontSize?: number | string;
+  color?: "primary" | "primary.light" | "primary.dark" | "GrayText" | "secondary" | "secondary.light" | "secondary.dark" | "GrayText" | "white" | "warning.main" | "success.main";
+  sx?: SxProps<Theme>;
+  className?: string;
+  fontWeight?: number | "light" | "regular" | "medium" | "bold";
 }
 
-export const Paragraph: React.FC<Props> = ({
-  type = 'text',
-  style,
-  text,
-  levelTitle,
-  onClick,
-  color = 'black',
-}) => {
-  const primaryStyle = { color: "black" };
-  const grayStyle = { color: "gray" };
-  const whiteStyle = { color: "white" };
-
+export const Paragraph: React.FunctionComponent<Props> = (props: Props) => {
   return (
     <>
-      {type === "text" ? (
-        <Text
-          style={{
-            ...style,
-            ...(color === 'black' ? primaryStyle : (color === "white") ? whiteStyle : grayStyle),
-          }}
-        >
-          {text}
-        </Text>
-      ) : type === "title" ? (
-        <Title
-          level={levelTitle || 1}
-          style={{
-            ...style,
-            ...(color === 'black' ? primaryStyle : grayStyle),
-          }}
-        >
-          {text}
-        </Title>
-      ) : (
-        <div>
-          <Link
-            onClick={onClick}
-            style={{
-              ...style,
-              ...(color === 'black' ? primaryStyle : grayStyle),
-            }}
-          >
-            {text}
-          </Link>
-        </div>
-      )}
+      <Typography color={props.color} align={props.align} variant={props.variant || "body1"} sx={{ fontSize: props.fontSize, fontWeight: props.fontWeight, ...props.sx }} className={props.className}>
+        {props.text}
+      </Typography>
     </>
   );
 };

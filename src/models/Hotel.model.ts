@@ -1,8 +1,9 @@
-import { Travel } from "./Travels.model"
+import { Place } from "./Place.model";
 
 export type Hotel = {
-    id: string, 
-    name: string,
-    star: number,
-    travels: Travel[]
-}
+  id: number;
+  name: string;
+  description: string | null;
+  stars: number;
+  place?: Place
+};

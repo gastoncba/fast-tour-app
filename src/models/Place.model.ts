@@ -1,10 +1,11 @@
-import { Country } from "./Country.model"
-import { Travel } from "./Travels.model"
+import { Country } from "./Country.model";
+import { Hotel } from "./Hotel.model";
 
 export type Place = {
-    id: string
-    name: string
-    img:string
-    country: Country
-    travels: Travel[]
-}
+  id: number;
+  name: string;
+  description: string | null;
+  img: string | null;
+  country: Country;
+  hotels: Hotel[];
+};

@@ -1,8 +1,6 @@
-import { Place } from "./Place.model"
-
-export type Country  = {
-    id:string
-    name: string
-    img: string
-    places: Place[]
-}
+export type Country = {
+  id: number;
+  name: string;
+  code: string;
+  img: string | null;
+};
