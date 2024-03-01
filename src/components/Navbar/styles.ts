@@ -1,18 +1,27 @@
 import { SxProps, Theme } from "@mui/material";
 import { themeMaterial } from "../../settings/materialTheme.setting";
 
-const { main, light } = themeMaterial.palette.primary
+const { dark, light } = themeMaterial.palette.primary;
 
 export const iconStyles: SxProps<Theme> = {
+  position: "relative",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  flexShrink: 0,
+  lineHeight: 1,
+  userSelect: "none",
+  cursor: "pointer",
   borderRadius: "8px",
-  ".setting-item-icon": {
-    background: "primary.light",
-    color: "primary.main",
-    "&:hover": {
-        transition: "all .2s ease-in-out",
-        backgroundColor: main,
-        color: light,
-      },
+  width: "34px",
+  height: "34px",
+  fontSize: "1.2rem",
+  overflow: "hidden",
+  transition: "all 0.2s ease-in-out 0s",
+  background: "rgb(237, 231, 246)",
+  color: dark,
+  ":hover": {
+    background: dark,
+    color: light,
   },
-  color: main,
 };

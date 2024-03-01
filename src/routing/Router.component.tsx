@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { Box } from "@mui/material";
 import { observer } from "mobx-react";
 
 import { AuthScreen, HomeScreen, LandingScreen, NotFoundScreen, PanelScreen, PurchaseScreen } from "../screens";
-import { NavBar, Sidebar, Icon, IconButton, Menu } from "../components";
+import { NavBar, Sidebar, Icon, Menu } from "../components";
 import { RouterItemsController } from "./RouterItemsController";
 import { RouterItems } from "./RouterItems";
 import { ProtectedRoute } from "./ProtectedRoute.component";
@@ -28,6 +28,21 @@ export const Router: React.FC<Props> = observer((props: Props) => {
     }, 2000);
   };
 
+  useEffect(() => {
+    const handleBeforeUnload = (event: any) => {
+      event.preventDefault();
+      const confirmationMessage = "¿Desea salir de esta página?";
+      event.returnValue = confirmationMessage;
+      return confirmationMessage;
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
+
   return (
     <Routes>
       <Route path="/" element={<LandingScreen />} />
@@ -40,7 +55,6 @@ export const Router: React.FC<Props> = observer((props: Props) => {
               handleClick={() => setShowSidebar(!showSidebar)}
               icons={
                 <>
-                  <IconButton icon={<Icon type="BAG" sx={{ color: "black" }} />} />
                   <Menu
                     icon={<Icon type="ACCOUNT" sx={{ color: "black" }} />}
                     items={[

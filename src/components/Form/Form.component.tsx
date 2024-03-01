@@ -8,6 +8,9 @@ import { Paragraph } from "../Paragraph/Paragraph.component";
 import { Loader } from "../Loader/Loader.component";
 import { Icon } from "../Icon/Icon.component";
 
+type variantTitle = "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "body1" | "caption" | "overline";
+type alignTitle = "center" | "inherit" | "justify" | "left" | "right";
+
 interface Input {
   label: string;
   type: "text" | "password" | "email" | "number";
@@ -23,7 +26,7 @@ interface Input {
 
 interface FormProps {
   inputs: Input[];
-  title?: string;
+  title?: { text?: string; variant?: variantTitle; align?: alignTitle };
   styles?: CSSProperties;
   children?: React.ReactNode;
   submitText?: string;
@@ -123,7 +126,7 @@ export const Form: React.FC<FormProps> = ({ inputs, title, styles, children, sub
 
   return (
     <>
-      {title && <Paragraph text={title} variant="h1" align="center" sx={{ fontSize: 50, mb: 2 }} />}
+      {title?.text && <Paragraph text={title.text} variant={title.variant || "h1"} align={title.align || "center"} sx={{ fontSize: 50, mb: 2 }} />}
       <form onSubmit={formik.handleSubmit} style={styles}>
         <Grid container spacing={2}>
           {inputs.map((input, index) => {

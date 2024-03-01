@@ -47,7 +47,7 @@ export const PurchaseScreen: React.FC<PropsPurchase> = () => {
           <Grid container>
             <Grid item lg={6}>
               <Form
-                title="Datos de contacto"
+                title={{ text: "Datos de Contacto", variant: "h6" }}
                 inputs={[
                   {
                     label: "Nombre",
@@ -62,16 +62,34 @@ export const PurchaseScreen: React.FC<PropsPurchase> = () => {
                   {
                     label: "Email",
                     type: "email",
-                    initialValue: { email: "" }
+                    initialValue: { email: "" },
                   },
                   {
                     label: "Cantidad de personas",
                     type: "number",
-                    initialValue: { cantPeople: 1 }
-                  }
+                    initialValue: { cantPeople: 1 },
+                  },
                 ]}
                 onAction={send}
               />
+            </Grid>
+            <Grid item lg={6}>
+              <Box sx={{ px: 4 , py: 2 }}>
+                <Paragraph text={trip.name} variant="h5" sx={{ pb: 1 }}/>
+                <Box sx={{ display: "flex", columnGap: 1 }}>
+                  <Paragraph text={"Descripción:"} fontWeight={"bold"} sx={{ fontStyle: "italic"}} />
+                  <Paragraph text={trip.description || "Sin Descripción"} />
+                </Box>
+                <Paragraph text={"Desde el " + trip.startDate + " hasta el " + trip.endDate} />
+                <Box sx={{ display: "flex", columnGap: 1 }}>
+                  <Paragraph text={"Precio: "} fontWeight={"bold"}  sx={{ fontStyle: "italic"}} />
+                  <Paragraph text={"USD " + trip.price} />
+                </Box>
+                <Paragraph text={"hoteles elegidos: "} fontWeight={"bold"}  sx={{ fontStyle: "italic"}} />
+                {placeVisited.map((pv) => (
+                  <HotelSelector place={pv.place} hotel={pv.hotel} addHotel={() => {}} removeHotel={() => {}} readonly />
+                ))}
+              </Box>
             </Grid>
           </Grid>
         ) : (
@@ -93,9 +111,10 @@ interface PropsHotelSelector {
   hotel: Hotel | null;
   addHotel: (hotel: Hotel) => void;
   removeHotel: (hotel: Hotel) => void;
+  readonly?: boolean;
 }
 
-const HotelSelector: React.FC<PropsHotelSelector> = ({ place, hotel, addHotel, removeHotel }) => {
+const HotelSelector: React.FC<PropsHotelSelector> = ({ place, hotel, addHotel, removeHotel, readonly = false }) => {
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [selected, setSelected] = useState<Hotel | null>(hotel);
   const [open, setOpen] = useState<boolean>(false);
@@ -128,16 +147,18 @@ const HotelSelector: React.FC<PropsHotelSelector> = ({ place, hotel, addHotel, r
               <Box sx={{ display: "flex", flexDirection: "column" }}>
                 <Box sx={{ display: "flex", alignItems: "center", columnGap: 1 }}>
                   <Paragraph text={selected.name} />
-                  <IconButton
-                    icon={<Icon type="CLOSE" sx={{ fontSize: "20px" }} />}
-                    size="small"
-                    onClick={() => {
-                      setSelected(null);
-                      removeHotel(selected);
-                    }}
-                  />
+                  {!readonly && (
+                    <IconButton
+                      icon={<Icon type="CLOSE" sx={{ fontSize: "20px" }} />}
+                      size="small"
+                      onClick={() => {
+                        setSelected(null);
+                        removeHotel(selected);
+                      }}
+                    />
+                  )}
                 </Box>
-                <Paragraph text={selected.description || "Sin descripción"} color="GrayText" sx={{ fontStyle: "italic" }} />
+                {!readonly && <Paragraph text={selected.description || "Sin descripción"} color="GrayText" sx={{ fontStyle: "italic" }} />}
                 <Box>
                   <Paragraph text={"Estrellas: "} />
                   <Rate value={selected.stars} readonly />
@@ -148,17 +169,19 @@ const HotelSelector: React.FC<PropsHotelSelector> = ({ place, hotel, addHotel, r
             )}
           </Box>
         </Box>
-        <Box sx={{ pt: 2 }}>
-          <Button
-            title="ver hoteles"
-            onClick={() => {
-              setOpen(true);
-              getHotels();
-            }}
-            size="small"
-            color="inherit"
-          />
-        </Box>
+        {!readonly && (
+          <Box sx={{ pt: 2 }}>
+            <Button
+              title="ver hoteles"
+              onClick={() => {
+                setOpen(true);
+                getHotels();
+              }}
+              size="small"
+              color="inherit"
+            />
+          </Box>
+        )}
       </Box>
       <Divider />
       <Modal title="Hoteles" open={open} onClose={() => setOpen(false)} fullWidth>

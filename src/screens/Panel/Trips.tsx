@@ -85,8 +85,19 @@ export const Trips: React.FC<TripProps> = () => {
   }, []);
 
   const createTrip = async (value: any) => {
+    let placesId = selectedPlaces.map((p) => p.placeId);
+
+    if (dates[0] === "" || dates[1] === "") {
+      showToast("error", "Se debe elegir un rango de fechas del viaje");
+      return;
+    }
+
+    if (placesId.length === 0) {
+      showToast("error", "Se debe elegir al menos un lugar");
+      return;
+    }
+
     try {
-      let placesId = selectedPlaces.map((p) => p.placeId);
       await TripService.createTrip({ name: value.name, description: value.description, price: value.price, startDate: dates[0], endDate: dates[1], placesId });
       showToast("success", "Viaje agregado exitosamente");
       getTrips();
@@ -100,8 +111,19 @@ export const Trips: React.FC<TripProps> = () => {
   };
 
   const updateTrip = async (value: any) => {
+    let placesId = selectedPlaces.map((p) => p.placeId);
+
+    if (dates[0] === "" || dates[1] === "") {
+      showToast("error", "Se debe elegir un rango de fechas del viaje");
+      return;
+    }
+
+    if (placesId.length === 0) {
+      showToast("error", "Se debe elegir al menos un lugar");
+      return;
+    }
+
     try {
-      let placesId = selectedPlaces.map((p) => p.placeId);
       await TripService.updateTrip(trip.id, { name: value.name, description: value.description, price: value.price, startDate: dates[0], endDate: dates[1], placesId });
       showToast("success", "Viaje actualizado exitosamente");
       getTrips();

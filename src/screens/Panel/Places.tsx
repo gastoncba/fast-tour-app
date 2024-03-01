@@ -56,6 +56,10 @@ export const Places: React.FC<PlacesProps> = () => {
   }, []);
 
   const createPlace = async (value: any) => {
+    if (selectedCountry.id === -1) {
+      showToast("error", "Se debe elegir un país donde este el destino");
+      return;
+    }
     try {
       await PlaceService.createPlace({ ...value, countryId: selectedCountry.id });
       getPlaces();
@@ -67,6 +71,10 @@ export const Places: React.FC<PlacesProps> = () => {
   };
 
   const updatePlace = async (value: any) => {
+    if (selectedCountry.id === -1) {
+      showToast("error", "Se debe elegir un país donde este el destino");
+      return;
+    }
     try {
       await PlaceService.updatePlace(place.id, { ...value, countryId: selectedCountry.id });
       getPlaces();

@@ -14,7 +14,7 @@ interface SingupValues {
 
 interface SingupProps {}
 
-export const Singup: React.FC<SingupProps> = ({}) => {
+export const Singup: React.FC<SingupProps> = () => {
   let navigate = useNavigate();
   const onAction = async (values: SingupValues) => {
     try {
@@ -29,7 +29,7 @@ export const Singup: React.FC<SingupProps> = ({}) => {
   return (
     <Box>
       <Form
-        title="Registrate en FastTour!"
+        title={{ text: "Registrate en FastTour!" }}
         inputs={[
           {
             label: "Nombre",

@@ -57,6 +57,16 @@ export const Hotels: React.FC<HotelProps> = () => {
   };
 
   const createHotel = async (value: any) => {
+    if (stars === 0) {
+      showToast("error", "El hotel debe tener al menos una estrella");
+      return;
+    }
+
+    if (selectedPlace.id === -1) {
+      showToast("error", "Se debe elegir un lugar en donde se encuentra el hotel");
+      return;
+    }
+
     try {
       await HotelService.createHotel({ ...value, placeId: selectedPlace.id, stars });
       await getHotels();
@@ -69,6 +79,16 @@ export const Hotels: React.FC<HotelProps> = () => {
   };
 
   const updateHotel = async (value: any) => {
+    if (stars === 0) {
+      showToast("error", "El hotel debe tener al menos una estrella");
+      return;
+    }
+
+    if (selectedPlace.id === -1) {
+      showToast("error", "Se debe elegir un lugar en donde se encuentra el hotel");
+      return;
+    }
+
     try {
       await HotelService.updateHotel(hotel.id, { ...value, placeId: selectedPlace.id, stars });
       await getHotels();

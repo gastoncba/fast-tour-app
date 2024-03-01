@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import "antd/dist/reset.css";
 import { Input, AutoComplete } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
@@ -19,11 +19,12 @@ interface Props {
   sx?: SxProps<Theme>;
   displayNotFound?: JSX.Element;
   onClose?: React.MouseEventHandler<HTMLSpanElement>;
+  withTimer?: boolean;
 }
 
-export const SearchBar: React.FC<Props> = ({ placeholder, items, onSelect, sx, displayNotFound, onChange, onClose }) => {
+export const SearchBar: React.FC<Props> = ({ placeholder, items, onSelect, sx, displayNotFound, onChange, onClose, withTimer = false }) => {
   const [searchValue, setSearchValue] = useState<string>("");
-  const [notFound] = useState<JSX.Element>(displayNotFound || <Paragraph text={"No hay resultados"} sx={{ color: "#424242" }} fontSize={14} />);
+  const [showNotFound, setShowNotFound] = useState<boolean>(false);
 
   const filteredOptions = useMemo(() => {
     const uniqueOptions = items?.filter((option, index) => {
@@ -34,16 +35,26 @@ export const SearchBar: React.FC<Props> = ({ placeholder, items, onSelect, sx, d
 
   const handleSearch = (value: any) => {
     setSearchValue(value);
+    setShowNotFound(false);
   };
 
   const renderNotFoundContent = () => {
-    return filteredOptions ? notFound : undefined;
+    return filteredOptions ? displayNotFound || <Paragraph text={"No hay resultados"} sx={{ color: "#424242" }} fontSize={14} /> : undefined;
   };
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (withTimer && filteredOptions && filteredOptions.length > 0 && searchValue.trim() !== "") {
+        setShowNotFound(true);
+      }
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [filteredOptions, searchValue, withTimer]);
 
   return (
     <Box sx={sx}>
       <AutoComplete
-        options={filteredOptions}
+        options={showNotFound ? [] : filteredOptions}
         onSelect={onSelect}
         onSearch={handleSearch}
         onChange={(value) => onChange && onChange(value)}

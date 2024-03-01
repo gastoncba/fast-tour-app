@@ -1,9 +1,9 @@
 import React from "react";
 import { SxProps, Theme } from "@mui/material";
-import { FilterAlt, CardTravel, MoreVert, ExpandMore, AddOutlined, FiberManualRecord, Close, ArrowBack, ArrowForward, Visibility, VisibilityOff, Menu, AccountCircle, Home, Person, ArrowDropDown, ArrowDropUp } from "@mui/icons-material";
+import { BarChart, AdminPanelSettings ,FilterAlt, CardTravel, MoreVert, ExpandMore, AddOutlined, FiberManualRecord, Close, ArrowBack, ArrowForward, Visibility, VisibilityOff, Menu, AccountCircle, Home, Person, ArrowDropDown, ArrowDropUp } from "@mui/icons-material";
 
 interface Props {
-  type: "FILTER" | "EXPAND-MORE" | "MORE-VERT" | "PLUS" | "FIBER-MANUAL" | "ARROW-DROP-DOWN" | "ARROW-DROP-UP" | "BAG" | "CLOSE" | "FORWARD" | "BACK" | "VISIBILITY" | "VISIBILITY-OFF" | "MENU" | "ACCOUNT" | "PROFILE" | "HOME";
+  type:  "ADMIN-PANEL" | "CHART" | "FILTER" | "EXPAND-MORE" | "MORE-VERT" | "PLUS" | "FIBER-MANUAL" | "ARROW-DROP-DOWN" | "ARROW-DROP-UP" | "BAG" | "CLOSE" | "FORWARD" | "BACK" | "VISIBILITY" | "VISIBILITY-OFF" | "MENU" | "ACCOUNT" | "PROFILE" | "HOME";
   sx?: SxProps<Theme>;
   className?: string;
 }
@@ -44,6 +44,10 @@ export const Icon: React.FC<Props> = ({ type, sx, className }) => {
       return <MoreVert sx={sx} className={className} />;
     case "FILTER":
       return <FilterAlt sx={sx} className={className} />;
+    case "CHART":
+      return <BarChart sx={sx} className={className} />;
+    case "ADMIN-PANEL": 
+      return <AdminPanelSettings sx={sx} className={className} />;
     default:
       return <></>;
   }
