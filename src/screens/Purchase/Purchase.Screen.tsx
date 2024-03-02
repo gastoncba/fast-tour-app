@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Box, Grid } from "@mui/material";
 
 import { Heading, Paragraph, Wrapper, Button, Modal, Divider, showToast, Loader, GridList, Card, Rate, IconButton, Icon, Form } from "../../components";
 import { Trip, Hotel, Place } from "../../models";
 import { HotelService } from "../../services";
+import { userProvider } from "../../providers";
 
 interface PropsPurchase {}
 
@@ -14,9 +15,11 @@ interface CustomizedState {
 
 export const PurchaseScreen: React.FC<PropsPurchase> = () => {
   let location = useLocation();
+  let navigate = useNavigate();
   const { trip } = location.state as CustomizedState;
   const [placeVisited, setPlaceVisited] = useState<{ place: Place; hotel: Hotel | null }[]>(trip.places.map((p) => ({ place: p, hotel: null })));
-  const [showForm, setShowForm] = useState<boolean>(false);
+  const [showSummary, setShowSummary] = useState<boolean>(false);
+  const [contact, setContact] = useState<{ firstName: string; lastName: string; email: string }>({ firstName: "", lastName: "", email: "" });
 
   const addPlaceVisited = (hotel: Hotel, place: Place) => {
     const index = placeVisited.findIndex((item) => item.place === place);
@@ -37,59 +40,83 @@ export const PurchaseScreen: React.FC<PropsPurchase> = () => {
     }
   };
 
-  const send = async () => {};
+  const send = async (value: any) => {
+    console.log("Valores => ", value);
+    setContact(value);
+  };
 
   return (
     <>
-      <Heading title={trip.name} />
+      <Heading title={"Compra de viaje"} />
       <Wrapper sx={{ my: 2, p: 2 }}>
-        {showForm ? (
+        {showSummary ? (
           <Grid container>
             <Grid item lg={6}>
-              <Form
-                title={{ text: "Datos de Contacto", variant: "h6" }}
-                inputs={[
-                  {
-                    label: "Nombre",
-                    type: "text",
-                    initialValue: { name: "" },
-                  },
-                  {
-                    label: "Apellido",
-                    type: "text",
-                    initialValue: { lastName: "" },
-                  },
-                  {
-                    label: "Email",
-                    type: "email",
-                    initialValue: { email: "" },
-                  },
-                  {
-                    label: "Cantidad de personas",
-                    type: "number",
-                    initialValue: { cantPeople: 1 },
-                  },
-                ]}
-                onAction={send}
-              />
-            </Grid>
-            <Grid item lg={6}>
-              <Box sx={{ px: 4 , py: 2 }}>
-                <Paragraph text={trip.name} variant="h5" sx={{ pb: 1 }}/>
+              <Box sx={{ px: 4, py: 2 }}>
+                <Paragraph text={trip.name} variant="h5" sx={{ pb: 1 }} />
                 <Box sx={{ display: "flex", columnGap: 1 }}>
-                  <Paragraph text={"Descripción:"} fontWeight={"bold"} sx={{ fontStyle: "italic"}} />
+                  <Paragraph text={"Descripción:"} fontWeight={"bold"} sx={{ fontStyle: "italic" }} />
                   <Paragraph text={trip.description || "Sin Descripción"} />
                 </Box>
                 <Paragraph text={"Desde el " + trip.startDate + " hasta el " + trip.endDate} />
                 <Box sx={{ display: "flex", columnGap: 1 }}>
-                  <Paragraph text={"Precio: "} fontWeight={"bold"}  sx={{ fontStyle: "italic"}} />
+                  <Paragraph text={"Precio: "} fontWeight={"bold"} sx={{ fontStyle: "italic" }} />
                   <Paragraph text={"USD " + trip.price} />
                 </Box>
-                <Paragraph text={"hoteles elegidos: "} fontWeight={"bold"}  sx={{ fontStyle: "italic"}} />
+                <Paragraph text={"hoteles elegidos: "} fontWeight={"bold"} sx={{ fontStyle: "italic" }} />
                 {placeVisited.map((pv) => (
-                  <HotelSelector place={pv.place} hotel={pv.hotel} addHotel={() => {}} removeHotel={() => {}} readonly />
+                  <HotelSelector key={pv.place.id} place={pv.place} hotel={pv.hotel} addHotel={() => {}} removeHotel={() => {}} readonly />
                 ))}
               </Box>
+            </Grid>
+            <Grid item lg={6}>
+              <Paragraph text={"Datos de contacto"} variant="h5" sx={{ py: 2 }} />
+              {userProvider.user.isLogged || contact.firstName !== "" ? (
+                <Box>
+                  <Box sx={{ display: "flex", columnGap: 1 }}>
+                    <Box sx={{ display: "flex", columnGap: 1 }}>
+                      <Paragraph text={"Nombre:"} fontWeight={"bold"} sx={{ fontStyle: "italic" }} />
+                      <Paragraph text={userProvider.user.firstName || contact.firstName} />
+                    </Box>
+                    <Box sx={{ display: "flex", columnGap: 1 }}>
+                      <Paragraph text={"Apellido:"} fontWeight={"bold"} sx={{ fontStyle: "italic" }} />
+                      <Paragraph text={userProvider.user.lastName || contact.lastName} />
+                    </Box>
+                  </Box>
+                  <Box sx={{ display: "flex", columnGap: 1 }}>
+                    <Paragraph text={"Email:"} fontWeight={"bold"} sx={{ fontStyle: "italic" }} />
+                    <Paragraph text={userProvider.user.email || contact.email} />
+                  </Box>
+                </Box>
+              ) : (
+                <>
+                  <Form
+                    inputs={[
+                      {
+                        label: "Nombre",
+                        type: "text",
+                        initialValue: { firstName: "" },
+                      },
+                      {
+                        label: "Apellido",
+                        type: "text",
+                        initialValue: { lastName: "" },
+                      },
+                      {
+                        label: "Email",
+                        type: "email",
+                        initialValue: { email: "" },
+                      },
+                    ]}
+                    colorButton="inherit"
+                    onAction={send}
+                  />
+                  <Box sx={{ py: 1 }}>
+                    <Button variant="text" title="Tengo cuenta!" onClick={() => navigate("/app/auth")} />
+                    <Button variant="text" title="Registrame" onClick={() => {}} />
+                  </Box>
+                </>
+              )}
             </Grid>
           </Grid>
         ) : (
@@ -100,7 +127,10 @@ export const PurchaseScreen: React.FC<PropsPurchase> = () => {
             ))}
           </>
         )}
-        <Button title={showForm ? "Atras" : "Continuar"} onClick={() => setShowForm(!showForm)} style={{ mt: 2 }} disabled={placeVisited.some((pv) => !pv.hotel)} />
+        <Box sx={{ display: "flex", justifyContent: "space-between", py: 1 }}>
+          <Button title={showSummary ? "Atras" : "Continuar"} onClick={() => setShowSummary(!showSummary)} style={{ mt: 2 }} disabled={placeVisited.some((pv) => !pv.hotel)} />
+          {showSummary && <Button title="Confirmar" onClick={() => {}} style={{ mt: 2 }} disabled={contact.firstName === ""} />}
+        </Box>
       </Wrapper>
     </>
   );

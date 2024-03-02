@@ -32,9 +32,11 @@ interface FormProps {
   submitText?: string;
   onAction: (values?: any) => Promise<any>;
   colButton?: number;
+  variantButton?: "contained" | "outlined" | "text";
+  colorButton?: "primary" | "secondary" | "inherit";
 }
 
-export const Form: React.FC<FormProps> = ({ inputs, title, styles, children, submitText = "Guardar", onAction, colButton }) => {
+export const Form: React.FC<FormProps> = ({ inputs, title, styles, children, submitText = "Guardar", onAction, colButton, colorButton, variantButton }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
@@ -171,7 +173,7 @@ export const Form: React.FC<FormProps> = ({ inputs, title, styles, children, sub
             </Grid>
           )}
           <Grid item xs={colButton || 12}>
-            <Button variant="contained" fullWidth type="submit" color="primary" disabled={loading}>
+            <Button variant={variantButton || "contained"} fullWidth type="submit" color={colorButton || "primary"} disabled={loading}>
               {loading ? <Loader size={30} /> : submitText}
             </Button>
           </Grid>

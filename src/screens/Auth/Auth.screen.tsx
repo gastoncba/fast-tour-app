@@ -5,10 +5,12 @@ import { Wrapper, Paragraph, Button } from "../../components";
 import { Login } from "./Login";
 import { Singup } from "./Signup";
 
+type typeAuthScreen = "login" | "signup" | "recover";
+
 interface AuthProps {}
 
 export const AuthScreen: React.FC<AuthProps> = () => {
-  const [activeScreen, setActiveScreen] = useState("login");
+  const [activeScreen, setActiveScreen] = useState<typeAuthScreen>("login");
 
   const renderScreen = () => {
     switch (activeScreen) {

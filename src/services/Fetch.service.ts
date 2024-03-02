@@ -75,7 +75,7 @@ export const get = (route: string, query_params?: string, tokenAuthRequired: boo
       res = await axios.get(API.URL + route, config);
       resolve(res.data);
     } catch (error) {
-      console.log("ERROR: FetchService | Post:", error);
+      console.log("ERROR: FetchService | GET:", error);
       reject(error);
     }
   });
@@ -116,7 +116,7 @@ export const del = (route: string, data?: {}, tokenAuthRequired: boolean = true,
       res = await axios.delete(API.URL + route + params, config);
       resolve(res.data);
     } catch (error) {
-      console.log("ERROR: FetchService | Post:", error);
+      console.log("ERROR: FetchService | DEL:", error);
       reject(error);
     }
   });
@@ -156,7 +156,7 @@ export const put = (route: string, data: {}, tokenAuthRequired: boolean = true, 
       res = await axios.put(API.URL + route, data, config);
       resolve(res.data);
     } catch (error) {
-      console.log("ERROR: FetchService | Post:", error);
+      console.log("ERROR: FetchService | PUT:", error);
       reject(error);
     }
   });
