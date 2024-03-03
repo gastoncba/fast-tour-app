@@ -11,15 +11,20 @@ interface PropsPurchase {}
 
 interface CustomizedState {
   trip: Trip;
+  summary: boolean;
+  visited: { place: Place; hotel: Hotel | null }[] | undefined;
 }
 
 export const PurchaseScreen: React.FC<PropsPurchase> = () => {
   let location = useLocation();
   let navigate = useNavigate();
-  const { trip } = location.state as CustomizedState;
-  const [placeVisited, setPlaceVisited] = useState<{ place: Place; hotel: Hotel | null }[]>(trip.places.map((p) => ({ place: p, hotel: null })));
-  const [showSummary, setShowSummary] = useState<boolean>(false);
-  const [contact, setContact] = useState<{ firstName: string; lastName: string; email: string }>({ firstName: "", lastName: "", email: "" });
+
+  const { trip, summary, visited } = location.state as CustomizedState;
+  const [placeVisited, setPlaceVisited] = useState<{ place: Place; hotel: Hotel | null }[]>(visited ? visited : trip.places.map((p) => ({ place: p, hotel: null })));
+  const [showSummary, setShowSummary] = useState<boolean>(summary);
+  const [contact, setContact] = useState<{ firstName: string; lastName: string; email: string }>(
+    userProvider.user.isLogged ? { firstName: userProvider.user.firstName, lastName: userProvider.user.lastName, email: userProvider.user.email } : { firstName: "", lastName: "", email: "" }
+  );
 
   const addPlaceVisited = (hotel: Hotel, place: Place) => {
     const index = placeVisited.findIndex((item) => item.place === place);
@@ -41,7 +46,6 @@ export const PurchaseScreen: React.FC<PropsPurchase> = () => {
   };
 
   const send = async (value: any) => {
-    console.log("Valores => ", value);
     setContact(value);
   };
 
@@ -87,6 +91,11 @@ export const PurchaseScreen: React.FC<PropsPurchase> = () => {
                     <Paragraph text={"Email:"} fontWeight={"bold"} sx={{ fontStyle: "italic" }} />
                     <Paragraph text={userProvider.user.email || contact.email} />
                   </Box>
+                  {!userProvider.user.isLogged && (
+                    <Box sx={{ py: 2 }}>
+                      <Button title="Borrar datos" color="inherit" onClick={() => setContact({ firstName: "", lastName: "", email: "" })} />
+                    </Box>
+                  )}
                 </Box>
               ) : (
                 <>
@@ -112,11 +121,14 @@ export const PurchaseScreen: React.FC<PropsPurchase> = () => {
                     onAction={send}
                   />
                   <Box sx={{ py: 1 }}>
-                    <Button variant="text" title="Tengo cuenta!" onClick={() => navigate("/app/auth")} />
-                    <Button variant="text" title="Registrame" onClick={() => {}} />
+                    <Button variant="text" title="Tengo cuenta!" onClick={() => navigate("/app/auth", { state: { type: "login", redirect: "/app/purchase", content: { trip, summary: true, visited: placeVisited } } })} />
+                    <Button variant="text" title="Registrame" onClick={() => navigate("/app/auth", { state: { type: "signup", redirect: "/app/purchase", content: { trip, summary: true, visited: placeVisited } } })} />
                   </Box>
                 </>
               )}
+              <Box sx={{ py: 1 }}>
+                <Paragraph text={"Total a pagar : USD " + trip.price} variant="h5" />
+              </Box>
             </Grid>
           </Grid>
         ) : (

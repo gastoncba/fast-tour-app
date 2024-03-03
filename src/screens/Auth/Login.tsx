@@ -3,22 +3,25 @@ import { Box } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 import { Form, Paragraph, showToast } from "../../components";
-import { userProvider } from "../../providers/User.provider";
+import { userProvider } from "../../providers";
 
 interface LoginValues {
   email: string;
   password: string;
 }
 
-interface LoginProps {}
+interface LoginProps {
+  to: string;
+  content: any;
+}
 
-export const Login: React.FC<LoginProps> = ({}) => {
+export const Login: React.FC<LoginProps> = ({ to, content }) => {
   let navigate = useNavigate();
 
   const onAction = async (values: LoginValues) => {
     try {
       await userProvider.login(values.email, values.password);
-      navigate("/app/home", { replace: true });
+      navigate(to, { replace: true, state: content });
       showToast("success", "Bienvenido a Fast Tour");
     } catch (error) {
       showToast("error", "Email o constraseña incorrectos");

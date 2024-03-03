@@ -139,7 +139,7 @@ export const HomeScreen: React.FC<HomeProps> = (props: HomeProps) => {
           {isLoadingDetail ? (
             <Loader />
           ) : (
-            <Card title={trip.name} description={trip.description ? trip.description : "Sin descripción"} other={trip.startDate + " al " + trip.endDate} onAction={{ onClick: () => navigate("/app/purchase", { state: { trip } }), title: "comprar" }}>
+            <Card title={trip.name} description={trip.description ? trip.description : "Sin descripción"} other={trip.startDate + " al " + trip.endDate} onAction={{ onClick: () => navigate("/app/purchase", { state: { trip, summary: false } }), title: "comprar" }}>
               <Paragraph text={"Precio USD " + trip.price} />
               <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
                 <Paragraph text={"Lugares a visitar"} sx={{ fontWeight: "bold" }} />
