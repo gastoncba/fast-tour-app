@@ -1,15 +1,15 @@
 export const StorageService = (() => {
   const saveToken = (at: string) => {
-    localStorage.setItem("at", at);
+    sessionStorage.setItem("at", at);
   };
 
   const deleteTokens = () => {
-    localStorage.removeItem("at");
+    sessionStorage.removeItem("at");
   };
 
   const getTokens = (): Promise<{ at: string }> => {
     return new Promise(async (resolve, reject) => {
-      const at = localStorage.getItem("at");
+      const at = sessionStorage.getItem("at");
       at ? resolve({ at: at }) : reject({ code: "TOKENS-NOT-FOUND" });
     });
   };

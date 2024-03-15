@@ -123,7 +123,10 @@ export const Places: React.FC<PlacesProps> = () => {
         onAction={place.id === -1 ? createPlace : updatePlace}>
         <Box sx={{ display: "flex", alignItems: "center", columnGap: 2 }}>
           <SearchBar items={countries.map((c) => ({ value: c.name }))} placeholder="País" onSelect={(value) => handlerSelected(value)} />
-          <Paragraph text={selectedCountry.name} />
+          <Box sx={{ display: "flex", alignItems: "center", columnGap: 1 }}>
+            <Paragraph text={selectedCountry.name} />
+            {selectedCountry.id !== -1 && <IconButton icon={<Icon type="CLOSE" sx={{ fontSize: "large" }} />} onClick={() => setSelectedCountry({ id: -1, name: "", img: null, code: "" })} />}
+          </Box>
         </Box>
       </Form>
     );

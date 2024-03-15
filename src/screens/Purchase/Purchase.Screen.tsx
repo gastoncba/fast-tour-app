@@ -6,13 +6,14 @@ import { Heading, Paragraph, Wrapper, Button, Modal, Divider, showToast, Loader,
 import { Trip, Hotel, Place } from "../../models";
 import { HotelService } from "../../services";
 import { userProvider } from "../../providers";
+import { VisitedPlace } from "../../models/Order.model";
 
 interface PropsPurchase {}
 
 interface CustomizedState {
   trip: Trip;
   summary: boolean;
-  visited: { place: Place; hotel: Hotel | null }[] | undefined;
+  visited: VisitedPlace[] | undefined;
 }
 
 export const PurchaseScreen: React.FC<PropsPurchase> = () => {
@@ -20,7 +21,7 @@ export const PurchaseScreen: React.FC<PropsPurchase> = () => {
   let navigate = useNavigate();
 
   const { trip, summary, visited } = location.state as CustomizedState;
-  const [placeVisited, setPlaceVisited] = useState<{ place: Place; hotel: Hotel | null }[]>(visited ? visited : trip.places.map((p) => ({ place: p, hotel: null })));
+  const [placeVisited, setPlaceVisited] = useState<VisitedPlace[]>(visited ? visited : trip.places.map((p) => ({ place: p, hotel: null })));
   const [showSummary, setShowSummary] = useState<boolean>(summary);
   const [contact, setContact] = useState<{ firstName: string; lastName: string; email: string }>(
     userProvider.user.isLogged ? { firstName: userProvider.user.firstName, lastName: userProvider.user.lastName, email: userProvider.user.email } : { firstName: "", lastName: "", email: "" }
@@ -67,7 +68,11 @@ export const PurchaseScreen: React.FC<PropsPurchase> = () => {
                   <Paragraph text={"Precio: "} fontWeight={"bold"} sx={{ fontStyle: "italic" }} />
                   <Paragraph text={"USD " + trip.price} />
                 </Box>
-                <Paragraph text={"hoteles elegidos: "} fontWeight={"bold"} sx={{ fontStyle: "italic" }} />
+                <Box sx={{ display: "flex", columnGap: 1  }}>
+                  <Paragraph text={"Cantidad de personas: "} fontWeight={"bold"} sx={{ fontStyle: "italic" }} />
+                  <Paragraph text={1} />
+                </Box>
+                <Paragraph text={"hoteles elegidos: "} fontWeight={"bold"} sx={{ fontStyle: "italic", py: 1 }} />
                 {placeVisited.map((pv) => (
                   <HotelSelector key={pv.place.id} place={pv.place} hotel={pv.hotel} addHotel={() => {}} removeHotel={() => {}} readonly />
                 ))}
@@ -127,8 +132,18 @@ export const PurchaseScreen: React.FC<PropsPurchase> = () => {
                 </>
               )}
               <Box sx={{ py: 1 }}>
-                <Paragraph text={"Total a pagar : USD " + trip.price} variant="h5" />
+                {!userProvider.user.isLogged ? (
+                  <Paragraph text={"Total a pagar : USD " + trip.price} variant="h5" />
+                ) : (
+                  <Box>
+                    <Paragraph text={"Total sin descuento : USD " + trip.price} color="primary" fontWeight={"bold"} />
+                    <Paragraph text={"20% de descuento : USD " + trip.price * 0.2} color="primary" fontWeight={"bold"} />
+                    <Divider sx={{ pt: 1 }} />
+                    <Paragraph text={"Total a pagar : USD " + (trip.price - trip.price * 0.2)} variant="h5" sx={{ py: 2 }} />
+                  </Box>
+                )}
               </Box>
+              {!userProvider.user.isLogged && <Paragraph text={"Si tenes cuenta recibis un 20% de descuento"} color="success.main" sx={{ fontStyle: "italic" }} fontWeight={"bold"} />}
             </Grid>
           </Grid>
         ) : (

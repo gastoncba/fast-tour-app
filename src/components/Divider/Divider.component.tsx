@@ -1,12 +1,13 @@
-import { Divider as DividerMUI } from "@mui/material";
+import { Divider as DividerMUI, SxProps, Theme } from "@mui/material";
 
 interface PropsDivider {
     variant?: "fullWidth" | "inset" | "middle",
-    component?: "li" | "div"  
+    component?: "li" | "div"  ,
+    sx?: SxProps<Theme>
 }
 
-export const Divider:React.FC<PropsDivider> = ({ variant = "fullWidth", component = "div"}) => {
+export const Divider:React.FC<PropsDivider> = ({ variant = "fullWidth", component = "div", sx }) => {
     return(
-        <DividerMUI variant={variant} component={component} />
+        <DividerMUI variant={variant} component={component} sx={sx}/>
     )
 }

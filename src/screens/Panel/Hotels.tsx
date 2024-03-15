@@ -172,9 +172,12 @@ export const Hotels: React.FC<HotelProps> = () => {
             <SearchBar items={countries.map((c) => ({ value: c.name }))} placeholder="Pais" onSelect={(value) => handlerCountry(value)} />
             {loadingPlaces ? <Loader /> : <SearchBar items={places.map((p) => ({ value: p.name }))} placeholder="Lugares" onSelect={(value) => findPlace(value)} />}
           </Box>
-          <Box sx={{ display: "flex", columnGap: 2 }}>
+          <Box sx={{ display: "flex", alignItems: "center", columnGap: 2 }}>
             <Paragraph text={"Ubicación: "} color="GrayText" />
-            <Paragraph text={selectedPlace.name} />
+            <Box sx={{ display: "flex", alignItems: "center", columnGap: 1 }}>
+              <Paragraph text={selectedPlace.name} />
+              {selectedPlace.id !== -1 && <IconButton icon={<Icon type="CLOSE" sx={{ fontSize: "large" }} />} onClick={() => resetSelectedPlace()} />}
+            </Box>
           </Box>
         </Box>
       </Form>
