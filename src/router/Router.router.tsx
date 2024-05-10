@@ -1,27 +1,27 @@
 import React, { useState, useEffect } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { Box } from "@mui/material";
-import { observer } from "mobx-react";
 
 import { AuthScreen, HomeScreen, LandingScreen, NotFoundScreen, PanelScreen, PurchaseScreen } from "../screens";
 import { NavBar, Sidebar, Icon, Menu } from "../components";
 import { RouterItemsController } from "./RouterItemsController";
 import { RouterItems } from "./RouterItems";
-import { ProtectedRoute } from "./ProtectedRoute.component";
+import { ProtectedRoute } from "./ProtectedRoute";
 import { userProvider, tokenProvider } from "../providers";
+import { observer } from "mobx-react";
 
 interface Props {}
 
 export const Router: React.FC<Props> = observer((props: Props) => {
   const [showSidebar, setShowSidebar] = useState<boolean>(false);
   const generalItems = RouterItemsController();
-  let navigate = useNavigate();
-  let location = useLocation();
+  const navigate = useNavigate();
+  const location = useLocation();
   const { state } = location;
 
   const logout = () => {
     tokenProvider.clearTokens();
-    userProvider.user.isLogged = false;
+    userProvider.logout();
     setTimeout(() => {
       setShowSidebar(false);
       navigate("/app/home", { replace: true });

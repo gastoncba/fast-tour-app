@@ -60,7 +60,6 @@ class UserProvider {
         let login_data: { user: User; token: Token } = await UserService.login(email, password);
         tokenProvider.token(login_data.token);
         this.user = { ...login_data.user, isLogged: true };
-        //console.log("user | login by password => ", this.user);
         resolve();
       } catch (error) {
         reject(error);
@@ -72,8 +71,7 @@ class UserProvider {
     return new Promise<void>(async (resolve, reject) => {
       try {
         const user = await tokenProvider.isTokenValid();
-        if (user) this.user = { ...user, isLogged: true };
-        //console.log("user | login by token => ", this.user);
+        this.user = { ...user, isLogged: true };
         resolve();
       } catch (error) {
         resolve();
@@ -83,6 +81,10 @@ class UserProvider {
 
   public isAdmin = () => {
     return this.role.name === RoleType.ADMIN;
+  };
+
+  public logout = () => {
+    this.user.isLogged = false;
   };
 }
 

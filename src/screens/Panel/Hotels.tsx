@@ -7,6 +7,9 @@ import { CountryService, HotelService, PlaceService } from "../../services";
 
 interface HotelProps {}
 
+const PlaceEmpty: Place = { id: -1, name: "", description: null, img: null, country: { id: -1, name: "", code: "", img: null }, hotels: [] };
+const HotelEmpty: Hotel = { id: -1, name: "", description: "", stars: 0 };
+
 export const Hotels: React.FC<HotelProps> = () => {
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [countries, setCountries] = useState<Country[]>([]);
@@ -15,9 +18,9 @@ export const Hotels: React.FC<HotelProps> = () => {
   const [open, setOpen] = useState<boolean>(false);
   const [stars, setStars] = useState<number>(3);
   const [loadingPlaces, setLoadingPlaces] = useState<boolean>(false);
-  const [selectedPlace, setSelectedPlace] = useState<Place>({ id: -1, name: "", description: null, img: null, country: { id: -1, name: "", code: "", img: null }, hotels: [] });
+  const [selectedPlace, setSelectedPlace] = useState<Place>(PlaceEmpty);
+  const [hotel, setHotel] = useState<Hotel>(HotelEmpty);
   const [loadinDetail, setLoadingDetail] = useState<boolean>(false);
-  const [hotel, setHotel] = useState<Hotel>({ id: -1, name: "", description: null, stars: 0 });
   const [openDetail, setOpenDetail] = useState<boolean>(false);
 
   const getHotels = async (params?: string) => {
@@ -26,7 +29,7 @@ export const Hotels: React.FC<HotelProps> = () => {
       let hotels = await HotelService.getHotels(params);
       setHotels(hotels);
     } catch (error) {
-      showToast("error", "Error al cargar los hoteles disponibles");
+      showToast({ message: "Error al cargar los hoteles disponibles", type: "error" });
     } finally {
       setLoading(false);
     }
@@ -38,7 +41,7 @@ export const Hotels: React.FC<HotelProps> = () => {
       let hotel = await HotelService.getHotel(hotelId);
       setHotel(hotel);
     } catch (error) {
-      showToast("error", "Error al cargar los datos del hotel");
+      showToast({ message: "Error al cargar los datos del hotel", type: "error" });
     } finally {
       setLoadingDetail(false);
     }
@@ -50,7 +53,7 @@ export const Hotels: React.FC<HotelProps> = () => {
       let places = await PlaceService.getPlaces(params);
       setPlaces(places);
     } catch (error) {
-      showToast("error", "Error al cargar los destinos");
+      showToast({ message: "Error al cargar los destinos", type: "error" });
     } finally {
       setLoadingPlaces(false);
     }
@@ -58,21 +61,21 @@ export const Hotels: React.FC<HotelProps> = () => {
 
   const createHotel = async (value: any) => {
     if (stars === 0) {
-      showToast("error", "El hotel debe tener al menos una estrella");
+      showToast({ message: "El hotel debe tener al menos una estrella", type: "info" });
       return;
     }
 
     if (selectedPlace.id === -1) {
-      showToast("error", "Se debe elegir un lugar en donde se encuentra el hotel");
+      showToast({ message: "Se debe elegir un lugar en donde se encuentra el hotel", type: "info" });
       return;
     }
 
     try {
       await HotelService.createHotel({ ...value, placeId: selectedPlace.id, stars });
       await getHotels();
-      showToast("success", "Hotel creado exitosamente");
+      showToast({ message: "Hotel creado exitosamente", type: "success" });
     } catch (error) {
-      showToast("error", "Error al crear nuevo hotel");
+      showToast({ message: "Error al crear nuevo hotel", type: "error" });
     } finally {
       setOpen(false);
     }
@@ -80,21 +83,21 @@ export const Hotels: React.FC<HotelProps> = () => {
 
   const updateHotel = async (value: any) => {
     if (stars === 0) {
-      showToast("error", "El hotel debe tener al menos una estrella");
+      showToast({ message: "El hotel debe tener al menos una estrella", type: "info" });
       return;
     }
 
     if (selectedPlace.id === -1) {
-      showToast("error", "Se debe elegir un lugar en donde se encuentra el hotel");
+      showToast({ message: "Se debe elegir un lugar en donde se encuentra el hotel", type: "info" });
       return;
     }
 
     try {
       await HotelService.updateHotel(hotel.id, { ...value, placeId: selectedPlace.id, stars });
       await getHotels();
-      showToast("success", "Hotel actualizado exitosamente");
+      showToast({ message: "Hotel actualizado exitosamente", type: "success" });
     } catch (error) {
-      showToast("error", "Error al actualizar hotel");
+      showToast({ message: "Error al actualizar hotel", type: "error" });
     } finally {
       setOpen(false);
     }
@@ -104,9 +107,9 @@ export const Hotels: React.FC<HotelProps> = () => {
     try {
       await HotelService.deleteHotel(hotelId);
       getHotels();
-      showToast("success", "Hotel eliminado exitosamente");
+      showToast({ message: "Hotel eliminado exitosamente", type: "success" });
     } catch (error) {
-      showToast("error", "Error al intentar eliminar hotel");
+      showToast({ message: "Error al intentar eliminar hotel", type: "error" });
     } finally {
       setOpenDetail(false);
     }
@@ -117,7 +120,7 @@ export const Hotels: React.FC<HotelProps> = () => {
       let ct = await CountryService.getCountries();
       setCountries(ct);
     } catch (error) {
-      showToast("error", "Error al cargar los viajes disponibles");
+      showToast({ message: "Error al cargar los viajes disponibles", type: "error" });
     }
   };
 
@@ -137,7 +140,7 @@ export const Hotels: React.FC<HotelProps> = () => {
   };
 
   const resetSelectedPlace = () => {
-    setSelectedPlace({ id: -1, name: "", description: null, img: null, country: { id: -1, name: "", code: "", img: null }, hotels: [] });
+    setSelectedPlace(PlaceEmpty);
   };
 
   useEffect(() => {
@@ -159,7 +162,7 @@ export const Hotels: React.FC<HotelProps> = () => {
             type: "text",
             initialValue: { description: hotel.description || "" },
             multiline: true,
-            notRequired: true,
+            required: false,
           },
         ]}
         onAction={hotel.id === -1 ? createHotel : updateHotel}>
@@ -219,7 +222,7 @@ export const Hotels: React.FC<HotelProps> = () => {
                     {
                       id: 2,
                       name: "Eliminar",
-                      onClick: () => showToast("confirmation", "Eliminar hotel", { onConfirm: () => deleteHotel(hotel.id), description: "Desea eliminar hotel ?" }),
+                      onClick: () => showToast({ message: "Eliminar hotel", type: "confirmation", duration: 50000, confirmOptions: { description: "Desea eliminar hotel ?", confirm: { title: "Eliminar", onClick: () => deleteHotel(hotel.id) } } }),
                     },
                   ]}
                 />
@@ -232,7 +235,7 @@ export const Hotels: React.FC<HotelProps> = () => {
   };
 
   const resetHotel = () => {
-    setHotel({ id: -1, name: "", description: "", stars: 0 });
+    setHotel(HotelEmpty);
   };
 
   const searchByName = (name: string) => {

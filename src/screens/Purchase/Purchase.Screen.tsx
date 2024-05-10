@@ -2,18 +2,18 @@ import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Box, Grid } from "@mui/material";
 
-import { Heading, Paragraph, Wrapper, Button, Modal, Divider, showToast, Loader, GridList, Card, Rate, IconButton, Icon, Form } from "../../components";
-import { Trip, Hotel, Place } from "../../models";
+import { Heading, Paragraph, Wrapper, Button, Modal, Divider, showToast, Loader, GridList, Card, Rate, IconButton, Icon, Form, Counter } from "../../components";
+import { Trip, Hotel, Place, PlaceVisited } from "../../models";
 import { HotelService } from "../../services";
 import { userProvider } from "../../providers";
-import { VisitedPlace } from "../../models/Order.model";
+import { ConversionUtils } from "../../utils";
 
 interface PropsPurchase {}
 
 interface CustomizedState {
   trip: Trip;
   summary: boolean;
-  visited: VisitedPlace[] | undefined;
+  visited: PlaceVisited[] | undefined;
 }
 
 export const PurchaseScreen: React.FC<PropsPurchase> = () => {
@@ -21,33 +21,49 @@ export const PurchaseScreen: React.FC<PropsPurchase> = () => {
   let navigate = useNavigate();
 
   const { trip, summary, visited } = location.state as CustomizedState;
-  const [placeVisited, setPlaceVisited] = useState<VisitedPlace[]>(visited ? visited : trip.places.map((p) => ({ place: p, hotel: null })));
+  const [placesVisited, setPlacesVisited] = useState<PlaceVisited[]>(visited ? visited : trip.places.map((p) => ({ place: p, hotel: null })));
   const [showSummary, setShowSummary] = useState<boolean>(summary);
   const [contact, setContact] = useState<{ firstName: string; lastName: string; email: string }>(
     userProvider.user.isLogged ? { firstName: userProvider.user.firstName, lastName: userProvider.user.lastName, email: userProvider.user.email } : { firstName: "", lastName: "", email: "" }
   );
+  const [numberPeople, setNumberPeople] = useState<number>(1);
 
   const addPlaceVisited = (hotel: Hotel, place: Place) => {
-    const index = placeVisited.findIndex((item) => item.place === place);
+    const index = placesVisited.findIndex((item) => item.place === place);
     if (index !== -1) {
-      const updatedPlaceVisited = [...placeVisited];
+      const updatedPlaceVisited = [...placesVisited];
       updatedPlaceVisited[index] = { place, hotel };
-      setPlaceVisited(updatedPlaceVisited);
+      setPlacesVisited(updatedPlaceVisited);
     }
   };
 
   const removePlaceVisited = (hotel: Hotel, place: Place) => {
-    const index = placeVisited.findIndex((item) => item.hotel?.id === hotel.id);
+    const index = placesVisited.findIndex((item) => item.hotel?.id === hotel.id);
 
     if (index !== -1) {
-      const updatedPlaceVisited = [...placeVisited];
+      const updatedPlaceVisited = [...placesVisited];
       updatedPlaceVisited[index] = { place, hotel: null };
-      setPlaceVisited(updatedPlaceVisited);
+      setPlacesVisited(updatedPlaceVisited);
     }
   };
 
   const send = async (value: any) => {
     setContact(value);
+  };
+
+  const buy = async () => {
+    const order = {
+      trip,
+      user: userProvider.user.isLogged ? userProvider.user : undefined,
+      placesVisited,
+      firstName: !userProvider.user.isLogged ? contact.firstName : undefined,
+      lastName: !userProvider.user.isLogged ? contact.lastName : undefined,
+      email: !userProvider.user.isLogged ? contact.email : undefined,
+      purchaseDate: ConversionUtils.getCurrentDate(),
+      numberPeople,
+    };
+    //enviar al backend
+    console.log("ORDER => ", order);
   };
 
   return (
@@ -68,12 +84,12 @@ export const PurchaseScreen: React.FC<PropsPurchase> = () => {
                   <Paragraph text={"Precio: "} fontWeight={"bold"} sx={{ fontStyle: "italic" }} />
                   <Paragraph text={"USD " + trip.price} />
                 </Box>
-                <Box sx={{ display: "flex", columnGap: 1  }}>
+                <Box sx={{ display: "flex", columnGap: 1 }}>
                   <Paragraph text={"Cantidad de personas: "} fontWeight={"bold"} sx={{ fontStyle: "italic" }} />
-                  <Paragraph text={1} />
+                  <Paragraph text={numberPeople} />
                 </Box>
                 <Paragraph text={"hoteles elegidos: "} fontWeight={"bold"} sx={{ fontStyle: "italic", py: 1 }} />
-                {placeVisited.map((pv) => (
+                {placesVisited.map((pv) => (
                   <HotelSelector key={pv.place.id} place={pv.place} hotel={pv.hotel} addHotel={() => {}} removeHotel={() => {}} readonly />
                 ))}
               </Box>
@@ -126,8 +142,8 @@ export const PurchaseScreen: React.FC<PropsPurchase> = () => {
                     onAction={send}
                   />
                   <Box sx={{ py: 1 }}>
-                    <Button variant="text" title="Tengo cuenta!" onClick={() => navigate("/app/auth", { state: { type: "login", redirect: "/app/purchase", content: { trip, summary: true, visited: placeVisited } } })} />
-                    <Button variant="text" title="Registrame" onClick={() => navigate("/app/auth", { state: { type: "signup", redirect: "/app/purchase", content: { trip, summary: true, visited: placeVisited } } })} />
+                    <Button variant="text" title="Tengo cuenta!" onClick={() => navigate("/app/auth", { state: { type: "login", redirect: "/app/purchase", content: { trip, summary: true, visited: placesVisited } } })} />
+                    <Button variant="text" title="Registrame" onClick={() => navigate("/app/auth", { state: { type: "signup", redirect: "/app/purchase", content: { trip, summary: true, visited: placesVisited } } })} />
                   </Box>
                 </>
               )}
@@ -149,14 +165,18 @@ export const PurchaseScreen: React.FC<PropsPurchase> = () => {
         ) : (
           <>
             <Paragraph text={"Seleccione hoteles para los lugares a visitar"} />
-            {placeVisited.map((pv) => (
+            {placesVisited.map((pv) => (
               <HotelSelector place={pv.place} hotel={pv.hotel} addHotel={(hotel) => addPlaceVisited(hotel, pv.place)} removeHotel={(hotel) => removePlaceVisited(hotel, pv.place)} key={pv.place.id} />
             ))}
+            <Box sx={{ display: "flex", flexDirection: "row", columnGap: 1, alignItems: "center", pt: 2 }}>
+              <Paragraph text={`Cantidad de días para reclamar el premio`} />
+              <Counter onChange={(number) => setNumberPeople(number)} initialValue={numberPeople} />
+            </Box>
           </>
         )}
         <Box sx={{ display: "flex", justifyContent: "space-between", py: 1 }}>
-          <Button title={showSummary ? "Atras" : "Continuar"} onClick={() => setShowSummary(!showSummary)} style={{ mt: 2 }} disabled={placeVisited.some((pv) => !pv.hotel)} />
-          {showSummary && <Button title="Confirmar" onClick={() => {}} style={{ mt: 2 }} disabled={contact.firstName === ""} />}
+          <Button title={showSummary ? "Atras" : "Continuar"} onClick={() => setShowSummary(!showSummary)} style={{ mt: 2 }} disabled={placesVisited.some((pv) => !pv.hotel)} />
+          {showSummary && <Button title="Confirmar" onClick={() => buy()} style={{ mt: 2 }} disabled={contact.firstName === ""} />}
         </Box>
       </Wrapper>
     </>
@@ -184,7 +204,7 @@ const HotelSelector: React.FC<PropsHotelSelector> = ({ place, hotel, addHotel, r
       let hotels = await HotelService.getHotels(params);
       setHotels(hotels);
     } catch (error) {
-      showToast("error", "Error al cargar los hoteles de " + place.name);
+      showToast({ message: "Error al cargar los hoteles de " + place.name, type: "error" });
     } finally {
       setLoading(false);
     }
@@ -257,7 +277,7 @@ const HotelSelector: React.FC<PropsHotelSelector> = ({ place, hotel, addHotel, r
                   onClickArea={() => {
                     setSelected(item);
                     addHotel(item);
-                    showToast("success", "Hotel " + item.name + " seleccionado");
+                    showToast({ message: "Hotel " + item.name + " seleccionado", type: "success" });
                   }}>
                   <Box sx={{ pt: 1 }}>
                     <Paragraph text={"Estrellas: "} />

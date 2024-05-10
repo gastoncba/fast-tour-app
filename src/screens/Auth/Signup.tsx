@@ -24,9 +24,9 @@ export const Singup: React.FC<SingupProps> = ({ to, content }) => {
     try {
       await userProvider.signup(values);
       navigate(to, { replace: true, state: content });
-      showToast("success", "Bienvenido!");
+      showToast({ message: "Bienvenido!", type: "success" });
     } catch (error) {
-      showToast("error", "Error al intentar registrarse");
+      showToast({ message: "Error al intentar registrarse", type: "error" });
     }
   };
 

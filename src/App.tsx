@@ -5,7 +5,7 @@ import "react-perfect-scrollbar/dist/css/styles.css";
 import PerfectScrollbar from "react-perfect-scrollbar";
 import { ConfigProvider } from "antd";
 
-import { RoutesController } from "./routing/RouterController.component";
+import { RoutesController } from "./router/RouterController";
 import { Toaster } from "./components";
 import { themeMaterial } from "./settings/materialTheme.setting";
 import { themeAntd } from "./settings/antdTheme.setting";

@@ -19,7 +19,7 @@ export const Countries: React.FC<CountriesProps> = () => {
       let cts = await CountryService.getCountries(params);
       setCountries(cts);
     } catch (error) {
-      showToast("error", "Error al consultar los paises");
+      showToast({ message: "Error al consultar los paises", type: "error" });
     } finally {
       setLoading(false);
     }
@@ -32,10 +32,10 @@ export const Countries: React.FC<CountriesProps> = () => {
   const createCountry = async (value: any) => {
     try {
       await CountryService.createCountry({ name: value.name, code: value.code });
-      showToast("success", "País creado exitosamente");
+      showToast({ message: "País creado exitosamente", type: "success" });
       getCountries();
     } catch (error) {
-      showToast("error", "Error al agregar país");
+      showToast({ message: "Error al agregar país", type: "error" });
     } finally {
       setOpen(false);
     }
@@ -44,10 +44,10 @@ export const Countries: React.FC<CountriesProps> = () => {
   const updateCountry = async (value: any) => {
     try {
       await CountryService.updateCountry(value.id, { name: value.name, code: value.code });
-      showToast("success", "País actualizado exitosamente");
+      showToast({ message: "País actualizado exitosamente", type: "success" });
       getCountries();
     } catch (error) {
-      showToast("error", "Error al actualizar país");
+      showToast({ message: "Error al actualizar país", type: "error" });
     } finally {
       setOpen(false);
     }
@@ -57,9 +57,9 @@ export const Countries: React.FC<CountriesProps> = () => {
     try {
       await CountryService.deleteCountry(countryId);
       getCountries();
-      showToast("success", "País eliminado exitosamente");
+      showToast({ message: "País eliminado exitosamente", type: "success" });
     } catch (error) {
-      showToast("error", "Error al intentar eliminar país");
+      showToast({ message: "Error al intentar eliminar país", type: "error" });
     }
   };
 
@@ -122,7 +122,8 @@ export const Countries: React.FC<CountriesProps> = () => {
                         {
                           id: 2,
                           name: "Eliminar",
-                          onClick: () => showToast("confirmation", "Eliminar País", { onConfirm: () => deleteCountry(item.id), description: "Desea eliminar este país" }),
+                          onClick: () =>
+                            showToast({ message: "Eliminar país", type: "confirmation", duration: 50000, confirmOptions: { description: "Desea eliminar este país ?", confirm: { title: "Eliminar", onClick: () => deleteCountry(item.id) } } }),
                         },
                       ]}
                     />

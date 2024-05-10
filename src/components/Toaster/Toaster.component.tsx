@@ -1,47 +1,90 @@
 import React from "react";
-import { Toaster as ToasterHot, toast, ToastOptions, ToastPosition } from "react-hot-toast";
+import { Toaster as ToasterHot, IconTheme, Renderable, toast, ToastPosition } from "react-hot-toast";
 import { Box } from "@mui/material";
 
 import { Paragraph } from "../Paragraph/Paragraph.component";
 import { Button } from "../Button/Button.component";
+import { themeMaterial } from "../../settings/materialTheme.setting";
 
 interface CustomToasterProps {
   position?: ToastPosition;
 }
 
 export const Toaster: React.FC<CustomToasterProps> = ({ position = "top-center" }) => {
-  return (
-    <ToasterHot position={position} reverseOrder={false} />
-  );
+  return <ToasterHot position={position} reverseOrder={false} />;
 };
 
 export default Toaster;
 
-export const showToast = (type: "success" | "error" | "info" | "confirmation", message: string, extra?: { options?: ToastOptions, onConfirm?: () => void, description?: string}) => {
+type ToastType = "success" | "error" | "info" | "loading" | "confirmation";
+
+interface ToastI {
+  message: string;
+  type?: ToastType;
+  position?: ToastPosition;
+  duration?: number;
+  style?: React.CSSProperties;
+  icon?: Renderable;
+  iconTheme?: IconTheme;
+  className?: string;
+  confirmOptions?: {
+    description?: string;
+    confirm: { onClick: (params?: any) => any; title?: string; style?: any };
+    cancel?: { onClick?: (params?: any) => any; title?: string; style?: any };
+  };
+}
+
+const { success, error } = themeMaterial.palette;
+
+export const showToast = (input: ToastI) => {
+  const { type, message, position, duration, style, icon, iconTheme, className, confirmOptions } = input;
   switch (type) {
     case "success":
-      toast[type](message, { ...extra?.options });
+      toast[type](message, { position, duration, style, icon, iconTheme, className });
       break;
     case "error":
-      toast[type](message, { ...extra?.options });
+      toast[type](message, { position, duration, style, icon, iconTheme, className });
+      break;
+    case "loading":
+      toast[type](message, { position, duration, style, icon, iconTheme, className });
       break;
     case "info":
-      toast(message, { ...extra?.options });
+      toast(message, { position, duration, style, icon, iconTheme, className });
       break;
-    case "confirmation": 
-      toast(() => (
-        <Box>
-          <Paragraph text={message} align="center" fontSize={15} fontWeight={"bold"} />
-          <Paragraph text={extra?.description || ""} align="center"/>
-          <Box sx={{ display: "flex", columnGap: 2, justifyContent: "center", py: 2 }}>
-            <Button title="confirmar" onClick={() => {
-              extra?.onConfirm && extra.onConfirm()
-              toast.dismiss()
-            }} />
-            <Button title="cancelar" onClick={() => toast.dismiss()} variant="outlined" />
-          </Box>
-        </Box>
-      ));
+    case "confirmation":
+      toast(
+        () => (
+          <>
+            {confirmOptions && (
+              <Box sx={{ width: 250, display: "flex", justifyContent: "center", flexDirection: "column" }}>
+                <Paragraph text={message} align="center" fontSize={15} fontWeight={"bold"} />
+                <Paragraph text={confirmOptions.description || ""} align="center" />
+                <Box sx={{ display: "flex", columnGap: 2, justifyContent: "center", py: 2 }}>
+                  <Button
+                    style={{ bgcolor: success.main, ":hover": { bgcolor: success.main } }}
+                    title={confirmOptions.confirm.title || "Confirmar"}
+                    onClick={() => {
+                      confirmOptions.confirm.onClick();
+                      toast.dismiss();
+                    }}
+                  />
+                  <Button
+                    style={{ bgcolor: error.main, ":hover": { bgcolor: error.main } }}
+                    title={confirmOptions.cancel?.title || "cancelar"}
+                    onClick={() => {
+                      if (confirmOptions.cancel?.onClick) {
+                        confirmOptions.cancel?.onClick();
+                      }
+                      toast.dismiss();
+                    }}
+                  />
+                </Box>
+              </Box>
+            )}
+          </>
+        ),
+        { duration }
+      );
       break;
     default:
       break;

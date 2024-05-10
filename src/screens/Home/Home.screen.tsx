@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Box } from "@mui/material";
-import { useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom";
 
 import { Card, GridList, Loader, Paragraph, showToast, Modal, List, Collapse, Icon, IconButton, Banner, Filter } from "../../components/index";
 import { Trip } from "../../models/Trip.model";
@@ -28,7 +28,7 @@ export const HomeScreen: React.FC<HomeProps> = (props: HomeProps) => {
       let trips = await TripService.getTrips(params);
       setTrips(trips);
     } catch {
-      showToast("error", "Error al cargar los viajes disponibles");
+      showToast({ message: "Error al cargar los viajes disponibles", type: "error" });
     } finally {
       setIsLoading(false);
     }
@@ -55,7 +55,7 @@ export const HomeScreen: React.FC<HomeProps> = (props: HomeProps) => {
       setTrip(trip);
       setIsLoadingDetail(false);
     } catch (error) {
-      showToast("error", "Error al cargar la información del viaje");
+      showToast({ message: "Error al cargar la información del viaje", type: "error" });
     }
   };
 
@@ -69,7 +69,7 @@ export const HomeScreen: React.FC<HomeProps> = (props: HomeProps) => {
       let places = await PlaceService.getPlaces(params);
       setPlaces(places);
     } catch (error) {
-      showToast("error", "Error al cargar los lugares");
+      showToast({ message: "Error al cargar los lugares", type: "error" });
     }
   };
 
@@ -139,7 +139,11 @@ export const HomeScreen: React.FC<HomeProps> = (props: HomeProps) => {
           {isLoadingDetail ? (
             <Loader />
           ) : (
-            <Card title={trip.name} description={trip.description ? trip.description : "Sin descripción"} other={trip.startDate + " al " + trip.endDate} onAction={{ onClick: () => navigate("/app/purchase", { state: { trip, summary: false } }), title: "comprar" }}>
+            <Card
+              title={trip.name}
+              description={trip.description ? trip.description : "Sin descripción"}
+              other={trip.startDate + " al " + trip.endDate}
+              onAction={{ onClick: () => navigate("/app/purchase", { state: { trip, summary: false } }), title: "comprar" }}>
               <Paragraph text={"Precio USD " + trip.price} />
               <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
                 <Paragraph text={"Lugares a visitar"} sx={{ fontWeight: "bold" }} />

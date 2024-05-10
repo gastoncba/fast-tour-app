@@ -12,29 +12,22 @@ import { API } from "../settings/API.setting";
  * @param extraHeaders
  * @returns
  */
-export const post = (route: string, data: {}, tokenAuthRequired: boolean = true, extraHeaders?: {}) => {
-  return new Promise<any>(async (resolve, reject) => {
-    try {
-      let res;
-      let headers = { ...extraHeaders };
+export const post = async (route: string, data: Record<string, any>, tokenAuthRequired: boolean = true, extraHeaders?: Record<string, any>) => {
+  let headers = { ...extraHeaders };
 
-      if (tokenAuthRequired) {
-        let token = await tokenProvider.authToken();
-        const tokenHeader = {
-          Authorization: `Bearer ${token}`,
-        };
-        headers = { ...tokenHeader, ...headers };
-      }
+  if (tokenAuthRequired) {
+    let token = await tokenProvider.authToken();
+    const tokenHeader = {
+      Authorization: `Bearer ${token}`,
+    };
+    headers = { ...tokenHeader, ...headers };
+  }
 
-      const config = {
-        headers: { ...headers },
-      };
-      res = await axios.post(API.URL + route, data, config);
-      resolve(res.data);
-    } catch (error) {
-      reject(error);
-    }
-  });
+  const config = {
+    headers: { ...headers },
+  };
+  const res = await axios.post(API.URL + route, data, config);
+  return res.data;
 };
 
 // ------------ GET
@@ -48,37 +41,29 @@ export const post = (route: string, data: {}, tokenAuthRequired: boolean = true,
  * @param responseType
  * @returns
  */
-export const get = (route: string, query_params?: string, tokenAuthRequired: boolean = true, extraHeaders?: {}, responseType?: {}) => {
-  return new Promise<any>(async (resolve, reject) => {
-    try {
-      let res;
-      let params: any = "";
-      let headers = { ...extraHeaders };
+export const get = async (route: string, query_params?: string, tokenAuthRequired: boolean = true, extraHeaders?: Record<string, any>, responseType?: Record<string, any>) => {
+  let params: any = "";
+  let headers = { ...extraHeaders };
 
-      if (tokenAuthRequired) {
-        let token = await tokenProvider.authToken();
-        const tokenHeader = {
-          Authorization: `Bearer ${token}`,
-        };
-        headers = { ...tokenHeader, ...headers };
-      }
+  if (tokenAuthRequired) {
+    let token = await tokenProvider.authToken();
+    const tokenHeader = {
+      Authorization: `Bearer ${token}`,
+    };
+    headers = { ...tokenHeader, ...headers };
+  }
 
-      if (query_params) {
-        params = new URLSearchParams(query_params);
-        route += "?" + params;
-      }
+  if (query_params) {
+    params = new URLSearchParams(query_params);
+    route += "?" + params;
+  }
 
-      const config = {
-        headers: { ...headers },
-        ...responseType,
-      };
-      res = await axios.get(API.URL + route, config);
-      resolve(res.data);
-    } catch (error) {
-      console.log("ERROR: FetchService | GET:", error);
-      reject(error);
-    }
-  });
+  const config = {
+    headers: { ...headers },
+    ...responseType,
+  };
+  const res = await axios.get(API.URL + route, config);
+  return res.data;
 };
 
 // ------------ DELETE
@@ -86,40 +71,32 @@ export const get = (route: string, query_params?: string, tokenAuthRequired: boo
 /**
  *
  * @param route Path
- * @param query_params Params that go after ?
+ * @param data Body
  * @param tokenAuthRequired Token Auth
  * @param extraHeaders
  * @returns
  */
-export const del = (route: string, data?: {}, tokenAuthRequired: boolean = true, extraHeaders?: {}) => {
-  return new Promise<any>(async (resolve, reject) => {
-    try {
-      let res;
-      let params: any = "";
-      let headers = { ...extraHeaders };
+export const del = async (route: string, data?: Record<string, any>, tokenAuthRequired: boolean = true, extraHeaders?: Record<string, any>) => {
+  let params: any = "";
+  let headers = { ...extraHeaders };
 
-      if (tokenAuthRequired) {
-        let token = await tokenProvider.authToken();
-        const tokenHeader = {
-          Authorization: `Bearer ${token}`,
-        };
-        headers = { ...tokenHeader, ...headers };
-      }
+  if (tokenAuthRequired) {
+    let token = await tokenProvider.authToken();
+    const tokenHeader = {
+      Authorization: `Bearer ${token}`,
+    };
+    headers = { ...tokenHeader, ...headers };
+  }
 
-      const config = {
-        headers: { ...headers },
-        data: {
-          ...data,
-        },
-      };
+  const config = {
+    headers: { ...headers },
+    data: {
+      ...data,
+    },
+  };
 
-      res = await axios.delete(API.URL + route + params, config);
-      resolve(res.data);
-    } catch (error) {
-      console.log("ERROR: FetchService | DEL:", error);
-      reject(error);
-    }
-  });
+  const res = await axios.delete(API.URL + route + params, config);
+  return res.data;
 };
 
 // ------------ PUT
@@ -127,37 +104,30 @@ export const del = (route: string, data?: {}, tokenAuthRequired: boolean = true,
 /**
  *
  * @param route Path
- * @param query_params Params that go after ?
+ * @param data Body
  * @param tokenAuthRequired Token Auth
  * @param extraHeaders
  * @returns
  */
-export const put = (route: string, data: {}, tokenAuthRequired: boolean = true, extraHeaders?: {}) => {
-  return new Promise<any>(async (resolve, reject) => {
-    try {
-      let res;
-      let headers = { ...extraHeaders };
+export const put = async (route: string, data: Record<string, any>, tokenAuthRequired: boolean = true, extraHeaders?: Record<string, any>) => {
+  let res;
+  let headers = { ...extraHeaders };
 
-      if (tokenAuthRequired) {
-        let token = await tokenProvider.authToken();
-        const tokenHeader = {
-          Authorization: `Bearer ${token}`,
-        };
-        headers = { ...tokenHeader, ...headers };
-      }
+  if (tokenAuthRequired) {
+    let token = await tokenProvider.authToken();
+    const tokenHeader = {
+      Authorization: `Bearer ${token}`,
+    };
+    headers = { ...tokenHeader, ...headers };
+  }
 
-      const config = {
-        headers: { ...headers },
-        data: {
-          ...data,
-        },
-      };
+  const config = {
+    headers: { ...headers },
+    data: {
+      ...data,
+    },
+  };
 
-      res = await axios.put(API.URL + route, data, config);
-      resolve(res.data);
-    } catch (error) {
-      console.log("ERROR: FetchService | PUT:", error);
-      reject(error);
-    }
-  });
+  res = await axios.put(API.URL + route, data, config);
+  return res.data;
 };

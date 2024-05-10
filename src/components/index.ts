@@ -29,3 +29,4 @@ export { Banner } from "./Banner/Banner.component";
 export { Filter } from "./Filter/Filter.component";
 export { Slider } from "./Slider/Slider.component";
 export { Switch } from "./Switch/Switch.component";
+export { Counter } from './Counter/Counter.component'

@@ -1,5 +1,5 @@
 import React, { CSSProperties, useState } from "react";
-import { Grid, TextField, Button, InputAdornment, IconButton } from "@mui/material";
+import { Grid, TextField, Button, InputAdornment, IconButton, SxProps, Theme } from "@mui/material";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { ObjectShape } from "yup";
@@ -10,23 +10,33 @@ import { Icon } from "../Icon/Icon.component";
 
 type variantTitle = "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "body1" | "caption" | "overline";
 type alignTitle = "center" | "inherit" | "justify" | "left" | "right";
+type colorTitle = "primary" | "primary.light" | "primary.dark" | "GrayText" | "secondary" | "secondary.light" | "secondary.dark" | "white" | "warning.main" | "success.main";
 
 interface Input {
   label: string;
-  type: "text" | "password" | "email" | "number";
-  initialValue: any;
+  type: "text" | "password" | "email" | "number" | "float";
+  initialValue: { [key: string]: string | number };
   constrain?: string;
-  notRequired?: boolean;
+  required?: boolean;
   col?: number;
   min?: number;
   max?: number;
+  maxCharacters?: number;
+  rangeConstrain?: string;
+  maxCharactersConstrain?: string;
   multiline?: boolean;
   placeholder?: string;
 }
 
 interface FormProps {
   inputs: Input[];
-  title?: { text?: string; variant?: variantTitle; align?: alignTitle };
+  title?: {
+    text?: string;
+    variant?: variantTitle;
+    align?: alignTitle;
+    color?: colorTitle;
+    styles?: SxProps<Theme>;
+  };
   styles?: CSSProperties;
   children?: React.ReactNode;
   submitText?: string;
@@ -44,37 +54,41 @@ export const Form: React.FC<FormProps> = ({ inputs, title, styles, children, sub
     let schema: ObjectShape = {};
 
     inputs.forEach((input) => {
+      const { required = true } = input;
       const key = Object.keys(input.initialValue)[0];
       const labelLowerCase = input.label.toLowerCase();
 
       const baseValidation = Yup.string().trim();
 
-      if (!input.notRequired) {
+      if (required) {
         const requiredValidation = baseValidation.required(input.constrain || `El campo ${labelLowerCase} es requerido`);
 
         switch (input.type) {
           case "text":
-            schema = { ...schema, [key]: requiredValidation };
+            schema = { ...schema, [key]: requiredValidation.max(input.maxCharacters || 50, input.maxCharactersConstrain || `maximo ${input.maxCharacters || 50} caracteres`) };
             break;
 
           case "email":
             schema = {
               ...schema,
-              [key]: requiredValidation.email("Formato de email inválido"),
+              [key]: requiredValidation.email(input.constrain || "Formato de email inválido"),
             };
             break;
 
           case "password":
             schema = {
               ...schema,
-              [key]: requiredValidation.min(5, "La contraseña debe tener al menos 5 caracteres"),
+              [key]: requiredValidation.min(5, input.constrain || "La contraseña debe tener al menos 5 caracteres"),
             };
             break;
 
           case "number":
+            const numberValidation = Yup.number().required(input.constrain || `El campo ${labelLowerCase} es requerido`);
             schema = {
               ...schema,
-              [key]: requiredValidation.min(input.min || 1, "El numero debe estar entre 1 y 30").max(input.max || 30, "El numero debe estar entre 1 y 30"),
+              [key]: numberValidation
+                .min(input.min || 0, input.rangeConstrain || `El numero debe estar entre ${input.min || 0} y ${input.max || 30}`)
+                .max(input.max || 30, input.rangeConstrain || `El numero debe estar entre ${input.min || 0} y ${input.max || 30}`),
             };
             break;
 
@@ -147,7 +161,7 @@ export const Form: React.FC<FormProps> = ({ inputs, title, styles, children, sub
                   onBlur={formik.handleBlur}
                   error={formik.touched[Object.keys(input.initialValue)[0]] && Boolean(formik.errors[Object.keys(input.initialValue)[0]])}
                   helperText={formik.touched[Object.keys(input.initialValue)[0]] && (formik.errors[Object.keys(input.initialValue)[0]] as React.ReactNode)}
-                  required={input.notRequired ? false : true}
+                  required={input.required}
                   InputProps={
                     input.type === "password"
                       ? {
@@ -156,10 +170,11 @@ export const Form: React.FC<FormProps> = ({ inputs, title, styles, children, sub
                       : undefined
                   }
                   inputProps={
-                    input.type
+                    input.type === "number" || input.type === "float"
                       ? {
                           max: input.max || 30,
                           min: input.min || 0,
+                          step: input.type === "float" ? "any" : undefined,
                         }
                       : undefined
                   }

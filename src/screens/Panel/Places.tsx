@@ -5,13 +5,16 @@ import { Heading, Tooltip, IconButton, Icon, showToast, Form, SearchBar, Paragra
 import { Country, Place } from "../../models";
 import { CountryService, PlaceService } from "../../services";
 
+const CountryEmpty: Country = { id: -1, name: "", img: null, code: "" };
+const PlaceEmpty: Place = { id: -1, name: "", description: null, img: null, country: { id: -1, name: "", img: null, code: "" }, hotels: [] };
+
 interface PlacesProps {}
 
 export const Places: React.FC<PlacesProps> = () => {
   const [places, setPlaces] = useState<Place[]>([]);
   const [countries, setCountries] = useState<Country[]>([]);
-  const [selectedCountry, setSelectedCountry] = useState<Country>({ id: -1, name: "", img: null, code: "" });
-  const [place, setPlace] = useState<Place>({ id: -1, name: "", description: null, img: null, country: { id: -1, name: "", img: null, code: "" }, hotels: [] });
+  const [selectedCountry, setSelectedCountry] = useState<Country>(CountryEmpty);
+  const [place, setPlace] = useState<Place>(PlaceEmpty);
   const [open, setOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [loadingDetail, setLoadingDetail] = useState<boolean>(true);
@@ -23,7 +26,7 @@ export const Places: React.FC<PlacesProps> = () => {
       let pls = await PlaceService.getPlaces(params);
       setPlaces(pls);
     } catch (error) {
-      showToast("error", "Error al cargar los destinos disponibles");
+      showToast({ message: "Error al cargar los destinos disponibles", type: "error" });
     } finally {
       setLoading(false);
     }
@@ -34,7 +37,7 @@ export const Places: React.FC<PlacesProps> = () => {
       let cts = await CountryService.getCountries();
       setCountries(cts);
     } catch (error) {
-      showToast("error", "Error al cargar los paises disponibles");
+      showToast({ message: "Error al cargar los paises disponibles", type: "error" });
     }
   };
 
@@ -44,7 +47,7 @@ export const Places: React.FC<PlacesProps> = () => {
       let place = await PlaceService.getPlace(placeId);
       setPlace(place);
     } catch (error) {
-      showToast("error", "Error al cargar los datos del destino");
+      showToast({ message: "Error al cargar los datos del destino", type: "error" });
     } finally {
       setLoadingDetail(false);
     }
@@ -57,14 +60,15 @@ export const Places: React.FC<PlacesProps> = () => {
 
   const createPlace = async (value: any) => {
     if (selectedCountry.id === -1) {
-      showToast("error", "Se debe elegir un país donde este el destino");
+      showToast({ message: "Se debe elegir un país donde este el destino", type: "info" });
       return;
     }
     try {
       await PlaceService.createPlace({ ...value, countryId: selectedCountry.id });
+      showToast({ message: "Destino creado con exito", type: "info" });
       getPlaces();
     } catch (error) {
-      showToast("error", "Error al agregar nuevo destino");
+      showToast({ message: "Error al agregar nuevo destino", type: "error" });
     } finally {
       setOpen(false);
     }
@@ -72,14 +76,15 @@ export const Places: React.FC<PlacesProps> = () => {
 
   const updatePlace = async (value: any) => {
     if (selectedCountry.id === -1) {
-      showToast("error", "Se debe elegir un país donde este el destino");
+      showToast({ message: "Se debe elegir un país donde este el destino", type: "info" });
       return;
     }
     try {
       await PlaceService.updatePlace(place.id, { ...value, countryId: selectedCountry.id });
+      showToast({ message: "Destino actualizado con exito", type: "success" });
       getPlaces();
     } catch (error) {
-      showToast("error", "Error al actualizar el destino");
+      showToast({ message: "Error al actualizar el destino", type: "error" });
     } finally {
       setOpen(false);
     }
@@ -89,9 +94,9 @@ export const Places: React.FC<PlacesProps> = () => {
     try {
       await PlaceService.deletePlace(placeId);
       getPlaces();
-      showToast("success", "Destino eliminado con exito");
+      showToast({ message: "Destino eliminado con exito", type: "success" });
     } catch (error) {
-      showToast("error", "Error al intentar eliminar destino");
+      showToast({ message: "Error al intentar eliminar destino", type: "error" });
     } finally {
       setOpenDetail(false);
     }
@@ -100,7 +105,7 @@ export const Places: React.FC<PlacesProps> = () => {
   const handlerSelected = (value: string) => {
     const country = countries.find((c) => c.name === value);
 
-    country ? setSelectedCountry(country) : setSelectedCountry({ id: -1, name: "", code: "", img: null });
+    country ? setSelectedCountry(country) : resetSelectedCountry();
   };
 
   const renderForm = () => {
@@ -116,7 +121,7 @@ export const Places: React.FC<PlacesProps> = () => {
             label: "Descripcion",
             type: "text",
             initialValue: { description: place.description || "" },
-            notRequired: true,
+            required: false,
             multiline: true,
           },
         ]}
@@ -125,7 +130,7 @@ export const Places: React.FC<PlacesProps> = () => {
           <SearchBar items={countries.map((c) => ({ value: c.name }))} placeholder="País" onSelect={(value) => handlerSelected(value)} />
           <Box sx={{ display: "flex", alignItems: "center", columnGap: 1 }}>
             <Paragraph text={selectedCountry.name} />
-            {selectedCountry.id !== -1 && <IconButton icon={<Icon type="CLOSE" sx={{ fontSize: "large" }} />} onClick={() => setSelectedCountry({ id: -1, name: "", img: null, code: "" })} />}
+            {selectedCountry.id !== -1 && <IconButton icon={<Icon type="CLOSE" sx={{ fontSize: "large" }} />} onClick={() => resetSelectedCountry()} />}
           </Box>
         </Box>
       </Form>
@@ -133,7 +138,7 @@ export const Places: React.FC<PlacesProps> = () => {
   };
 
   const resetPlace = () => {
-    setPlace({ id: -1, name: "", description: null, img: null, country: { id: -1, name: "", img: null, code: "" }, hotels: [] });
+    setPlace(PlaceEmpty);
   };
 
   const renderDetail = () => {
@@ -162,7 +167,11 @@ export const Places: React.FC<PlacesProps> = () => {
                         setOpenDetail(false);
                       },
                     },
-                    { id: 2, name: "Eliminar", onClick: () => showToast("confirmation", "Eliminar destino", { onConfirm: () => deletePlace(place.id), description: "Desea eliminar destino ?" }) },
+                    {
+                      id: 2,
+                      name: "Eliminar",
+                      onClick: () => showToast({ message: "Eliminar destino", type: "confirmation", duration: 50000, confirmOptions: { description: "Desea eliminar destino ?", confirm: { onClick: () => deletePlace(place.id), title: "Eliminar" } } }),
+                    },
                   ]}
                 />
               </Box>
@@ -176,6 +185,10 @@ export const Places: React.FC<PlacesProps> = () => {
   const searchByName = (name: string) => {
     const params = name ? `name=${encodeURIComponent(name)}` : "";
     getPlaces(params);
+  };
+
+  const resetSelectedCountry = () => {
+    setSelectedCountry(CountryEmpty);
   };
 
   return (
@@ -224,7 +237,7 @@ export const Places: React.FC<PlacesProps> = () => {
         open={open}
         onClose={() => {
           setOpen(false);
-          setSelectedCountry({ id: -1, name: "", img: null, code: "" });
+          resetSelectedCountry();
         }}
         title="Destino">
         {renderForm()}
