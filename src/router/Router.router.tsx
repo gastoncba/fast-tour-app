@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { Box } from "@mui/material";
 
-import { AuthScreen, HomeScreen, LandingScreen, NotFoundScreen, PanelScreen, PurchaseScreen } from "../screens";
+import { AuthScreen, HomeScreen, LandingScreen, NotFoundScreen, PanelScreen, PurchaseScreen, DashboardScreen } from "../screens";
 import { NavBar, Sidebar, Icon, Menu } from "../components";
 import { RouterItemsController } from "./RouterItemsController";
 import { RouterItems } from "./RouterItems";
@@ -99,7 +99,7 @@ export const Router: React.FC<Props> = observer((props: Props) => {
                     />
                   }>
                   <Route path="/panel" element={<PanelScreen />} />
-                  <Route path="/dashboard" element={<div>dashboard</div>} />
+                  <Route path="/dashboard" element={<DashboardScreen />} />
                 </Route>
                 <Route
                   element={

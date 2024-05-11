@@ -2,14 +2,14 @@ import { get, post } from "./Fetch.service";
 
 const SERVICE_ENDPOINT = "order";
 
-type CreateOrderDto = { purchaseDate: string; userId: number | null; tripId: number; placesVisited: { placeId: number; hotelId: number }[]; numberPeople: number; firstName?: string; lastName?: string; email?: string };
+export type CreateOrderDto = { purchaseDate: string; userId?: number; tripId: number; placesVisited: { placeId: number; hotelId: number }[]; numberPeople: number; firstName?: string; lastName?: string; email?: string; total: number };
 
 export const OrderServices = (() => {
   const createOrder = async (newOrder: CreateOrderDto) => {
     try {
-      await post(SERVICE_ENDPOINT, newOrder);
+      await post(SERVICE_ENDPOINT, newOrder, false);
     } catch (error) {
-      throw newError("CREATE-ORDER-FAIL");
+      throw newError("CREATE-ORDER-FAIL", error);
     }
   };
 

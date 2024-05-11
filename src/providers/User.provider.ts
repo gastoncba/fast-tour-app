@@ -6,6 +6,7 @@ import { UserService } from "../services/private/User.service";
 
 class UserProvider {
   private isLogged: boolean = false;
+  private id: number = 0;
   private email: string = "";
   private firstName: string = "";
   private lastName: string = "";
@@ -16,6 +17,7 @@ class UserProvider {
   }
 
   public set user(user: User) {
+    this.id = user.id;
     this.email = user.email;
     this.lastName = user.lastName;
     this.firstName = user.firstName;
@@ -25,6 +27,7 @@ class UserProvider {
 
   public get user(): User {
     let user = {
+      id: this.id,
       email: this.email,
       lastName: this.lastName,
       firstName: this.firstName,

@@ -4,7 +4,7 @@ import { Box, Grid } from "@mui/material";
 
 import { Heading, Paragraph, Wrapper, Button, Modal, Divider, showToast, Loader, GridList, Card, Rate, IconButton, Icon, Form, Counter } from "../../components";
 import { Trip, Hotel, Place, PlaceVisited } from "../../models";
-import { HotelService } from "../../services";
+import { HotelService, OrderServices } from "../../services";
 import { userProvider } from "../../providers";
 import { ConversionUtils } from "../../utils";
 
@@ -27,6 +27,8 @@ export const PurchaseScreen: React.FC<PropsPurchase> = () => {
     userProvider.user.isLogged ? { firstName: userProvider.user.firstName, lastName: userProvider.user.lastName, email: userProvider.user.email } : { firstName: "", lastName: "", email: "" }
   );
   const [numberPeople, setNumberPeople] = useState<number>(1);
+  const total = userProvider.user.isLogged ? trip.price - trip.price * 0.2 : trip.price;
+  const discount = trip.price - trip.price * 0.2;
 
   const addPlaceVisited = (hotel: Hotel, place: Place) => {
     const index = placesVisited.findIndex((item) => item.place === place);
@@ -52,18 +54,25 @@ export const PurchaseScreen: React.FC<PropsPurchase> = () => {
   };
 
   const buy = async () => {
-    const order = {
-      trip,
-      user: userProvider.user.isLogged ? userProvider.user : undefined,
-      placesVisited,
-      firstName: !userProvider.user.isLogged ? contact.firstName : undefined,
-      lastName: !userProvider.user.isLogged ? contact.lastName : undefined,
-      email: !userProvider.user.isLogged ? contact.email : undefined,
-      purchaseDate: ConversionUtils.getCurrentDate(),
-      numberPeople,
-    };
-    //enviar al backend
-    console.log("ORDER => ", order);
+    try {
+      const order = {
+        tripId: trip.id,
+        userId: userProvider.user.isLogged ? userProvider.user.id : undefined,
+        placesVisited: placesVisited.map((pv) => ({ hotelId: pv.hotel ? pv.hotel.id : -1, placeId: pv.place.id })),
+        firstName: !userProvider.user.isLogged ? contact.firstName : undefined,
+        lastName: !userProvider.user.isLogged ? contact.lastName : undefined,
+        email: !userProvider.user.isLogged ? contact.email : undefined,
+        purchaseDate: ConversionUtils.getCurrentDate(),
+        numberPeople,
+        total,
+      };
+      console.log(order);
+      await OrderServices.createOrder(order);
+      showToast({ message: "Su orden fue registrada correctamente", type: "success" });
+    } catch (error) {
+      showToast({ message: "Error al intentar registrar su orden", type: "error" });
+      console.log(error);
+    }
   };
 
   return (
@@ -149,13 +158,13 @@ export const PurchaseScreen: React.FC<PropsPurchase> = () => {
               )}
               <Box sx={{ py: 1 }}>
                 {!userProvider.user.isLogged ? (
-                  <Paragraph text={"Total a pagar : USD " + trip.price} variant="h5" />
+                  <Paragraph text={"Total a pagar : USD " + total} variant="h5" />
                 ) : (
                   <Box>
                     <Paragraph text={"Total sin descuento : USD " + trip.price} color="primary" fontWeight={"bold"} />
-                    <Paragraph text={"20% de descuento : USD " + trip.price * 0.2} color="primary" fontWeight={"bold"} />
+                    <Paragraph text={"20% de descuento : USD " + discount} color="primary" fontWeight={"bold"} />
                     <Divider sx={{ pt: 1 }} />
-                    <Paragraph text={"Total a pagar : USD " + (trip.price - trip.price * 0.2)} variant="h5" sx={{ py: 2 }} />
+                    <Paragraph text={"Total a pagar : USD " + total} variant="h5" sx={{ py: 2 }} />
                   </Box>
                 )}
               </Box>
@@ -176,7 +185,14 @@ export const PurchaseScreen: React.FC<PropsPurchase> = () => {
         )}
         <Box sx={{ display: "flex", justifyContent: "space-between", py: 1 }}>
           <Button title={showSummary ? "Atras" : "Continuar"} onClick={() => setShowSummary(!showSummary)} style={{ mt: 2 }} disabled={placesVisited.some((pv) => !pv.hotel)} />
-          {showSummary && <Button title="Confirmar" onClick={() => buy()} style={{ mt: 2 }} disabled={contact.firstName === ""} />}
+          {showSummary && (
+            <Button
+              title="Confirmar"
+              onClick={() => showToast({ message: "Comprar viaje", type: "confirmation", confirmOptions: { description: "Desea comprar este viaje?", confirm: { onClick: () => buy() } } })}
+              style={{ mt: 2 }}
+              disabled={contact.firstName === ""}
+            />
+          )}
         </Box>
       </Wrapper>
     </>
