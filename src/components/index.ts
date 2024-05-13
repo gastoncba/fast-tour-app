@@ -29,4 +29,8 @@ export { Banner } from "./Banner/Banner.component";
 export { Filter } from "./Filter/Filter.component";
 export { Slider } from "./Slider/Slider.component";
 export { Switch } from "./Switch/Switch.component";
-export { Counter } from './Counter/Counter.component'
+export { Counter } from "./Counter/Counter.component";
+export { Statistic } from "./Statistic/Statistic.component";
+export * from "./Table/Table.component";
+export { Tabs } from "./Tabs/Tabs.component";
+export { PopChart } from "./Chart/Chart.component";

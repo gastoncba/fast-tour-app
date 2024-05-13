@@ -21,30 +21,34 @@ import {
   Person,
   ArrowDropDown,
   ArrowDropUp,
+  PeopleAlt,
 } from "@mui/icons-material";
 
+export type IconType =
+  | "REMOVE"
+  | "ADMIN-PANEL"
+  | "CHART"
+  | "FILTER"
+  | "EXPAND-MORE"
+  | "MORE-VERT"
+  | "PLUS"
+  | "FIBER-MANUAL"
+  | "ARROW-DROP-DOWN"
+  | "ARROW-DROP-UP"
+  | "BAG"
+  | "CLOSE"
+  | "FORWARD"
+  | "BACK"
+  | "VISIBILITY"
+  | "VISIBILITY-OFF"
+  | "MENU"
+  | "ACCOUNT"
+  | "PROFILE"
+  | "HOME"
+  | "USERS";
+
 interface Props {
-  type:
-    | "REMOVE"
-    | "ADMIN-PANEL"
-    | "CHART"
-    | "FILTER"
-    | "EXPAND-MORE"
-    | "MORE-VERT"
-    | "PLUS"
-    | "FIBER-MANUAL"
-    | "ARROW-DROP-DOWN"
-    | "ARROW-DROP-UP"
-    | "BAG"
-    | "CLOSE"
-    | "FORWARD"
-    | "BACK"
-    | "VISIBILITY"
-    | "VISIBILITY-OFF"
-    | "MENU"
-    | "ACCOUNT"
-    | "PROFILE"
-    | "HOME";
+  type: IconType;
   sx?: SxProps<Theme>;
   className?: string;
 }
@@ -91,6 +95,8 @@ export const Icon: React.FC<Props> = ({ type, sx, className }) => {
       return <AdminPanelSettings sx={sx} className={className} />;
     case "REMOVE":
       return <Remove sx={sx} className={className} />;
+    case "USERS":
+      return <PeopleAlt sx={sx} className={className} />;
     default:
       return <></>;
   }

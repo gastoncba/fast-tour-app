@@ -4,9 +4,9 @@ import { Box } from "@mui/material";
 
 import { AuthScreen, HomeScreen, LandingScreen, NotFoundScreen, PanelScreen, PurchaseScreen, DashboardScreen } from "../screens";
 import { NavBar, Sidebar, Icon, Menu } from "../components";
-import { RouterItemsController } from "./RouterItemsController";
-import { RouterItems } from "./RouterItems";
-import { ProtectedRoute } from "./ProtectedRoute";
+import { RouterItemsController } from "./RouterItemsController.routes";
+import { RouterItems } from "./RouterItems.routes";
+import { ProtectedRoute } from "./ProtectedRoute.routes";
 import { userProvider, tokenProvider } from "../providers";
 import { observer } from "mobx-react";
 

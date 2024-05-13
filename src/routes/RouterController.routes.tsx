@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { Router } from "./Router.router";
+import { Router } from "./Router.routes";
 import { Loader } from "../components";
 import { userProvider } from "../providers";
 
