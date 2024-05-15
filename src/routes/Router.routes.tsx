@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { Box } from "@mui/material";
 
-import { AuthScreen, HomeScreen, LandingScreen, NotFoundScreen, PanelScreen, PurchaseScreen, DashboardScreen } from "../screens";
+import { AuthScreen, HomeScreen, LandingScreen, NotFoundScreen, PanelScreen, PurchaseScreen, DashboardScreen, ProfileScreen } from "../screens";
 import { NavBar, Sidebar, Icon, Menu } from "../components";
 import { RouterItemsController } from "./RouterItemsController.routes";
 import { RouterItems } from "./RouterItems.routes";
@@ -112,7 +112,7 @@ export const Router: React.FC<Props> = observer((props: Props) => {
                       ]}
                     />
                   }>
-                  <Route path="/profile" element={<div>perfil de {userProvider.user.firstName}</div>} />
+                  <Route path="/profile" element={<ProfileScreen />} />
                 </Route>
                 <Route path="*" element={<NotFoundScreen message="La página que busca no existe." />} />
               </Routes>
