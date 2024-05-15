@@ -1,7 +1,8 @@
 import React from "react";
 import Chart from "react-apexcharts";
 
-import { styles } from "../../settings/customStyles.setting";
+import { themeMaterial } from "../../settings/materialTheme.setting";
+const { main } = themeMaterial.palette.primary;
 
 interface Props {
   title?: string;
@@ -19,7 +20,9 @@ interface Props {
   elevation?: number;
   fillColors?: string[];
   setPointSelection?: (pointSelected: string) => void;
-  customTooltipFunction?: (data: string) => string;
+  tooltip?: {
+    customFrequency: string;
+  };
 }
 
 /**
@@ -28,7 +31,7 @@ interface Props {
  * @param setPointSelection // es una funcion que se activa cuando se selecciona una conjunto de datos
  *                          de un grafico determinado. La funcion que se pasa por props sirva para realizar
  *                          alguna mecanismo que debe suceder cuando se selecciona un conjunto de datos.
- * @param customTooltipFunction //es un funcion que se que sirve para agregar contenido extra al tooltip de
+ * @param tooltip //es un funcion que se que sirve para agregar contenido extra al tooltip de
  *                              de un grafico determinado.
  * @returns
  */
@@ -94,11 +97,11 @@ export const PopChart: React.FunctionComponent<Props> = (props: Props) => {
           style: {
             fontSize: "1rem",
             fontFamily: "Epilogue, sans-serif",
-            color: props.titleColor ? props.titleColor : styles.color.blueberry,
+            color: props.titleColor ? props.titleColor : "black",
           },
         },
         fill: {
-          colors: props.fillColors,
+          colors: props.fillColors || [main],
         },
         tooltip: {
           enabled: true,
@@ -116,10 +119,8 @@ export const PopChart: React.FunctionComponent<Props> = (props: Props) => {
                       row-gap: 10px;
                       padding: 10px 0px;">
                       <div style="padding: 0px 15px;">
-                        Cantidad de selecciones: ${series[seriesIndex][dataPointIndex]}
-                      </div>`;
-                content += props.customTooltipFunction ? `<div style="padding: 0px 15px;">${props.customTooltipFunction(w.globals.labels[dataPointIndex])}</div>` : "";
-                content += `</div>`;
+                        ${props.tooltip?.customFrequency || "Cantidad de selecciones:"}: ${series[seriesIndex][dataPointIndex]}
+                      </div></div>`;
                 break;
               case "pie":
                 content = `
@@ -127,9 +128,8 @@ export const PopChart: React.FunctionComponent<Props> = (props: Props) => {
                         ${w.globals.labels[seriesIndex]}
                       </div>
                       <div style="padding: 10px 15px; display: flex; column-gap: 10px;">
-                        <span>Frecuencia:</span><div style="font-weight: bold;">${series[seriesIndex]}</div>
+                        <span>${props.tooltip?.customFrequency || "Frecuencia:"}</span><div style="font-weight: bold;">${series[seriesIndex]}</div>
                       </div>`;
-                content += props.customTooltipFunction ? `<div style="padding: 10px 15px;">${props.customTooltipFunction(w.globals.labels[dataPointIndex])}</div>` : "";
                 break;
               case "donut":
                 content = `
@@ -137,9 +137,8 @@ export const PopChart: React.FunctionComponent<Props> = (props: Props) => {
                         ${w.globals.labels[seriesIndex]}
                       </div>
                       <div style="padding: 10px 15px; display: flex; column-gap: 10px;">
-                        <span>Frecuencia:</span><div style="font-weight: bold;">${series[seriesIndex]}</div>
+                        <span>${props.tooltip?.customFrequency || "Frecuencia"}</span><div style="font-weight: bold;">${series[seriesIndex]}</div>
                       </div>`;
-                content += props.customTooltipFunction ? `<div style="padding: 10px 15px;">${props.customTooltipFunction(w.globals.labels[dataPointIndex])}</div>` : "";
                 break;
               default:
                 content = "";
@@ -148,7 +147,7 @@ export const PopChart: React.FunctionComponent<Props> = (props: Props) => {
             return `<div style="background: white;
                 color: black;
                 box-shadow: '0px 7px 14px rgba(0, 0, 0, 0.1)';
-                font-family: 'Montserrat', sans-serif;">${content}</div>`;
+                font-family: "Epilogue, sans-serif;">${content}</div>`;
           },
         },
       }}

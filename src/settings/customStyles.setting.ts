@@ -7,10 +7,11 @@ export const styles = {
     boxShadow: "0px 2px 1px -1px rgba(0,0,0,0.2), 0px 1px 1px 0px rgba(0,0,0,0.14), 0px 1px 3px 0px rgba(0,0,0,0.12);",
   },
   color: {
-    star: "#fabb05",
+    yellow: "#F4B400",
     background: "#eeeeee",
-    green: "#24c06c",
+    green: "#0F9D58",
     favorite: "#ff7b7b",
+    red: "#DB4437",
     blueberry: "#4285f4",
   },
   navGroup: {
@@ -66,5 +67,5 @@ export const styles = {
       opacity: 0.2,
       background: themeMaterial.palette.primary.light,
     },
-  }  
+  },
 };

@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { Box, Grid } from "@mui/material";
 
 import { StatisticServices } from "../../services/Statistic.service";
-import { Divider, Heading, Loader, Paragraph, Statistic, Table, TableProps, Tabs, Wrapper, showToast, PopChart } from "../../components";
-import { CountryRanking, GeneralStatistic, PlaceRanking, Ranking, TripRanking } from "../../models";
+import { Divider, Heading, Loader, Paragraph, Statistic, Table, TableProps, Tabs, Wrapper, showToast, PopChart, Input, Button } from "../../components";
+import { CountryRanking, GeneralStatistic, MonthlyTripCount, PlaceRanking, Ranking, TripRanking } from "../../models";
+import { styles } from "../../settings/customStyles.setting";
 
 interface CreateRankingTableStrategy {
   createDataTable(rankings: any[]): TableProps;
@@ -57,11 +58,18 @@ const DataTableEmpty: TableProps = {
   rows: [],
   columns: [],
 };
+
+const { red, blueberry, green } = styles.color;
+
 export const DashboardScreen: React.FC<DashboardProps> = () => {
   const [general, setGeneral] = useState<GeneralStatistic>(GeneralStatisticsEmpty);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [dataTable, setDataTable] = useState<TableProps>(DataTableEmpty);
   const [ranking, setRanking] = useState<Ranking>({ tripRanking: [], placeRanking: [], countryRanking: [] });
+  const [year, setYear] = useState("2024");
+  const [buttonLoading, setButtonLoading] = useState<boolean>(false);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [series, setSeries] = useState<number[]>([]);
 
   const buildTable = (strategy: CreateRankingTableStrategy, ranking: any[]) => {
     setDataTable(strategy.createDataTable(ranking));
@@ -72,7 +80,8 @@ export const DashboardScreen: React.FC<DashboardProps> = () => {
       try {
         const general = await StatisticServices.getGeneralStatistics();
         const ranking = await StatisticServices.getRanking();
-        await StatisticServices.getMonthlyTripCounts(2024);
+        const results = await StatisticServices.getMonthlyTripCounts(parseInt(year));
+        buildBarData(results);
         setRanking(ranking);
         buildTable(new CreateTripTableStrategy(), ranking.tripRanking);
         setGeneral(general);
@@ -85,6 +94,29 @@ export const DashboardScreen: React.FC<DashboardProps> = () => {
     getStatistics();
   }, []);
 
+  const handleInput = (inputValue: string) => {
+    if (/^\d*$/.test(inputValue)) {
+      setYear(inputValue);
+    }
+  };
+
+  const filterDataByYear = async () => {
+    setButtonLoading(true);
+    try {
+      const results = await StatisticServices.getMonthlyTripCounts(parseInt(year));
+      buildBarData(results);
+    } catch (error) {
+      showToast({ message: "Error al obtener datos para el gráfico de barras", type: "error" });
+    } finally {
+      setButtonLoading(false);
+    }
+  };
+
+  const buildBarData = (results: MonthlyTripCount[]) => {
+    setSeries(results.map((result) => result.tripCount));
+    setCategories(results.map((result) => result.month.substring(0, 3)));
+  };
+
   return (
     <>
       <Heading title="Estadisticas" />
@@ -94,13 +126,13 @@ export const DashboardScreen: React.FC<DashboardProps> = () => {
         <>
           <Grid container columnSpacing={2} rowSpacing={2} sx={{ py: 2 }}>
             <Grid item lg={2} md={4} xs={12}>
-              <Statistic value={general.users} title={"Usuarios"} iconType="USERS" iconStyles={{ color: "green" }} />
+              <Statistic value={general.users} title={"Usuarios"} iconType="USERS" iconStyles={{ color: blueberry }} />
             </Grid>
             <Grid item lg={2} md={4} xs={12}>
-              <Statistic value={general.orders} title={"Ordenes"} iconType="BAG" iconStyles={{ color: "red" }} />
+              <Statistic value={general.orders} title={"Ordenes"} iconType="BAG" iconStyles={{ color: red }} />
             </Grid>
             <Grid item xl={2} lg={3} md={4} xs={12}>
-              <Statistic value={general.averageSales} title={"Ventas promedio"} iconType="CHART" iconStyles={{ color: "orange" }} />
+              <Statistic value={general.averageSales} title={"Ventas promedio"} iconType="CHART" iconStyles={{ color: green }} />
             </Grid>
           </Grid>
           <Grid container columnSpacing={2} rowSpacing={2}>
@@ -137,35 +169,35 @@ export const DashboardScreen: React.FC<DashboardProps> = () => {
             </Grid>
             <Grid item lg={5} xs={12}>
               <Wrapper sx={{ p: 2 }}>
-                <Box>
-                  <Paragraph text={"Compras por período de tiempo"} variant="h6" />
+                <Box sx={{ display: "flex", flexDirection: "column", rowGap: 1 }}>
+                  <Box sx={{ display: "flex", columnGap: 2, alignItems: "center" }}>
+                    <Paragraph text={"Año"} variant="h6" />
+                    <Input
+                      type="text"
+                      setValue={handleInput}
+                      value={year}
+                      inputProps={{
+                        maxLength: 4,
+                      }}
+                      label=""
+                      size="small"
+                      sx={{ width: "15%" }}
+                    />
+                    <Button onClick={filterDataByYear} title="Aplicar" disabled={buttonLoading} />
+                  </Box>
                   <Divider />
                 </Box>
                 <PopChart
+                  title="Compras por período de tiempo"
                   type="bar"
-                  series={[{ data: [12, 10, 20, 10, 10, 12, 7, 5, 23, 12, 12, 33] }]}
-                  categories={["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]}
+                  series={[{ data: series }]}
+                  categories={categories}
                   width={"100%"}
-                  height={270}
+                  height={290}
+                  tooltip={{ customFrequency: "Viajes vendidos" }}
                   plotOptions={{
                     bar: {
                       borderRadius: 7,
-                    },
-                  }}
-                  options={{
-                    dataLabels: {
-                      enabled: true,
-                      formatter: function (val) {
-                        return val + "%";
-                      },
-                      offsetY: -20,
-                      style: {
-                        fontSize: "12px",
-                        colors: ["#304758"],
-                      },
-                    },
-                    xaxis: {
-                      position: "top"
                     },
                   }}
                 />

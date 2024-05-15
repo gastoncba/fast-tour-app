@@ -23,3 +23,8 @@ export type Ranking = {
   placeRanking: PlaceRanking[];
   countryRanking: CountryRanking[];
 };
+
+export type MonthlyTripCount = {
+  month: string;
+  tripCount: number;
+};
