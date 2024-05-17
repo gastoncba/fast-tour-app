@@ -150,7 +150,7 @@ export const HomeScreen: React.FC<HomeProps> = (props: HomeProps) => {
                 <IconButton icon={<Icon type="EXPAND-MORE" />} onClick={() => setExpanded(!expanded)} />
               </Box>
               <Collapse expanded={expanded}>
-                <List items={trip.places.map((p) => ({ id: 1, primaryText: p.name, secondaryText: p.country.name, value: p }))} />
+                <List items={trip.places.map((p) => ({ id: p.id, primaryText: p.name, secondaryText: p.country.name, value: p }))} />
               </Collapse>
             </Card>
           )}

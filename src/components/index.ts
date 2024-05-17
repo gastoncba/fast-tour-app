@@ -34,3 +34,4 @@ export { Statistic } from "./Statistic/Statistic.component";
 export * from "./Table/Table.component";
 export { Tabs } from "./Tabs/Tabs.component";
 export { PopChart } from "./Chart/Chart.component";
+export { Avatar } from "./Avatar/Avatar.component";

@@ -82,6 +82,15 @@ class UserProvider {
     });
   };
 
+  public update = async (changes: { firstName?: string; lastName?: string; email?: string }) => {
+    const user = await UserService.update(changes);
+    this.user = { ...user, isLogged: true };
+  };
+
+  public getOrders = async () => {
+    return await UserService.getOrders(this.user.id)
+  }
+
   public isAdmin = () => {
     return this.role.name === RoleType.ADMIN;
   };
@@ -89,6 +98,10 @@ class UserProvider {
   public logout = () => {
     this.user.isLogged = false;
   };
+
+  public getRolName() {
+    return this.isAdmin() ? "Administrador" : "Cliente";
+  }
 }
 
 export const userProvider = new UserProvider();
