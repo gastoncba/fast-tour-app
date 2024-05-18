@@ -17,4 +17,5 @@ export type Order = {
   firstName?: string | null;
   lastName?: string | null;
   email?: string | null;
+  total: number
 };

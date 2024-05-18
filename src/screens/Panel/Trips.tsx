@@ -6,7 +6,7 @@ import { Country, Place, Trip } from "../../models";
 import { CountryService, PlaceService, TripService } from "../../services";
 import { IconButton } from "../../components/IconButton/IconButton.component";
 
-const TripEmpty: Trip = { id: -1, name: "", description: null, img: null, price: 0, startDate: "", endDate: "", places: [] };
+export const TripEmpty: Trip = { id: -1, name: "", description: null, img: null, price: 0, startDate: "", endDate: "", places: [] };
 
 interface TripProps {}
 
