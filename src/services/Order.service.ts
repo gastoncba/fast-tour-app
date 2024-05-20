@@ -1,4 +1,5 @@
-import { get, post } from "./Fetch.service";
+import { Order } from "../models";
+import { get, post, put } from "./Fetch.service";
 
 const SERVICE_ENDPOINT = "order";
 
@@ -15,13 +16,22 @@ export const OrderServices = (() => {
 
   const getOrders = async () => {
     try {
-      await get(SERVICE_ENDPOINT);
+      const orders: Order[] = await get(SERVICE_ENDPOINT);
+      return orders;
     } catch (error) {
       throw newError("GET-ORDERS-FAIL");
     }
   };
 
-  type OrderServiceError = "CREATE-ORDER-FAIL" | "GET-ORDERS-FAIL";
+  const nextState = async (orderId: number, state: string) => {
+    try {
+      await put(SERVICE_ENDPOINT + "/" + orderId + "/" + state, {});
+    } catch (error) {
+      throw newError("PUT-NEXT-STATE-FAIL", error);
+    }
+  };
+
+  type OrderServiceError = "CREATE-ORDER-FAIL" | "GET-ORDERS-FAIL" | "PUT-NEXT-STATE-FAIL";
 
   const newError = (code: OrderServiceError, error?: any) => {
     return {
@@ -30,5 +40,5 @@ export const OrderServices = (() => {
     };
   };
 
-  return { createOrder, getOrders };
+  return { createOrder, getOrders, nextState };
 })();

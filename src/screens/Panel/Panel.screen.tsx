@@ -5,6 +5,8 @@ import { Trips } from "./Trips";
 import { Countries } from "./Countries";
 import { Places } from "./Places";
 import { Hotels } from "./Hotels";
+import { Users } from "./Users";
+import { Orders } from "./Orders";
 
 interface PanelProps {}
 
@@ -26,6 +28,10 @@ export const PanelScreen: React.FC<PanelProps> = () => {
         return <Countries />;
       case "hotel":
         return <Hotels />;
+      case "user":
+          return <Users />;
+      case "order":
+          return <Orders />;
       default:
         return <Trips />;
     }

@@ -22,6 +22,8 @@ import {
   ArrowDropDown,
   ArrowDropUp,
   PeopleAlt,
+  ModeCommentTwoTone,
+  BlockTwoTone,
 } from "@mui/icons-material";
 
 export type IconType =
@@ -45,7 +47,9 @@ export type IconType =
   | "ACCOUNT"
   | "PROFILE"
   | "HOME"
-  | "USERS";
+  | "USERS"
+  | "MESSAGE"
+  | "BLOCK";
 
 interface Props {
   type: IconType;
@@ -97,6 +101,10 @@ export const Icon: React.FC<Props> = ({ type, sx, className }) => {
       return <Remove sx={sx} className={className} />;
     case "USERS":
       return <PeopleAlt sx={sx} className={className} />;
+    case "MESSAGE":
+      return <ModeCommentTwoTone sx={sx} className={className} />;
+    case "BLOCK":
+      return <BlockTwoTone sx={sx} className={className} />;
     default:
       return <></>;
   }

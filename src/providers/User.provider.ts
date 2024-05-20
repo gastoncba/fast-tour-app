@@ -91,6 +91,10 @@ class UserProvider {
     return await UserService.getOrders(this.user.id)
   }
 
+  public getUsers = async () => {
+    return await UserService.getUsers(this.isAdmin());
+  }
+
   public isAdmin = () => {
     return this.role.name === RoleType.ADMIN;
   };

@@ -3,15 +3,17 @@ import { Box, Grid } from "@mui/material";
 import { Avatar, Button, Divider, Form, List, Modal, Paragraph, Wrapper, showToast } from "../../components";
 import { userProvider } from "../../providers";
 import { useEffect, useState } from "react";
-import { Order } from "../../models";
+import { Order, OrderState } from "../../models";
 import { TripEmpty } from "../Panel/Trips";
 import { styles } from "../../settings/customStyles.setting";
 
-const { cardStyles } = styles;
+const { cardStyles, color } = styles;
+const { green, red, blueberry } = color;
 
 interface ProfileProps {}
 
-const OrderEmpty: Order = {
+export const OrderEmpty: Order = {
+  id: 0,
   purchaseDate: "",
   numberPeople: 0,
   user: null,
@@ -21,6 +23,7 @@ const OrderEmpty: Order = {
   email: null,
   trip: TripEmpty,
   total: 0,
+  state: { id: OrderState.PENDING, name: "" },
 };
 
 export const ProfileScreen: React.FC<ProfileProps> = () => {
@@ -31,42 +34,7 @@ export const ProfileScreen: React.FC<ProfileProps> = () => {
   const [showOrder, setShowOrder] = useState<boolean>(false);
 
   const renderOrder = () => {
-    return (
-      <>
-        <Box sx={{ display: "flex", flexDirection: "column", rowGap: 2 }}>
-          <Box>
-            <Paragraph text={"Detalle del viaje"} color="primary" variant="h5" />
-            <Box sx={{ display: "flex", columnGap: 0.5 }}>
-              <Paragraph text={"Nombre:"} fontWeight={"bold"} />
-              <Paragraph text={order.trip.name} />
-            </Box>
-            <Box sx={{ display: "flex", columnGap: 0.5 }}>
-              <Paragraph text={"Descripción:"} fontWeight={"bold"} />
-              <Paragraph text={order.trip.description || ""} />
-            </Box>
-            <Box sx={{ display: "flex", columnGap: 0.5 }}>
-              <Paragraph text={"Total:"} fontWeight={"bold"} />
-              <Paragraph text={order.total + " USD"} />
-            </Box>
-          </Box>
-          <Box>
-            <Paragraph text={"Datos del contacto"} color="primary" variant="h5" />
-            <Box sx={{ display: "flex", columnGap: 0.5 }}>
-              <Paragraph text={"Nombre: "} fontWeight={"bold"} />
-              <Paragraph text={userProvider.user.firstName} />
-            </Box>
-            <Box sx={{ display: "flex", columnGap: 0.5 }}>
-              <Paragraph text={"Apellido: "} fontWeight={"bold"} />
-              <Paragraph text={userProvider.user.lastName} />
-            </Box>
-            <Box sx={{ display: "flex", columnGap: 0.5 }}>
-              <Paragraph text={"Email: "} fontWeight={"bold"} />
-              <Paragraph text={userProvider.user.email} />
-            </Box>
-          </Box>
-        </Box>
-      </>
-    );
+    return <OrderCard order={order} />;
   };
 
   useEffect(() => {
@@ -169,5 +137,50 @@ export const ProfileScreen: React.FC<ProfileProps> = () => {
         {renderOrder()}
       </Modal>
     </>
+  );
+};
+
+interface OrderCardProps {
+  order: Order;
+}
+
+export const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
+  return (
+    <Box sx={{ display: "flex", flexDirection: "column", rowGap: 2 }}>
+      <Box>
+        <Paragraph text={"Detalle del viaje"} color="primary" variant="h5" />
+        <Box sx={{ display: "flex", columnGap: 0.5 }}>
+          <Paragraph text={"Nombre:"} fontWeight={"bold"} />
+          <Paragraph text={order.trip.name} />
+        </Box>
+        <Box sx={{ display: "flex", columnGap: 0.5 }}>
+          <Paragraph text={"Descripción:"} fontWeight={"bold"} />
+          <Paragraph text={order.trip.description || ""} />
+        </Box>
+        <Box sx={{ display: "flex", columnGap: 0.5 }}>
+          <Paragraph text={"Total:"} fontWeight={"bold"} />
+          <Paragraph text={order.total + " USD"} />
+        </Box>
+        <Box sx={{ display: "flex", columnGap: 0.5 }}>
+          <Paragraph text={"Estado:"} fontWeight={"bold"} />
+          <Paragraph text={order.state.name} fontWeight={"bold"} sx={{ color: order.state.id === OrderState.CANCELED ? red : order.state.id === OrderState.COMPLETED ? green : blueberry }} />
+        </Box>
+      </Box>
+      <Box>
+        <Paragraph text={"Datos del contacto"} color="primary" variant="h5" />
+        <Box sx={{ display: "flex", columnGap: 0.5 }}>
+          <Paragraph text={"Nombre: "} fontWeight={"bold"} />
+          <Paragraph text={userProvider.user.firstName} />
+        </Box>
+        <Box sx={{ display: "flex", columnGap: 0.5 }}>
+          <Paragraph text={"Apellido: "} fontWeight={"bold"} />
+          <Paragraph text={userProvider.user.lastName} />
+        </Box>
+        <Box sx={{ display: "flex", columnGap: 0.5 }}>
+          <Paragraph text={"Email: "} fontWeight={"bold"} />
+          <Paragraph text={userProvider.user.email} />
+        </Box>
+      </Box>
+    </Box>
   );
 };

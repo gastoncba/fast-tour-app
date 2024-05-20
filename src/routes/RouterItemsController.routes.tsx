@@ -47,6 +47,16 @@ export const RouterItemsController = () => {
               id: 9,
               title: "Hoteles",
               value: "hotel"
+            },
+            {
+              id: 10,
+              title: "Usuarios",
+              value: "user"
+            },
+            {
+              id: 11,
+              title: "Ordenes",
+              value: "order"
             }
           ]
         },

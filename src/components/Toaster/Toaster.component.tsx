@@ -20,7 +20,7 @@ type ToastType = "success" | "error" | "info" | "loading" | "confirmation";
 
 interface ToastI {
   message: string;
-  type?: ToastType;
+  type: ToastType;
   position?: ToastPosition;
   duration?: number;
   style?: React.CSSProperties;

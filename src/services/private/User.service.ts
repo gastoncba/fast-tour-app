@@ -82,7 +82,17 @@ export const UserService = (() => {
     }
   };
 
-  type UserServiceError = "LOGIN-FAIL" | "SIGN_UP-FAIL" | "RECOVER-PASSWORD-FAIL" | "CHANGE_PASSWORD-FAIL" | "UPDATE-FAIL" | "GET-ORDER-USER-FAIL";
+  const getUsers = async (isAdmin: boolean) => {
+    if (!isAdmin) throw newError("GET-USERS-ADMIN-UNAUTHORIZED", { message: "Unaurhorized action" });
+    try {
+      const users: User[] = await get(SERVICE_ENDPOINT + "/all");
+      return users;
+    } catch (error) {
+      throw newError("GET-USERS-ADMIN-FAIL", error);
+    }
+  };
+
+  type UserServiceError = "LOGIN-FAIL" | "SIGN_UP-FAIL" | "RECOVER-PASSWORD-FAIL" | "CHANGE_PASSWORD-FAIL" | "UPDATE-FAIL" | "GET-ORDER-USER-FAIL" | "GET-USERS-ADMIN-FAIL" | "GET-USERS-ADMIN-UNAUTHORIZED";
 
   const newError = (code: UserServiceError, error?: any) => {
     return {
@@ -91,5 +101,5 @@ export const UserService = (() => {
     };
   };
 
-  return { isTokenValid, signUp, login, recoverPassword, changePassword, update, getOrders };
+  return { isTokenValid, signUp, login, recoverPassword, changePassword, update, getOrders, getUsers };
 })();
