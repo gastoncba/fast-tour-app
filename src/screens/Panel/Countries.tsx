@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Box } from "@mui/material";
 
-import { Heading, Tooltip, IconButton, Icon, Loader, GridList, Paragraph, Card, showToast, Modal, Form, Menu, Filter } from "../../components";
+import { Heading, Tooltip, IconButton, Icon, Loader, GridList, Paragraph, Card, showToast, Modal, Form, Menu, Filter, Pagination } from "../../components";
 import { Country } from "../../models";
 import { CountryService } from "../../services";
+import { PAGINATION } from "../../settings/const.setting";
 
 interface CountriesProps {}
 
@@ -12,12 +13,29 @@ export const Countries: React.FC<CountriesProps> = () => {
   const [countries, setCountries] = useState<Country[]>([]);
   const [form, setForm] = useState<any>(null);
   const [open, setOpen] = useState<boolean>(false);
+  const [page, setPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const [totalCountries, setTotalCountries] = useState<number>(0);
+
+  const fetchTotalCountries = async () => {
+    try {
+      const countries = await CountryService.getCountries();
+      const total = countries.length;
+      setTotalPages(Math.ceil(total / PAGINATION));
+      setTotalCountries(countries.length);
+    } catch (error) {
+      console.error("Error al obtener el total de países", error);
+    }
+  };
 
   const getCountries = async (params?: string) => {
     setLoading(true);
     try {
-      let cts = await CountryService.getCountries(params);
+      const skip = (page - 1) * PAGINATION;
+      let cts = await CountryService.getCountries(`${params || ""}&take=${PAGINATION}&skip=${params ? 0 : skip}`);
       setCountries(cts);
+
+      if (params) setTotalPages(Math.ceil(cts.length / PAGINATION));
     } catch (error) {
       showToast({ message: "Error al consultar los paises", type: "error" });
     } finally {
@@ -26,13 +44,19 @@ export const Countries: React.FC<CountriesProps> = () => {
   };
 
   useEffect(() => {
-    getCountries();
+    fetchTotalCountries();
   }, []);
+
+  useEffect(() => {
+    getCountries();
+  }, [page]);
 
   const createCountry = async (value: any) => {
     try {
       await CountryService.createCountry({ name: value.name, code: value.code });
       showToast({ message: "País creado exitosamente", type: "success" });
+      setTotalCountries((prev) => prev + 1);
+      setTotalPages(Math.ceil((totalCountries + 1) / PAGINATION));
       getCountries();
     } catch (error) {
       showToast({ message: "Error al agregar país", type: "error" });
@@ -56,10 +80,14 @@ export const Countries: React.FC<CountriesProps> = () => {
   const deleteCountry = async (countryId: number) => {
     try {
       await CountryService.deleteCountry(countryId);
-      getCountries();
       showToast({ message: "País eliminado exitosamente", type: "success" });
+      setTotalCountries((prev) => prev - 1);
+      setTotalPages(Math.ceil((totalCountries - 1) / PAGINATION));
+      getCountries();
     } catch (error) {
       showToast({ message: "Error al intentar eliminar país", type: "error" });
+    } finally {
+      setPage(1);
     }
   };
 
@@ -136,6 +164,9 @@ export const Countries: React.FC<CountriesProps> = () => {
           )}
         </>
       )}
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+        <Pagination page={page} count={totalPages} changePage={(value) => setPage(value)} showFirstButton showLastButton color="primary" />
+      </Box>
       <Modal title="País" open={open} onClose={() => setOpen(false)}>
         {form}
       </Modal>

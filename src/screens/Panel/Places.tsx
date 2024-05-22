@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Box } from "@mui/material";
 
-import { Heading, Tooltip, IconButton, Icon, showToast, Form, SearchBar, Paragraph, Modal, Loader, GridList, Card, Menu, Filter } from "../../components";
+import { Heading, Tooltip, IconButton, Icon, showToast, Form, SearchBar, Paragraph, Modal, Loader, GridList, Card, Menu, Filter, Pagination } from "../../components";
 import { Country, Place } from "../../models";
 import { CountryService, PlaceService } from "../../services";
+import { PAGINATION } from "../../settings/const.setting";
 
 const CountryEmpty: Country = { id: -1, name: "", img: null, code: "" };
 const PlaceEmpty: Place = { id: -1, name: "", description: null, img: null, country: { id: -1, name: "", img: null, code: "" }, hotels: [] };
@@ -19,12 +20,29 @@ export const Places: React.FC<PlacesProps> = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [loadingDetail, setLoadingDetail] = useState<boolean>(true);
   const [openDetail, setOpenDetail] = useState<boolean>(false);
+  const [page, setPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const [totalPlaces, setTotalPlaces] = useState<number>(0);
+
+  const fetchTotalPlaces = async () => {
+    try {
+      const places = await PlaceService.getPlaces();
+      const total = places.length;
+      setTotalPages(Math.ceil(total / PAGINATION));
+      setTotalPlaces(places.length);
+    } catch (error) {
+      console.error("Error al obtener el total de destinos", error);
+    }
+  };
 
   const getPlaces = async (params?: string) => {
     setLoading(true);
     try {
-      let pls = await PlaceService.getPlaces(params);
+      const skip = (page - 1) * PAGINATION;
+      let pls = await PlaceService.getPlaces(`${params || ""}&take=${PAGINATION}&skip=${skip}`);
       setPlaces(pls);
+
+      if (params) setTotalPages(Math.ceil(pls.length / PAGINATION));
     } catch (error) {
       showToast({ message: "Error al cargar los destinos disponibles", type: "error" });
     } finally {
@@ -55,6 +73,10 @@ export const Places: React.FC<PlacesProps> = () => {
 
   useEffect(() => {
     getPlaces();
+  }, [page]);
+
+  useEffect(() => {
+    fetchTotalPlaces();
     getCountries();
   }, []);
 
@@ -66,6 +88,8 @@ export const Places: React.FC<PlacesProps> = () => {
     try {
       await PlaceService.createPlace({ ...value, countryId: selectedCountry.id });
       showToast({ message: "Destino creado con exito", type: "info" });
+      setTotalPlaces((prev) => prev + 1);
+      setTotalPages(Math.ceil((totalPlaces + 1) / PAGINATION));
       getPlaces();
     } catch (error) {
       showToast({ message: "Error al agregar nuevo destino", type: "error" });
@@ -93,12 +117,15 @@ export const Places: React.FC<PlacesProps> = () => {
   const deletePlace = async (placeId: number) => {
     try {
       await PlaceService.deletePlace(placeId);
-      getPlaces();
       showToast({ message: "Destino eliminado con exito", type: "success" });
+      setTotalPlaces((prev) => prev - 1);
+      setTotalPages(Math.ceil((totalPlaces - 1) / PAGINATION));
+      getPlaces();
     } catch (error) {
       showToast({ message: "Error al intentar eliminar destino", type: "error" });
     } finally {
       setOpenDetail(false);
+      setPage(1);
     }
   };
 
@@ -245,6 +272,9 @@ export const Places: React.FC<PlacesProps> = () => {
       <Modal open={openDetail} onClose={() => setOpenDetail(false)} title={place.name} fullWidth>
         {renderDetail()}
       </Modal>
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+        <Pagination page={page} count={totalPages} changePage={(value) => setPage(value)} showFirstButton showLastButton color="primary" />
+      </Box>
     </>
   );
 };

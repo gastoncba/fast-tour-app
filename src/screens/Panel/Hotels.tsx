@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Box } from "@mui/material";
 
-import { Heading, IconButton, Icon, Tooltip, showToast, Paragraph, GridList, Card, Loader, Rate, Form, Modal, SearchBar, Menu, Filter } from "../../components";
+import { Heading, IconButton, Icon, Tooltip, showToast, Paragraph, GridList, Card, Loader, Rate, Form, Modal, SearchBar, Menu, Filter, Pagination } from "../../components";
 import { Country, Hotel, Place } from "../../models";
 import { CountryService, HotelService, PlaceService } from "../../services";
+import { PAGINATION } from "../../settings/const.setting";
 
 interface HotelProps {}
 
@@ -22,12 +23,29 @@ export const Hotels: React.FC<HotelProps> = () => {
   const [hotel, setHotel] = useState<Hotel>(HotelEmpty);
   const [loadinDetail, setLoadingDetail] = useState<boolean>(false);
   const [openDetail, setOpenDetail] = useState<boolean>(false);
+  const [page, setPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const [totalHotels, setTotalHotels] = useState<number>(0);
+
+  const fetchTotalHotels = async () => {
+    try {
+      const hotels = await HotelService.getHotels();
+      const total = hotels.length;
+      setTotalPages(Math.ceil(total / PAGINATION));
+      setTotalHotels(hotels.length);
+    } catch (error) {
+      console.error("Error al obtener el total de hoteles", error);
+    }
+  };
 
   const getHotels = async (params?: string) => {
     setLoading(true);
     try {
-      let hotels = await HotelService.getHotels(params);
+      const skip = (page - 1) * PAGINATION;
+      let hotels = await HotelService.getHotels(`${params || ""}&take=${PAGINATION}&skip=${params ? 0 : skip}`);
       setHotels(hotels);
+
+      if (params) setTotalPages(Math.ceil(hotels.length / PAGINATION));
     } catch (error) {
       showToast({ message: "Error al cargar los hoteles disponibles", type: "error" });
     } finally {
@@ -72,8 +90,10 @@ export const Hotels: React.FC<HotelProps> = () => {
 
     try {
       await HotelService.createHotel({ ...value, placeId: selectedPlace.id, stars });
-      await getHotels();
       showToast({ message: "Hotel creado exitosamente", type: "success" });
+      setTotalHotels((prev) => prev + 1);
+      setTotalPages(Math.ceil((totalHotels + 1) / PAGINATION));
+      getHotels();
     } catch (error) {
       showToast({ message: "Error al crear nuevo hotel", type: "error" });
     } finally {
@@ -94,8 +114,8 @@ export const Hotels: React.FC<HotelProps> = () => {
 
     try {
       await HotelService.updateHotel(hotel.id, { ...value, placeId: selectedPlace.id, stars });
-      await getHotels();
       showToast({ message: "Hotel actualizado exitosamente", type: "success" });
+      getHotels();
     } catch (error) {
       showToast({ message: "Error al actualizar hotel", type: "error" });
     } finally {
@@ -106,12 +126,15 @@ export const Hotels: React.FC<HotelProps> = () => {
   const deleteHotel = async (hotelId: number) => {
     try {
       await HotelService.deleteHotel(hotelId);
-      getHotels();
       showToast({ message: "Hotel eliminado exitosamente", type: "success" });
+      setTotalHotels((prev) => prev - 1);
+      setTotalPages(Math.ceil((totalHotels - 1) / PAGINATION));
+      getHotels();
     } catch (error) {
       showToast({ message: "Error al intentar eliminar hotel", type: "error" });
     } finally {
       setOpenDetail(false);
+      setPage(1);
     }
   };
 
@@ -145,6 +168,10 @@ export const Hotels: React.FC<HotelProps> = () => {
 
   useEffect(() => {
     getHotels();
+  }, [page]);
+
+  useEffect(() => {
+    fetchTotalHotels();
     getCountries();
   }, []);
 
@@ -308,6 +335,9 @@ export const Hotels: React.FC<HotelProps> = () => {
         fullWidth>
         {renderDetail()}
       </Modal>
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+        <Pagination page={page} count={totalPages} changePage={(value) => setPage(value)} showFirstButton showLastButton color="primary" />
+      </Box>
     </>
   );
 };
