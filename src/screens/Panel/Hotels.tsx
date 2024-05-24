@@ -26,6 +26,7 @@ export const Hotels: React.FC<HotelProps> = () => {
   const [page, setPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [totalHotels, setTotalHotels] = useState<number>(0);
+  const [showPagination, setShowPagination] = useState<boolean>(false);
 
   const fetchTotalHotels = async () => {
     try {
@@ -40,12 +41,11 @@ export const Hotels: React.FC<HotelProps> = () => {
 
   const getHotels = async (params?: string) => {
     setLoading(true);
+    setShowPagination(!params);
     try {
       const skip = (page - 1) * PAGINATION;
-      let hotels = await HotelService.getHotels(`${params || ""}&take=${PAGINATION}&skip=${params ? 0 : skip}`);
+      let hotels = await HotelService.getHotels(params ? params : `take=${PAGINATION}&skip=${skip}`);
       setHotels(hotels);
-
-      if (params) setTotalPages(Math.ceil(hotels.length / PAGINATION));
     } catch (error) {
       showToast({ message: "Error al cargar los hoteles disponibles", type: "error" });
     } finally {
@@ -265,15 +265,21 @@ export const Hotels: React.FC<HotelProps> = () => {
     setHotel(HotelEmpty);
   };
 
-  const searchByName = (name: string) => {
+  const searchByName = async (name: string) => {
     const params = name ? `name=${encodeURIComponent(name)}` : "";
-    getHotels(params);
+    if (!params) await fetchTotalHotels();
+    await getHotels(params);
+  };
+
+  const handlerClose = async () => {
+    await fetchTotalHotels();
+    await getHotels();
   };
 
   return (
     <>
       <Heading title="Hoteles disponibles" />
-      <Filter type="hotel" searchByName={searchByName} apply={() => {}} onCloseFilter={async () => await getHotels()} />
+      <Filter type="hotel" searchByName={searchByName} apply={() => {}} onCloseSearch={() => handlerClose()} />
       <Box sx={{ display: "flex", alignItems: "center", pb: 2 }}>
         <Tooltip text="Agregar hotel" position="right">
           <Box>
@@ -335,9 +341,11 @@ export const Hotels: React.FC<HotelProps> = () => {
         fullWidth>
         {renderDetail()}
       </Modal>
-      <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-        <Pagination page={page} count={totalPages} changePage={(value) => setPage(value)} showFirstButton showLastButton color="primary" />
-      </Box>
+      {showPagination && (
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+          <Pagination page={page} count={totalPages} changePage={(value) => setPage(value)} showFirstButton showLastButton color="primary" />
+        </Box>
+      )}
     </>
   );
 };

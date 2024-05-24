@@ -26,11 +26,12 @@ interface FilterProps {
   defaultMax?: number;
   selectCountry?: (countryName: string) => Promise<any>;
   apply: (params: string) => void;
-  onCloseFilter?: () => void;
+  onCloseModalFilter?: () => void;
   onCloseSearch?: () => Promise<void> | void;
+  clearResult?: () => Promise<void> | void;
 }
 
-export const Filter: React.FC<FilterProps> = ({ type, defaultMin, defaultMax, searchByName, countries, selectCountry, places, apply, filter = false, onCloseFilter, onCloseSearch }) => {
+export const Filter: React.FC<FilterProps> = ({ type, defaultMin, defaultMax, searchByName, countries, selectCountry, places, apply, filter = false, onCloseModalFilter, onCloseSearch, clearResult }) => {
   const [open, setOpen] = useState<boolean>(false);
   const [selectedPlaces, setSelectedPlaces] = useState<{ name: string; placeId: number }[]>([]);
   const [prices, setPrices] = useState<number[]>([defaultMin || 10, defaultMax || 10000]);
@@ -236,7 +237,15 @@ export const Filter: React.FC<FilterProps> = ({ type, defaultMin, defaultMax, se
                 </Box>
               )}
             </Box>
-            <Button title="limpiar" onClick={() => reset()} size="small" style={{ mt: 1 }} />
+            <Button
+              title="limpiar"
+              onClick={() => {
+                reset();
+                clearResult && clearResult();
+              }}
+              size="small"
+              style={{ mt: 1 }}
+            />
           </Wrapper>
         )}
         <Divider />
@@ -246,7 +255,7 @@ export const Filter: React.FC<FilterProps> = ({ type, defaultMin, defaultMax, se
         open={open}
         onClose={() => {
           setOpen(false);
-          onCloseFilter && onCloseFilter();
+          onCloseModalFilter && onCloseModalFilter();
         }}
         fullWidth>
         {customFilter()}

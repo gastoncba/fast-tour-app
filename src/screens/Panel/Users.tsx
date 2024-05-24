@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
-import { Avatar, Button, GridList, Heading, Icon, List, Loader, Menu, Modal, Paragraph, Wrapper, showToast } from "../../components";
+import { Box } from "@mui/material";
+
+import { Pagination, Avatar, Button, GridList, Heading, Icon, List, Loader, Menu, Modal, Paragraph, Wrapper, showToast } from "../../components";
 import { Order, User } from "../../models";
 import { userProvider } from "../../providers";
-import { Box } from "@mui/material";
 import { styles } from "../../settings/customStyles.setting";
 import { themeMaterial } from "../../settings/materialTheme.setting";
+import { PAGINATION } from "../../settings/const.setting";
 import { UserService } from "../../services/private/User.service";
 
 const { success, primary, error } = themeMaterial.palette;
@@ -14,6 +16,18 @@ interface UserProps {}
 export const Users: React.FC<UserProps> = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [page, setPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
+
+  const fetchTotalUsers = async () => {
+    try {
+      const users = await userProvider.getUsers();
+      const total = users.length;
+      setTotalPages(Math.ceil(total / PAGINATION));
+    } catch (error) {
+      console.error("Error al obtener el total de usuarios", error);
+    }
+  };
 
   const getUsers = async () => {
     setIsLoading(true);
@@ -27,13 +41,22 @@ export const Users: React.FC<UserProps> = () => {
   };
 
   useEffect(() => {
-    getUsers();
+    fetchTotalUsers();
   }, []);
+
+  useEffect(() => {
+    getUsers();
+  }, [page]);
 
   return (
     <>
       <Heading title="Usuarios" />
-      <Wrapper sx={{ my: 2, p: 4 }}>{isLoading ? <Loader /> : <GridList md={4} lg={3} xl={2} items={users} renderItem={(item: User) => <UserCard user={item} />} />}</Wrapper>
+      <Wrapper sx={{ my: 2, p: 4 }}>
+        {isLoading ? <Loader /> : <GridList md={4} lg={3} xl={2} items={users} renderItem={(item: User) => <UserCard user={item} />} />}
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+          <Pagination page={page} count={totalPages} changePage={(value) => setPage(value)} showFirstButton showLastButton color="primary" />
+        </Box>
+      </Wrapper>
     </>
   );
 };

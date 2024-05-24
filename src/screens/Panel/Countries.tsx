@@ -16,6 +16,7 @@ export const Countries: React.FC<CountriesProps> = () => {
   const [page, setPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [totalCountries, setTotalCountries] = useState<number>(0);
+  const [showPagination, setShowPagination] = useState<boolean>(false);
 
   const fetchTotalCountries = async () => {
     try {
@@ -30,12 +31,11 @@ export const Countries: React.FC<CountriesProps> = () => {
 
   const getCountries = async (params?: string) => {
     setLoading(true);
+    setShowPagination(!params);
     try {
       const skip = (page - 1) * PAGINATION;
-      let cts = await CountryService.getCountries(`${params || ""}&take=${PAGINATION}&skip=${params ? 0 : skip}`);
+      let cts = await CountryService.getCountries(params ? params : `take=${PAGINATION}&skip=${skip}`);
       setCountries(cts);
-
-      if (params) setTotalPages(Math.ceil(cts.length / PAGINATION));
     } catch (error) {
       showToast({ message: "Error al consultar los paises", type: "error" });
     } finally {
@@ -112,15 +112,21 @@ export const Countries: React.FC<CountriesProps> = () => {
     );
   };
 
-  const searchByName = (name: string) => {
+  const searchByName = async (name: string) => {
     const params = name ? `name=${encodeURIComponent(name)}` : "";
+    if (!params) await fetchTotalCountries();
     getCountries(params);
+  };
+
+  const handlerClose = async () => {
+    await fetchTotalCountries();
+    await getCountries();
   };
 
   return (
     <>
       <Heading title="Paises disponibles" />
-      <Filter searchByName={searchByName} type="country" apply={() => {}} onCloseSearch={async () => await getCountries()} />
+      <Filter searchByName={searchByName} type="country" apply={() => {}} onCloseSearch={handlerClose} />
       <Box sx={{ display: "flex", alignItems: "center", pb: 2 }}>
         <Tooltip text="Agregar país" position="right">
           <Box>
@@ -164,9 +170,11 @@ export const Countries: React.FC<CountriesProps> = () => {
           )}
         </>
       )}
-      <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-        <Pagination page={page} count={totalPages} changePage={(value) => setPage(value)} showFirstButton showLastButton color="primary" />
-      </Box>
+      {showPagination && (
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+          <Pagination page={page} count={totalPages} changePage={(value) => setPage(value)} showFirstButton showLastButton color="primary" />
+        </Box>
+      )}
       <Modal title="País" open={open} onClose={() => setOpen(false)}>
         {form}
       </Modal>

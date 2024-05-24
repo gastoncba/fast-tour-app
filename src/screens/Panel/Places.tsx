@@ -23,6 +23,7 @@ export const Places: React.FC<PlacesProps> = () => {
   const [page, setPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [totalPlaces, setTotalPlaces] = useState<number>(0);
+  const [showPagination, setShowPagination] = useState<boolean>(false);
 
   const fetchTotalPlaces = async () => {
     try {
@@ -37,12 +38,11 @@ export const Places: React.FC<PlacesProps> = () => {
 
   const getPlaces = async (params?: string) => {
     setLoading(true);
+    setShowPagination(!params);
     try {
       const skip = (page - 1) * PAGINATION;
-      let pls = await PlaceService.getPlaces(`${params || ""}&take=${PAGINATION}&skip=${skip}`);
+      let pls = await PlaceService.getPlaces(params ? params : `take=${PAGINATION}&skip=${skip}`);
       setPlaces(pls);
-
-      if (params) setTotalPages(Math.ceil(pls.length / PAGINATION));
     } catch (error) {
       showToast({ message: "Error al cargar los destinos disponibles", type: "error" });
     } finally {
@@ -72,13 +72,13 @@ export const Places: React.FC<PlacesProps> = () => {
   };
 
   useEffect(() => {
-    getPlaces();
-  }, [page]);
+    getCountries();
+    fetchTotalPlaces();
+  }, []);
 
   useEffect(() => {
-    fetchTotalPlaces();
-    getCountries();
-  }, []);
+    getPlaces();
+  }, [page]);
 
   const createPlace = async (value: any) => {
     if (selectedCountry.id === -1) {
@@ -209,19 +209,25 @@ export const Places: React.FC<PlacesProps> = () => {
     );
   };
 
-  const searchByName = (name: string) => {
+  const searchByName = async (name: string) => {
     const params = name ? `name=${encodeURIComponent(name)}` : "";
-    getPlaces(params);
+    if (!params) await fetchTotalPlaces();
+    await getPlaces(params);
   };
 
   const resetSelectedCountry = () => {
     setSelectedCountry(CountryEmpty);
   };
 
+  const handlerClose = async () => {
+    await fetchTotalPlaces();
+    await getPlaces();
+  };
+
   return (
     <>
       <Heading title="Destinos disponibles" />
-      <Filter type="place" searchByName={searchByName} apply={() => {}} onCloseSearch={async () => await getPlaces()} />
+      <Filter type="place" searchByName={searchByName} apply={() => {}} onCloseSearch={handlerClose} />
       <Box sx={{ display: "flex", alignItems: "center", pb: 2 }}>
         <Tooltip text="Agregar destino" position="right">
           <Box>
@@ -272,9 +278,11 @@ export const Places: React.FC<PlacesProps> = () => {
       <Modal open={openDetail} onClose={() => setOpenDetail(false)} title={place.name} fullWidth>
         {renderDetail()}
       </Modal>
-      <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-        <Pagination page={page} count={totalPages} changePage={(value) => setPage(value)} showFirstButton showLastButton color="primary" />
-      </Box>
+      {showPagination && (
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+          <Pagination page={page} count={totalPages} changePage={(value) => setPage(value)} showFirstButton showLastButton color="primary" />
+        </Box>
+      )}
     </>
   );
 };
