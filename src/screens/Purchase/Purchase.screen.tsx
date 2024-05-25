@@ -285,6 +285,7 @@ const HotelSelector: React.FC<PropsHotelSelector> = ({ place, hotel, addHotel, r
             <GridList
               sm={12}
               lg={12}
+              xl={12}
               items={hotels}
               renderItem={(item: Hotel) => (
                 <Card

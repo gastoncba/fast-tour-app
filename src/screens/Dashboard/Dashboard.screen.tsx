@@ -5,6 +5,7 @@ import { StatisticServices } from "../../services/Statistic.service";
 import { Divider, Heading, Loader, Paragraph, Statistic, Table, TableProps, Tabs, Wrapper, showToast, PopChart, Input, Button } from "../../components";
 import { CountryRanking, GeneralStatistic, MonthlyTripCount, PlaceRanking, Ranking, TripRanking } from "../../models";
 import { styles } from "../../settings/customStyles.setting";
+import { ConversionUtils } from "../../utils";
 
 interface CreateRankingTableStrategy {
   createDataTable(rankings: any[]): TableProps;
@@ -132,7 +133,7 @@ export const DashboardScreen: React.FC<DashboardProps> = () => {
               <Statistic value={general.orders} title={"Ordenes"} iconType="BAG" iconStyles={{ color: red }} />
             </Grid>
             <Grid item xl={2} lg={3} md={4} xs={12}>
-              <Statistic value={general.averageSales} title={"Ventas promedio"} iconType="CHART" iconStyles={{ color: green }} />
+              <Statistic value={ConversionUtils.trunc(general.averageSales)} title={"Ventas promedio"} iconType="CHART" iconStyles={{ color: green }} />
             </Grid>
           </Grid>
           <Grid container columnSpacing={2} rowSpacing={2}>
