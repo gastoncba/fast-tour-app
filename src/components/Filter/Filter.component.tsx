@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box } from "@mui/material";
+import { Box, Paper } from "@mui/material";
 
 import { Paragraph } from "../Paragraph/Paragraph.component";
 import { Modal } from "../Modal/Modal.component";
@@ -12,7 +12,9 @@ import { Button } from "../Button/Button.component";
 import { Range } from "../Range/Range.component";
 import { Switch } from "../Switch/Switch.component";
 import { Loader } from "../Loader/Loader.component";
-import { Input } from "../Input/Input.component";
+import { Slider } from "../Slider/Slider.component";
+import { showToast } from "../Toaster/Toaster.component";
+import { Wrapper } from "../Wrapper/Wrapper.component";
 
 interface FilterProps {
   type: "trip" | "place" | "hotel" | "country";
@@ -20,23 +22,26 @@ interface FilterProps {
   searchByName: (name: string) => void;
   countries?: { value: string; other: any }[];
   places?: { value: string; other: any }[];
+  defaultMin?: number;
+  defaultMax?: number;
   selectCountry?: (countryName: string) => Promise<any>;
   apply: (params: string) => void;
-  onCloseFilter?: () => void;
+  onCloseModalFilter?: () => void;
   onCloseSearch?: () => Promise<void> | void;
+  clearResult?: () => Promise<void> | void;
 }
 
-export const Filter: React.FC<FilterProps> = ({ type, searchByName, countries, selectCountry, places, apply, filter = false, onCloseFilter, onCloseSearch }) => {
+export const Filter: React.FC<FilterProps> = ({ type, defaultMin, defaultMax, searchByName, countries, selectCountry, places, apply, filter = false, onCloseModalFilter, onCloseSearch, clearResult }) => {
   const [open, setOpen] = useState<boolean>(false);
   const [selectedPlaces, setSelectedPlaces] = useState<{ name: string; placeId: number }[]>([]);
-  const [minPrice, setMinPrice] = useState<number>(10);
-  const [maxPrice, setMaxPrice] = useState<number>(50);
+  const [prices, setPrices] = useState<number[]>([defaultMin || 10, defaultMax || 10000]);
   const [placesFilter, setPlacesFilter] = useState<boolean>(true);
   const [priceFilter, setPriceFilter] = useState<boolean>(false);
   const [dateFilter, setDateFilter] = useState<boolean>(false);
   const [name, setName] = useState<string>("");
   const [loadingPlaces, setLoadingPlaces] = useState<boolean>(false);
   const [dates, setDates] = useState<string[]>([]);
+  const [showSectionFilter, setShowSectionFilter] = useState<boolean>(false);
 
   const handlerCountry = async (countryName: string) => {
     if (selectCountry) {
@@ -70,19 +75,30 @@ export const Filter: React.FC<FilterProps> = ({ type, searchByName, countries, s
         let searchParams = new URLSearchParams();
 
         if (placesFilter) {
+          if (selectedPlaces.length === 0) {
+            showToast({ message: "Debe seleccionar al menos un destino si desea filtrar por destinos", type: "info" });
+            return;
+          }
           searchParams.append("places", selectedPlaces.map((p) => p.placeId).join(","));
         }
 
         if (priceFilter) {
-          searchParams.append("minPrice", minPrice.toString());
-          searchParams.append("maxPrice", maxPrice.toString());
+          searchParams.append("minPrice", prices[0].toString());
+          searchParams.append("maxPrice", prices[1].toString());
         }
 
         if (dateFilter) {
+          if (dates.length === 0) {
+            showToast({ message: "Seleccione un rango de fechas si desea buscar por fechas", type: "info" });
+            return;
+          }
           searchParams.append("start", dates[0]);
           searchParams.append("end", dates[1]);
         }
         params = searchParams.toString();
+
+        setOpen(false);
+        setShowSectionFilter(true);
         apply(params);
         break;
       default:
@@ -98,7 +114,7 @@ export const Filter: React.FC<FilterProps> = ({ type, searchByName, countries, s
             <Box>
               <Box sx={{ display: "flex", columnGap: 1, alignItems: "center" }}>
                 <Switch onChange={(value) => setPlacesFilter(value)} checked={placesFilter} />
-                <Paragraph text={"Lugares: "} fontWeight={"bold"} />
+                <Paragraph text={"Destinos: "} fontWeight={"bold"} />
               </Box>
               <>
                 {placesFilter && (
@@ -122,51 +138,22 @@ export const Filter: React.FC<FilterProps> = ({ type, searchByName, countries, s
                 <Paragraph text={"Rango de precios"} fontWeight={"bold"} />
               </Box>
               {priceFilter && (
-                <Box sx={{ display: "flex", flexDirection: "column", rowGap: 1, pt: 1.5 }}>
-                  <Box sx={{ display: "flex", columnGap: 2 }}>
-                    <Input
-                      fullWidth
-                      type="number"
-                      label="precio minimo"
-                      value={minPrice}
-                      setValue={(value) => {
-                        let min = parseFloat(value);
-                        if (isNaN(min)) {
-                          setMinPrice(0);
-                          return;
-                        }
-                        if (min <= maxPrice) {
-                          setMinPrice(min);
-                        } else {
-                          setMinPrice(10);
-                        }
-                      }}
-                      size="small"
-                      inputProps={{ min: 0, max: maxPrice, step: "0.01" }}
+                <>
+                  <Paper sx={{ px: 4, mt: 3 }}>
+                    <Slider
+                      sx={{ my: 3 }}
+                      min={10}
+                      max={99999}
+                      value={prices}
+                      onChange={(e, value) => setPrices(value as number[])}
+                      marks={[
+                        { value: defaultMin || 10, label: `$${defaultMin || 10}` },
+                        { value: 99999, label: `$99999` },
+                      ]}
                     />
-                    <Input
-                      fullWidth
-                      type="number"
-                      label="precio maximo"
-                      value={maxPrice}
-                      setValue={(value) => {
-                        let max = parseFloat(value);
-                        if (isNaN(max)) {
-                          setMaxPrice(100);
-                          return;
-                        }
-                        if (max >= minPrice) {
-                          setMaxPrice(max);
-                        } else {
-                          setMaxPrice(100);
-                        }
-                      }}
-                      size="small"
-                      inputProps={{ min: minPrice, max: 99999, step: "0.01" }}
-                    />
-                  </Box>
-                  <Paragraph text={minPrice !== maxPrice ? "Desde los USD " + minPrice + " hasta los USD " + maxPrice : "Viajes de USD " + minPrice} color="GrayText" />
-                </Box>
+                    <Paragraph text={"Desde $" + prices[0] + " Hasta los $" + prices[1]} />
+                  </Paper>
+                </>
               )}
             </Box>
             <Box>
@@ -190,14 +177,77 @@ export const Filter: React.FC<FilterProps> = ({ type, searchByName, countries, s
         return <div>default</div>;
     }
   };
+  const reset = () => {
+    setPlacesFilter(true);
+    setPriceFilter(false);
+    setDateFilter(false);
+    setShowSectionFilter(false);
+    setPrices([defaultMin || 10, defaultMax || 10000]);
+    setSelectedPlaces([]);
+    setDates([]);
+  };
   return (
     <>
       <Box sx={{ display: "flex", flexDirection: "column", rowGap: 1, py: 2 }}>
         <Box sx={{ display: "flex", columnGap: 2, alignItems: "center" }}>
           <SearchBar placeholder="Buscar por nombre" onChange={(value) => setName(value)} onClose={onCloseSearch} />
-          <Button title="Buscar" onClick={() => searchByName(name)} color="inherit" size="small" />
-          {filter && <IconButton icon={<Icon type="FILTER" />} onClick={() => setOpen(true)} />}
+          <Button
+            title="Buscar"
+            onClick={() => {
+              reset();
+              searchByName(name);
+            }}
+            color="inherit"
+            size="small"
+          />
+          {filter && (
+            <IconButton
+              icon={<Icon type="FILTER" />}
+              onClick={() => {
+                reset();
+                setOpen(true);
+              }}
+            />
+          )}
         </Box>
+        {showSectionFilter && (
+          <Wrapper sx={{ p: 2, mb: 1 }}>
+            <Paragraph text={"Filtros"} fontWeight={"bold"} color="primary" />
+            <Box sx={{ display: "flex", columnGap: 2, alignItems: "center" }}>
+              {placesFilter && (
+                <Box sx={{ display: "flex", alignItems: "center", columnGap: 1 }}>
+                  <Paragraph text={"Destino: "} fontWeight={"bold"} color="primary" />
+                  <Box display={"flex"} flexDirection={"row"} columnGap={1}>
+                    {selectedPlaces.map((place) => (
+                      <Chip key={place.placeId} label={place.name} color="default" />
+                    ))}
+                  </Box>
+                </Box>
+              )}
+              {priceFilter && (
+                <Box sx={{ display: "flex", alignItems: "center", columnGap: 1 }}>
+                  <Paragraph text={"Rango de precio: "} fontWeight={"bold"} color="primary" />
+                  <Paragraph text={"Desde $" + prices[0] + " hasta $" + prices[1]} />
+                </Box>
+              )}
+              {dateFilter && (
+                <Box sx={{ display: "flex", alignItems: "center", columnGap: 1 }}>
+                  <Paragraph text={"Fechas:"} fontWeight={"bold"} color="primary" />
+                  <Paragraph text={"Desde el " + dates[0] + " hasta el " + dates[1]} color="GrayText" />
+                </Box>
+              )}
+            </Box>
+            <Button
+              title="limpiar"
+              onClick={() => {
+                reset();
+                clearResult && clearResult();
+              }}
+              size="small"
+              style={{ mt: 1 }}
+            />
+          </Wrapper>
+        )}
         <Divider />
       </Box>
       <Modal
@@ -205,14 +255,7 @@ export const Filter: React.FC<FilterProps> = ({ type, searchByName, countries, s
         open={open}
         onClose={() => {
           setOpen(false);
-          setPlacesFilter(true);
-          setPriceFilter(false);
-          setDateFilter(false);
-          setMinPrice(10);
-          setMaxPrice(50);
-          setSelectedPlaces([]);
-          setDates([]);
-          onCloseFilter && onCloseFilter();
+          onCloseModalFilter && onCloseModalFilter();
         }}
         fullWidth>
         {customFilter()}

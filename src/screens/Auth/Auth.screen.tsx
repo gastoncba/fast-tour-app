@@ -1,25 +1,32 @@
 import React, { useState } from "react";
 import { Grid, Box } from "@mui/material";
+import { useLocation } from "react-router-dom";
 
 import { Wrapper, Paragraph, Button } from "../../components";
 import { Login } from "./Login";
 import { Singup } from "./Signup";
 
+type typeAuthScreen = "login" | "signup" | "recover";
+
 interface AuthProps {}
 
 export const AuthScreen: React.FC<AuthProps> = () => {
-  const [activeScreen, setActiveScreen] = useState("login");
+  const location = useLocation();
+  const { state } = location;
+  const [activeScreen, setActiveScreen] = useState<typeAuthScreen>(state !== null ? state.type : "login");
+  const [to] = useState<string>(state !== null ? state.redirect : "/app/home");
+  const [content] = useState<any>(state !== null ? state.content : null);
 
   const renderScreen = () => {
     switch (activeScreen) {
       case "login":
-        return <Login />;
+        return <Login to={to} content={content} />;
       case "signup":
-        return <Singup />;
+        return <Singup to={to} content={content} />;
       case "recover":
         return <div>recuperar contraseña</div>;
       default:
-        return <Login />;
+        return <Login to={to} content={content} />;
     }
   };
 

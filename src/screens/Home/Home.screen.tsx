@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Box } from "@mui/material";
-import { useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom";
 
-import { Card, GridList, Loader, Paragraph, showToast, Modal, List, Collapse, Icon, IconButton, Banner, Filter } from "../../components/index";
+import { Card, GridList, Loader, Paragraph, showToast, Modal, List, Collapse, Icon, IconButton, Banner, Filter, Pagination } from "../../components/index";
 import { Trip } from "../../models/Trip.model";
 import { CountryService, PlaceService, TripService } from "../../services";
 import { Country, Place } from "../../models";
+import { PAGINATION } from "../../settings/const.setting";
 
 interface HomeProps {}
 
@@ -19,16 +20,31 @@ export const HomeScreen: React.FC<HomeProps> = (props: HomeProps) => {
   const [expanded, setExpanded] = useState<boolean>(false);
   const [countries, setCountries] = useState<Country[]>([]);
   const [places, setPlaces] = useState<Place[]>([]);
+  const [page, setPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const [showPagination, setShowPagination] = useState<boolean>(false);
 
   let navigate = useNavigate();
 
+  const fetchTotalTrips = async () => {
+    try {
+      const trips = await TripService.getTrips();
+      const total = trips.length;
+      setTotalPages(Math.ceil(total / PAGINATION));
+    } catch (error) {
+      console.error("Error al obtener el total de viajes", error);
+    }
+  };
+
   const getTrips = async (params?: string) => {
     setIsLoading(true);
+    setShowPagination(!params);
     try {
-      let trips = await TripService.getTrips(params);
+      const skip = (page - 1) * PAGINATION;
+      let trips = await TripService.getTrips(params ? params : `take=${PAGINATION}&skip=${skip}`);
       setTrips(trips);
     } catch {
-      showToast("error", "Error al cargar los viajes disponibles");
+      showToast({ message: "Error al cargar los viajes disponibles", type: "error" });
     } finally {
       setIsLoading(false);
     }
@@ -44,9 +60,13 @@ export const HomeScreen: React.FC<HomeProps> = (props: HomeProps) => {
   };
 
   useEffect(() => {
-    getTrips();
+    fetchTotalTrips();
     getCountries();
   }, []);
+
+  useEffect(() => {
+    getTrips();
+  }, [page]);
 
   const getTrip = async (tripId: number) => {
     setIsLoadingDetail(true);
@@ -55,12 +75,13 @@ export const HomeScreen: React.FC<HomeProps> = (props: HomeProps) => {
       setTrip(trip);
       setIsLoadingDetail(false);
     } catch (error) {
-      showToast("error", "Error al cargar la información del viaje");
+      showToast({ message: "Error al cargar la información del viaje", type: "error" });
     }
   };
 
-  const searchByName = (name: string) => {
-    const params = name ? `?name=${encodeURIComponent(name)}` : "";
+  const searchByName = async (name: string) => {
+    const params = name ? `name=${encodeURIComponent(name)}` : "";
+    if (!params) await fetchTotalTrips();
     getTrips(params);
   };
 
@@ -69,7 +90,7 @@ export const HomeScreen: React.FC<HomeProps> = (props: HomeProps) => {
       let places = await PlaceService.getPlaces(params);
       setPlaces(places);
     } catch (error) {
-      showToast("error", "Error al cargar los lugares");
+      showToast({ message: "Error al cargar los lugares", type: "error" });
     }
   };
 
@@ -86,6 +107,11 @@ export const HomeScreen: React.FC<HomeProps> = (props: HomeProps) => {
     getTrips(params);
   };
 
+  const handlerClose = async () => {
+    await fetchTotalTrips();
+    await getTrips();
+  };
+
   return (
     <>
       <Banner title="Fast Tour" subtitle="Encuentra las mejores experiencias alrededor del globo." height={"auto"} imageUrl="https://images.pexels.com/photos/346885/pexels-photo-346885.jpeg" />
@@ -97,8 +123,9 @@ export const HomeScreen: React.FC<HomeProps> = (props: HomeProps) => {
         places={places.map((p) => ({ value: p.name, other: p }))}
         countries={countries.map((c) => ({ value: c.name, other: c }))}
         selectCountry={handlerCountry}
-        onCloseFilter={() => setPlaces([])}
-        onCloseSearch={async () => await getTrips()}
+        onCloseModalFilter={() => setPlaces([])}
+        onCloseSearch={handlerClose}
+        clearResult={handlerClose}
       />
       {isLoading ? (
         <Loader sx={{ py: 6 }} />
@@ -127,6 +154,11 @@ export const HomeScreen: React.FC<HomeProps> = (props: HomeProps) => {
           )}
         </>
       )}
+      {showPagination && (
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+          <Pagination page={page} count={totalPages} changePage={(value) => setPage(value)} showFirstButton showLastButton color="primary" />
+        </Box>
+      )}
       <Modal
         open={open}
         onClose={() => {
@@ -139,14 +171,18 @@ export const HomeScreen: React.FC<HomeProps> = (props: HomeProps) => {
           {isLoadingDetail ? (
             <Loader />
           ) : (
-            <Card title={trip.name} description={trip.description ? trip.description : "Sin descripción"} other={trip.startDate + " al " + trip.endDate} onAction={{ onClick: () => navigate("/app/purchase", { state: { trip } }), title: "comprar" }}>
+            <Card
+              title={trip.name}
+              description={trip.description ? trip.description : "Sin descripción"}
+              other={trip.startDate + " al " + trip.endDate}
+              onAction={{ onClick: () => navigate("/app/purchase", { state: { trip, summary: false } }), title: "comprar" }}>
               <Paragraph text={"Precio USD " + trip.price} />
               <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
                 <Paragraph text={"Lugares a visitar"} sx={{ fontWeight: "bold" }} />
                 <IconButton icon={<Icon type="EXPAND-MORE" />} onClick={() => setExpanded(!expanded)} />
               </Box>
               <Collapse expanded={expanded}>
-                <List items={trip.places.map((p) => ({ id: 1, primaryText: p.name, secondaryText: p.country.name, value: p }))} />
+                <List items={trip.places.map((p) => ({ id: p.id, primaryText: p.name, secondaryText: p.country.name, value: p }))} />
               </Collapse>
             </Card>
           )}

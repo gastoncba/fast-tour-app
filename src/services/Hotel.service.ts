@@ -7,7 +7,7 @@ export const HotelService = (() => {
   const getHotels = (params?: string) => {
     return new Promise<Hotel[]>(async (resolve, reject) => {
       try {
-        let hotels = await get(SERVICE_ENDPOINT, params);
+        let hotels = await get(SERVICE_ENDPOINT, params, false);
         resolve(hotels);
       } catch (error) {
         reject(newError("GET-HOTELS-FAIL"));
@@ -18,7 +18,7 @@ export const HotelService = (() => {
   const getHotel = (hotelId: number) => {
     return new Promise<Hotel>(async (resolve, reject) => {
       try {
-        let hotel = await get(SERVICE_ENDPOINT + "/" + hotelId);
+        let hotel = await get(SERVICE_ENDPOINT + "/" + hotelId, undefined, false);
         resolve(hotel);
       } catch (error) {
         reject(newError("GET-HOTEL-FAIL"));

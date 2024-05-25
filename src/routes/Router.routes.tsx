@@ -1,32 +1,47 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { Box } from "@mui/material";
-import { observer } from "mobx-react";
 
-import { AuthScreen, HomeScreen, LandingScreen, NotFoundScreen, PanelScreen, PurchaseScreen } from "../screens";
-import { NavBar, Sidebar, Icon, IconButton, Menu } from "../components";
-import { RouterItemsController } from "./RouterItemsController";
-import { RouterItems } from "./RouterItems";
-import { ProtectedRoute } from "./ProtectedRoute.component";
+import { AuthScreen, HomeScreen, LandingScreen, NotFoundScreen, PanelScreen, PurchaseScreen, DashboardScreen, ProfileScreen } from "../screens";
+import { NavBar, Sidebar, Icon, Menu } from "../components";
+import { RouterItemsController } from "./RouterItemsController.routes";
+import { RouterItems } from "./RouterItems.routes";
+import { ProtectedRoute } from "./ProtectedRoute.routes";
 import { userProvider, tokenProvider } from "../providers";
+import { observer } from "mobx-react";
 
 interface Props {}
 
 export const Router: React.FC<Props> = observer((props: Props) => {
   const [showSidebar, setShowSidebar] = useState<boolean>(false);
   const generalItems = RouterItemsController();
-  let navigate = useNavigate();
-  let location = useLocation();
+  const navigate = useNavigate();
+  const location = useLocation();
   const { state } = location;
 
   const logout = () => {
     tokenProvider.clearTokens();
-    userProvider.user.isLogged = false;
+    userProvider.logout();
     setTimeout(() => {
       setShowSidebar(false);
       navigate("/app/home", { replace: true });
     }, 2000);
   };
+
+  useEffect(() => {
+    const handleBeforeUnload = (event: any) => {
+      event.preventDefault();
+      const confirmationMessage = "¿Desea salir de esta página?";
+      event.returnValue = confirmationMessage;
+      return confirmationMessage;
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
 
   return (
     <Routes>
@@ -40,7 +55,6 @@ export const Router: React.FC<Props> = observer((props: Props) => {
               handleClick={() => setShowSidebar(!showSidebar)}
               icons={
                 <>
-                  <IconButton icon={<Icon type="BAG" sx={{ color: "black" }} />} />
                   <Menu
                     icon={<Icon type="ACCOUNT" sx={{ color: "black" }} />}
                     items={[
@@ -85,7 +99,7 @@ export const Router: React.FC<Props> = observer((props: Props) => {
                     />
                   }>
                   <Route path="/panel" element={<PanelScreen />} />
-                  <Route path="/dashboard" element={<div>dashboard</div>} />
+                  <Route path="/dashboard" element={<DashboardScreen />} />
                 </Route>
                 <Route
                   element={
@@ -98,7 +112,7 @@ export const Router: React.FC<Props> = observer((props: Props) => {
                       ]}
                     />
                   }>
-                  <Route path="/profile" element={<div>perfil de {userProvider.user.firstName}</div>} />
+                  <Route path="/profile" element={<ProfileScreen />} />
                 </Route>
                 <Route path="*" element={<NotFoundScreen message="La página que busca no existe." />} />
               </Routes>

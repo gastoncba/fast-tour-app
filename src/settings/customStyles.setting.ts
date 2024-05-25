@@ -7,10 +7,11 @@ export const styles = {
     boxShadow: "0px 2px 1px -1px rgba(0,0,0,0.2), 0px 1px 1px 0px rgba(0,0,0,0.14), 0px 1px 3px 0px rgba(0,0,0,0.12);",
   },
   color: {
-    star: "#fabb05",
+    yellow: "#F4B400",
     background: "#eeeeee",
-    green: "#24c06c",
+    green: "#0F9D58",
     favorite: "#ff7b7b",
+    red: "#DB4437",
     blueberry: "#4285f4",
   },
   navGroup: {
@@ -66,5 +67,6 @@ export const styles = {
       opacity: 0.2,
       background: themeMaterial.palette.primary.light,
     },
-  }  
+  },
+  cardStyles: { border: "1px solid rgb(227, 232, 239)", borderRadius: "4px", px: 2, py: 1, ":hover": { boxShadow: "rgba(32, 40, 45, 0.08) 0px 2px 14px 0px" }, transition: "box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms" },
 };

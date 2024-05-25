@@ -16,14 +16,14 @@ export const RouterItemsController = () => {
         {
           id: 2,
           title: "Dashboard",
-          icon: <Icon type="HOME" className="setting-item-icon" />,
+          icon: <Icon type="CHART" className="setting-item-icon" />,
           url: "dashboard",
           type: "item"
         },
         {
           id: 4,
           title: "Panel",
-          icon: <Icon type="HOME" className="setting-item-icon" />,
+          icon: <Icon type="ADMIN-PANEL" className="setting-item-icon" />,
           url: "panel",
           type: "collapse",
           value: "trips",
@@ -47,6 +47,16 @@ export const RouterItemsController = () => {
               id: 9,
               title: "Hoteles",
               value: "hotel"
+            },
+            {
+              id: 10,
+              title: "Usuarios",
+              value: "user"
+            },
+            {
+              id: 11,
+              title: "Ordenes",
+              value: "order"
             }
           ]
         },

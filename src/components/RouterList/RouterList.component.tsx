@@ -38,7 +38,7 @@ export const RouterList: React.FunctionComponent<Props> = (props: Props) => {
   };
 
   useEffect(() => {
-    setSelectedIndex(0);
+    setSelectedIndex(1);
     for (const item of props.itemsMenu) {
       for (const children of item.children) {
         if (props.isCurrent(children.url)) {

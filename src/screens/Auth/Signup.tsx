@@ -12,24 +12,28 @@ interface SingupValues {
   password: string;
 }
 
-interface SingupProps {}
+interface SingupProps {
+  to: string;
+  content: any;
+}
 
-export const Singup: React.FC<SingupProps> = ({}) => {
+export const Singup: React.FC<SingupProps> = ({ to, content }) => {
   let navigate = useNavigate();
+
   const onAction = async (values: SingupValues) => {
     try {
       await userProvider.signup(values);
-      navigate("/app/home", { replace: true });
-      showToast("success", "Bienvenido!");
+      navigate(to, { replace: true, state: content });
+      showToast({ message: "Bienvenido!", type: "success" });
     } catch (error) {
-      showToast("error", "Error al intentar registrarse");
+      showToast({ message: "Error al intentar registrarse", type: "error" });
     }
   };
 
   return (
     <Box>
       <Form
-        title="Registrate en FastTour!"
+        title={{ text: "Registrate en FastTour!" }}
         inputs={[
           {
             label: "Nombre",

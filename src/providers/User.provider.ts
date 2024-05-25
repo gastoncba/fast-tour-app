@@ -6,6 +6,7 @@ import { UserService } from "../services/private/User.service";
 
 class UserProvider {
   private isLogged: boolean = false;
+  private id: number = 0;
   private email: string = "";
   private firstName: string = "";
   private lastName: string = "";
@@ -16,6 +17,7 @@ class UserProvider {
   }
 
   public set user(user: User) {
+    this.id = user.id;
     this.email = user.email;
     this.lastName = user.lastName;
     this.firstName = user.firstName;
@@ -25,6 +27,7 @@ class UserProvider {
 
   public get user(): User {
     let user = {
+      id: this.id,
       email: this.email,
       lastName: this.lastName,
       firstName: this.firstName,
@@ -60,7 +63,6 @@ class UserProvider {
         let login_data: { user: User; token: Token } = await UserService.login(email, password);
         tokenProvider.token(login_data.token);
         this.user = { ...login_data.user, isLogged: true };
-        //console.log("user | login by password => ", this.user);
         resolve();
       } catch (error) {
         reject(error);
@@ -72,8 +74,7 @@ class UserProvider {
     return new Promise<void>(async (resolve, reject) => {
       try {
         const user = await tokenProvider.isTokenValid();
-        if (user) this.user = { ...user, isLogged: true };
-        //console.log("user | login by token => ", this.user);
+        this.user = { ...user, isLogged: true };
         resolve();
       } catch (error) {
         resolve();
@@ -81,9 +82,30 @@ class UserProvider {
     });
   };
 
+  public update = async (changes: { firstName?: string; lastName?: string; email?: string }) => {
+    const user = await UserService.update(changes);
+    this.user = { ...user, isLogged: true };
+  };
+
+  public getOrders = async () => {
+    return await UserService.getOrders(this.user.id)
+  }
+
+  public getUsers = async () => {
+    return await UserService.getUsers(this.isAdmin());
+  }
+
   public isAdmin = () => {
     return this.role.name === RoleType.ADMIN;
   };
+
+  public logout = () => {
+    this.user.isLogged = false;
+  };
+
+  public getRolName() {
+    return this.isAdmin() ? "Administrador" : "Cliente";
+  }
 }
 
 export const userProvider = new UserProvider();

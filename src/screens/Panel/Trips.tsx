@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Box } from "@mui/material";
 
-import { Collapse, List, Chip, Heading, GridList, Card, Paragraph, showToast, Loader, Icon, Form, Modal, Tooltip, Range, SearchBar, Menu, Filter } from "../../components";
+import { Pagination, Collapse, List, Chip, Heading, GridList, Card, Paragraph, showToast, Loader, Icon, Form, Modal, Tooltip, Range, SearchBar, Menu, Filter } from "../../components";
 import { Country, Place, Trip } from "../../models";
 import { CountryService, PlaceService, TripService } from "../../services";
 import { IconButton } from "../../components/IconButton/IconButton.component";
+import { PAGINATION } from "../../settings/const.setting";
+
+export const TripEmpty: Trip = { id: -1, name: "", description: null, img: null, price: 0, startDate: "", endDate: "", places: [] };
 
 interface TripProps {}
 
@@ -18,9 +21,24 @@ export const Trips: React.FC<TripProps> = () => {
   const [selectedPlaces, setSelectedPlaces] = useState<{ name: string; placeId: number }[]>([]);
   const [dates, setDates] = useState<string[]>([]);
   const [expanded, setExpanded] = useState<boolean>(false);
-  const [trip, setTrip] = useState<Trip>({ id: -1, name: "", description: null, img: null, price: 0, startDate: "", endDate: "", places: [] });
+  const [trip, setTrip] = useState<Trip>(TripEmpty);
   const [isLoadingDetail, setIsLoadingDetail] = useState<boolean>(false);
   const [openModalDetail, setOpenDetail] = useState<boolean>(false);
+  const [page, setPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const [totalTrips, setTotalTrips] = useState<number>(0);
+  const [showPagination, setShowPagination] = useState<boolean>(false);
+
+  const fetchTotalTrips = async () => {
+    try {
+      const trips = await TripService.getTrips();
+      const total = trips.length;
+      setTotalPages(Math.ceil(total / PAGINATION));
+      setTotalTrips(trips.length);
+    } catch (error) {
+      console.error("Error al obtener el total de viajes", error);
+    }
+  };
 
   const handlerCountry = async (country: string) => {
     let selected = countries.find((c) => c.name === country);
@@ -37,7 +55,7 @@ export const Trips: React.FC<TripProps> = () => {
       let places = await PlaceService.getPlaces(params);
       setPlaces(places);
     } catch (error) {
-      showToast("error", "Error al cargar los lugares");
+      showToast({ message: "Error al cargar los lugares", type: "error" });
     } finally {
       setLoadingPlaces(false);
     }
@@ -60,11 +78,13 @@ export const Trips: React.FC<TripProps> = () => {
 
   const getTrips = async (params?: string) => {
     setIsLoading(true);
+    setShowPagination(!params);
     try {
-      let trips = await TripService.getTrips(params);
+      const skip = (page - 1) * PAGINATION;
+      let trips = await TripService.getTrips(params ? params : `take=${PAGINATION}&skip=${skip}`);
       setTrips(trips);
     } catch {
-      showToast("error", "Error al cargar los viajes disponibles");
+      showToast({ message: "Error al cargar los viajes disponibles", type: "error" });
     } finally {
       setIsLoading(false);
     }
@@ -75,23 +95,40 @@ export const Trips: React.FC<TripProps> = () => {
       let ct = await CountryService.getCountries();
       setCountries(ct);
     } catch (error) {
-      showToast("error", "Error al cargar los paises disponibles");
+      showToast({ message: "Error al cargar los paises disponibles", type: "error" });
     }
   };
 
   useEffect(() => {
-    getTrips();
+    fetchTotalTrips();
     getCountries();
   }, []);
 
+  useEffect(() => {
+    getTrips();
+  }, [page]);
+
   const createTrip = async (value: any) => {
+    let placesId = selectedPlaces.map((p) => p.placeId);
+
+    if (dates[0] === "" || dates[1] === "") {
+      showToast({ message: "Se debe elegir un rango de fechas del viaje", type: "info" });
+      return;
+    }
+
+    if (placesId.length === 0) {
+      showToast({ message: "Se debe elegir al menos un lugar", type: "info" });
+      return;
+    }
+
     try {
-      let placesId = selectedPlaces.map((p) => p.placeId);
       await TripService.createTrip({ name: value.name, description: value.description, price: value.price, startDate: dates[0], endDate: dates[1], placesId });
-      showToast("success", "Viaje agregado exitosamente");
+      showToast({ message: "Viaje agregado exitosamente", type: "success" });
+      setTotalTrips((prev) => prev + 1);
+      setTotalPages(Math.ceil((totalTrips + 1) / PAGINATION));
       getTrips();
     } catch (error) {
-      showToast("error", "Error al agregar un nuevo viaje");
+      showToast({ message: "Error al agregar un nuevo viaje", type: "error" });
     } finally {
       setOpenModal(false);
       setSelectedPlaces([]);
@@ -100,13 +137,24 @@ export const Trips: React.FC<TripProps> = () => {
   };
 
   const updateTrip = async (value: any) => {
+    let placesId = selectedPlaces.map((p) => p.placeId);
+
+    if (dates[0] === "" || dates[1] === "") {
+      showToast({ message: "Se debe elegir un rango de fechas del viaje", type: "info" });
+      return;
+    }
+
+    if (placesId.length === 0) {
+      showToast({ message: "Se debe elegir al menos un lugar", type: "info" });
+      return;
+    }
+
     try {
-      let placesId = selectedPlaces.map((p) => p.placeId);
       await TripService.updateTrip(trip.id, { name: value.name, description: value.description, price: value.price, startDate: dates[0], endDate: dates[1], placesId });
-      showToast("success", "Viaje actualizado exitosamente");
+      showToast({ message: "Viaje actualizado exitosamente", type: "success" });
       getTrips();
     } catch (error) {
-      showToast("error", "Error al actualizar el viaje");
+      showToast({ message: "Error al actualizar el viaje", type: "error" });
     } finally {
       setOpenModal(false);
       setSelectedPlaces([]);
@@ -117,10 +165,12 @@ export const Trips: React.FC<TripProps> = () => {
   const deleteTrip = async (tripId: number) => {
     try {
       await TripService.deleteTrip(tripId);
-      await getTrips();
-      showToast("success", "Viaje eliminado exitosamente");
+      setTotalTrips((prev) => prev - 1);
+      setTotalPages(Math.ceil((totalTrips - 1) / PAGINATION));
+      getTrips();
+      showToast({ message: "Viaje eliminado exitosamente", type: "success" });
     } catch (error) {
-      showToast("error", "Error al eliminar el viaje");
+      showToast({ message: "Error al eliminar el viaje", type: "error" });
     } finally {
       setOpenDetail(false);
     }
@@ -140,7 +190,7 @@ export const Trips: React.FC<TripProps> = () => {
             type: "text",
             initialValue: { description: trip.description || "" },
             multiline: true,
-            notRequired: true,
+            required: false,
           },
           {
             label: "Precio",
@@ -182,17 +232,23 @@ export const Trips: React.FC<TripProps> = () => {
       setTrip(trip);
       setIsLoadingDetail(false);
     } catch (error) {
-      showToast("error", "Error al cargar la información del viaje");
+      showToast({ message: "Error al cargar la información del viaje", type: "error" });
     }
   };
 
   const resetTrip = () => {
-    setTrip({ id: -1, name: "", description: null, img: null, price: 0, startDate: "", endDate: "", places: [] });
+    setTrip(TripEmpty);
   };
 
-  const searchByName = (name: string) => {
+  const searchByName = async (name: string) => {
     const params = name ? `name=${encodeURIComponent(name)}` : "";
+    if (!params) await fetchTotalTrips();
     getTrips(params);
+  };
+
+  const handlerClose = async () => {
+    await fetchTotalTrips();
+    await getTrips();
   };
 
   const renderDetail = () => {
@@ -225,7 +281,7 @@ export const Trips: React.FC<TripProps> = () => {
                   {
                     id: 2,
                     name: "Eliminar",
-                    onClick: () => showToast("confirmation", "Eliminar viaje", { onConfirm: () => deleteTrip(trip.id), description: "Desea eliminar el viaje ?" }),
+                    onClick: () => showToast({ message: "Eliminar viaje", type: "confirmation", duration: 50000, confirmOptions: { description: "Desea eliminar el viaje ?", confirm: { onClick: () => deleteTrip(trip.id), title: "Eliminar" } } }),
                   },
                 ]}
               />
@@ -254,8 +310,8 @@ export const Trips: React.FC<TripProps> = () => {
         places={places.map((p) => ({ value: p.name, other: p }))}
         countries={countries.map((c) => ({ value: c.name, other: c }))}
         selectCountry={handlerCountry}
-        onCloseFilter={() => setPlaces([])}
-        onCloseSearch={async () => await getTrips()}
+        onCloseModalFilter={() => setPlaces([])}
+        onCloseSearch={handlerClose}
       />
       <Box sx={{ display: "flex", alignItems: "center", pb: 2 }}>
         <Tooltip text="Agregar viaje" position="right">
@@ -318,6 +374,11 @@ export const Trips: React.FC<TripProps> = () => {
         fullWidth>
         {renderDetail()}
       </Modal>
+      {showPagination && (
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+          <Pagination page={page} count={totalPages} changePage={(value) => setPage(value)} showFirstButton showLastButton color="primary" />
+        </Box>
+      )}
     </>
   );
 };

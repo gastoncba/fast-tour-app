@@ -1,11 +1,11 @@
 import { useRef, useEffect } from "react";
-import { ThemeProvider } from "@emotion/react";
+import { ThemeProvider } from "@mui/material";
 import { useLocation } from "react-router-dom";
 import "react-perfect-scrollbar/dist/css/styles.css";
 import PerfectScrollbar from "react-perfect-scrollbar";
 import { ConfigProvider } from "antd";
 
-import { RoutesController } from "./routing/RouterController.component";
+import { RoutesController } from "./routes/RouterController.routes";
 import { Toaster } from "./components";
 import { themeMaterial } from "./settings/materialTheme.setting";
 import { themeAntd } from "./settings/antdTheme.setting";

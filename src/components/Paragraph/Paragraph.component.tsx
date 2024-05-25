@@ -16,7 +16,7 @@ interface Props {
 export const Paragraph: React.FunctionComponent<Props> = (props: Props) => {
   return (
     <>
-      <Typography color={props.color} align={props.align} variant={props.variant || "body1"} sx={{ fontSize: props.fontSize, fontWeight: props.fontWeight, ...props.sx }} className={props.className}>
+      <Typography color={props.color} align={props.align} variant={props.variant || "body1"} sx={{ fontSize: props.fontSize, fontWeight: props.fontWeight, whiteSpace: 'pre-line', ...props.sx }} className={props.className}>
         {props.text}
       </Typography>
     </>
