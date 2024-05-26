@@ -1,5 +1,5 @@
 import { User, Token, Order } from "../../models/index";
-import { get, post, put } from "../Fetch.service";
+import { get, post, put, del } from "../Fetch.service";
 
 const SERVICE_ENDPOINT = "users";
 
@@ -82,6 +82,22 @@ export const UserService = (() => {
     }
   };
 
+  const sendMessage = async (userId: number, message: string) => {
+    try {
+      await post(SERVICE_ENDPOINT + "/" + userId + "/send-message", { message });
+    } catch (error) {
+      throw newError("SEND-MESSAGE-ERROR", error);
+    }
+  };
+
+  const deleteUser = async (userId: number) => {
+    try {
+      await del(SERVICE_ENDPOINT + "/" + userId);
+    } catch (error) {
+      throw newError("DELETE-USER-FAIL", error);
+    }
+  };
+
   const getUsers = async (isAdmin: boolean) => {
     if (!isAdmin) throw newError("GET-USERS-ADMIN-UNAUTHORIZED", { message: "Unaurhorized action" });
     try {
@@ -92,7 +108,7 @@ export const UserService = (() => {
     }
   };
 
-  type UserServiceError = "LOGIN-FAIL" | "SIGN_UP-FAIL" | "RECOVER-PASSWORD-FAIL" | "CHANGE_PASSWORD-FAIL" | "UPDATE-FAIL" | "GET-ORDER-USER-FAIL" | "GET-USERS-ADMIN-FAIL" | "GET-USERS-ADMIN-UNAUTHORIZED";
+  type UserServiceError = "LOGIN-FAIL" | "SIGN_UP-FAIL" | "RECOVER-PASSWORD-FAIL" | "CHANGE_PASSWORD-FAIL" | "UPDATE-FAIL" | "GET-ORDER-USER-FAIL" | "GET-USERS-ADMIN-FAIL" | "GET-USERS-ADMIN-UNAUTHORIZED" | "SEND-MESSAGE-ERROR" | "DELETE-USER-FAIL";
 
   const newError = (code: UserServiceError, error?: any) => {
     return {
@@ -101,5 +117,5 @@ export const UserService = (() => {
     };
   };
 
-  return { isTokenValid, signUp, login, recoverPassword, changePassword, update, getOrders, getUsers };
+  return { sendMessage, deleteUser, isTokenValid, signUp, login, recoverPassword, changePassword, update, getOrders, getUsers };
 })();

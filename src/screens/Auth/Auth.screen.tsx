@@ -32,7 +32,7 @@ export const AuthScreen: React.FC<AuthProps> = () => {
 
   return (
     <Grid container justifyContent={"center"} sx={{ py: 2 }}>
-      <Grid item xs={12} sm={8} md={6} lg={5} xl={5}>
+      <Grid item xs={12} sm={8} md={6} lg={5} xl={4}>
         <Wrapper sx={{ p: "24px" }}>
           {renderScreen()}
           <Box sx={{ display: "flex", justifyContent: "center", alignItems: "baseline" }}>

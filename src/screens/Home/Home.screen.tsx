@@ -132,32 +132,34 @@ export const HomeScreen: React.FC<HomeProps> = (props: HomeProps) => {
       ) : (
         <>
           {trips.length > 0 ? (
-            <GridList
-              direction="row"
-              items={trips}
-              renderItem={(item: Trip) => (
-                <Card
-                  title={item.name}
-                  description={`Salida y Regreso: ${item.startDate} al ${item.endDate}`}
-                  other={`Precio: USD ${item.price}`}
-                  coverImage={item.img}
-                  onClickArea={() => {
-                    setModalTitle(item.name);
-                    setOpen(true);
-                    getTrip(item.id);
-                  }}
-                />
+            <>
+              <GridList
+                direction="row"
+                items={trips}
+                renderItem={(item: Trip) => (
+                  <Card
+                    title={item.name}
+                    description={`Salida y Regreso: ${item.startDate} al ${item.endDate}`}
+                    other={`Precio: USD ${item.price}`}
+                    coverImage={item.img}
+                    onClickArea={() => {
+                      setModalTitle(item.name);
+                      setOpen(true);
+                      getTrip(item.id);
+                    }}
+                  />
+                )}
+              />
+              {showPagination && (
+                <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+                  <Pagination page={page} count={totalPages} changePage={(value) => setPage(value)} showFirstButton showLastButton color="primary" />
+                </Box>
               )}
-            />
+            </>
           ) : (
             <Paragraph text="No se encontraron viajes" variant="h5" align="center" />
           )}
         </>
-      )}
-      {showPagination && (
-        <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-          <Pagination page={page} count={totalPages} changePage={(value) => setPage(value)} showFirstButton showLastButton color="primary" />
-        </Box>
       )}
       <Modal
         open={open}

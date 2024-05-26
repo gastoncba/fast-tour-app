@@ -247,20 +247,27 @@ export const Places: React.FC<PlacesProps> = () => {
       ) : (
         <>
           {places.length > 0 ? (
-            <GridList
-              items={places}
-              renderItem={(item: Place) => (
-                <Card
-                  title={item.name}
-                  key={item.id}
-                  description={item.description || "Sin descripción"}
-                  onClickArea={() => {
-                    setOpenDetail(true);
-                    getPlace(item.id);
-                  }}
-                />
+            <>
+              <GridList
+                items={places}
+                renderItem={(item: Place) => (
+                  <Card
+                    title={item.name}
+                    key={item.id}
+                    description={item.description || "Sin descripción"}
+                    onClickArea={() => {
+                      setOpenDetail(true);
+                      getPlace(item.id);
+                    }}
+                  />
+                )}
+              />
+              {showPagination && (
+                <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+                  <Pagination page={page} count={totalPages} changePage={(value) => setPage(value)} showFirstButton showLastButton color="primary" />
+                </Box>
               )}
-            />
+            </>
           ) : (
             <Paragraph text="No se encontraron destinos destinos" variant="h5" align="center" />
           )}
@@ -278,11 +285,6 @@ export const Places: React.FC<PlacesProps> = () => {
       <Modal open={openDetail} onClose={() => setOpenDetail(false)} title={place.name} fullWidth>
         {renderDetail()}
       </Modal>
-      {showPagination && (
-        <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-          <Pagination page={page} count={totalPages} changePage={(value) => setPage(value)} showFirstButton showLastButton color="primary" />
-        </Box>
-      )}
     </>
   );
 };

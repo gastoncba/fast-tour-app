@@ -139,41 +139,43 @@ export const Countries: React.FC<CountriesProps> = () => {
       ) : (
         <>
           {countries.length > 0 ? (
-            <GridList
-              items={countries}
-              renderItem={(item: Country) => (
-                <Card title={item.name} key={item.id}>
-                  <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-                    <Paragraph text={item.code} color="GrayText" />
-                    <Menu
-                      icon={<Icon type="MORE-VERT" />}
-                      items={[
-                        {
-                          id: 1,
-                          name: "Editar",
-                          onClick: () => buildForm(item, updateCountry),
-                        },
-                        {
-                          id: 2,
-                          name: "Eliminar",
-                          onClick: () =>
-                            showToast({ message: "Eliminar país", type: "confirmation", duration: 50000, confirmOptions: { description: "Desea eliminar este país ?", confirm: { title: "Eliminar", onClick: () => deleteCountry(item.id) } } }),
-                        },
-                      ]}
-                    />
-                  </Box>
-                </Card>
+            <>
+              <GridList
+                items={countries}
+                renderItem={(item: Country) => (
+                  <Card title={item.name} key={item.id}>
+                    <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+                      <Paragraph text={item.code} color="GrayText" />
+                      <Menu
+                        icon={<Icon type="MORE-VERT" />}
+                        items={[
+                          {
+                            id: 1,
+                            name: "Editar",
+                            onClick: () => buildForm(item, updateCountry),
+                          },
+                          {
+                            id: 2,
+                            name: "Eliminar",
+                            onClick: () =>
+                              showToast({ message: "Eliminar país", type: "confirmation", duration: 50000, confirmOptions: { description: "Desea eliminar este país ?", confirm: { title: "Eliminar", onClick: () => deleteCountry(item.id) } } }),
+                          },
+                        ]}
+                      />
+                    </Box>
+                  </Card>
+                )}
+              />
+              {showPagination && (
+                <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+                  <Pagination page={page} count={totalPages} changePage={(value) => setPage(value)} showFirstButton showLastButton color="primary" />
+                </Box>
               )}
-            />
+            </>
           ) : (
             <Paragraph text="No hay paises disponibles" variant="h5" align="center" />
           )}
         </>
-      )}
-      {showPagination && (
-        <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-          <Pagination page={page} count={totalPages} changePage={(value) => setPage(value)} showFirstButton showLastButton color="primary" />
-        </Box>
       )}
       <Modal title="País" open={open} onClose={() => setOpen(false)}>
         {form}

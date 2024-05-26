@@ -300,21 +300,28 @@ export const Hotels: React.FC<HotelProps> = () => {
       ) : (
         <>
           {hotels.length > 0 ? (
-            <GridList
-              direction="row"
-              items={hotels}
-              renderItem={(item: Hotel) => (
-                <Card
-                  title={item.name}
-                  onClickArea={() => {
-                    setOpenDetail(true);
-                    getHotel(item.id);
-                  }}>
-                  <Paragraph text={"Estrellas"} color="GrayText" />
-                  <Rate value={item.stars} readonly />
-                </Card>
+            <>
+              <GridList
+                direction="row"
+                items={hotels}
+                renderItem={(item: Hotel) => (
+                  <Card
+                    title={item.name}
+                    onClickArea={() => {
+                      setOpenDetail(true);
+                      getHotel(item.id);
+                    }}>
+                    <Paragraph text={"Estrellas"} color="GrayText" />
+                    <Rate value={item.stars} readonly />
+                  </Card>
+                )}
+              />
+              {showPagination && (
+                <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+                  <Pagination page={page} count={totalPages} changePage={(value) => setPage(value)} showFirstButton showLastButton color="primary" />
+                </Box>
               )}
-            />
+            </>
           ) : (
             <Paragraph text="No se encontraron hoteles" variant="h5" align="center" />
           )}
@@ -341,11 +348,6 @@ export const Hotels: React.FC<HotelProps> = () => {
         fullWidth>
         {renderDetail()}
       </Modal>
-      {showPagination && (
-        <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-          <Pagination page={page} count={totalPages} changePage={(value) => setPage(value)} showFirstButton showLastButton color="primary" />
-        </Box>
-      )}
     </>
   );
 };
