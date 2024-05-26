@@ -1,7 +1,6 @@
 import { makeAutoObservable } from "mobx";
 
 import { Token } from "../models/Token.model";
-import { User } from "../models/User.model";
 import { StorageService } from "../services/private/Storage.service";
 import { UserService } from "../services/private/User.service";
 
@@ -19,36 +18,24 @@ class TokenProvider {
     };
   }
 
-  public authToken(): Promise<string> {
-    return new Promise(async (resolve, reject) => {
-      try {
-        let auth_token = await StorageService.getTokens();
-        resolve(auth_token.at);
-      } catch {
-        reject(this.newError("AUTH_TOKEN-NOT-FOUND"));
-      }
-    });
-  }
+  public authToken = () => {
+    let auth_token = StorageService.getTokens();
+    return auth_token.at;
+  };
 
   public clearTokens = () => {
     StorageService.deleteTokens();
   };
 
-  public token(token: Token) {
+  public token = (token: Token) => {
     StorageService.saveToken(token.access_token);
-  }
+  };
 
-  public isTokenValid(): Promise<User> {
-    return new Promise(async (resolve, reject) => {
-      try {
-        await this.authToken()
-        let user = await UserService.isTokenValid();
-        resolve(user);
-      } catch (error) {
-        reject(false);
-      }
-    });
-  }
+  public isTokenValid = async () => {
+    this.authToken();
+    let user = await UserService.isTokenValid();
+    return user;
+  };
 }
 
 export const tokenProvider = new TokenProvider();

@@ -5,6 +5,7 @@ import { useLocation } from "react-router-dom";
 import { Wrapper, Paragraph, Button } from "../../components";
 import { Login } from "./Login";
 import { Singup } from "./Signup";
+import { Recovery } from "./Recovery";
 
 type typeAuthScreen = "login" | "signup" | "recover";
 
@@ -24,7 +25,7 @@ export const AuthScreen: React.FC<AuthProps> = () => {
       case "signup":
         return <Singup to={to} content={content} />;
       case "recover":
-        return <div>recuperar contraseña</div>;
+        return <Recovery />;
       default:
         return <Login to={to} content={content} />;
     }

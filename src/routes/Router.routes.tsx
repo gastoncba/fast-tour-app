@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { Box } from "@mui/material";
 
-import { AuthScreen, HomeScreen, LandingScreen, NotFoundScreen, PanelScreen, PurchaseScreen, DashboardScreen, ProfileScreen } from "../screens";
+import { AuthScreen, HomeScreen, LandingScreen, NotFoundScreen, PanelScreen, PurchaseScreen, DashboardScreen, ProfileScreen, RecoveryScreen } from "../screens";
 import { NavBar, Sidebar, Icon, Menu } from "../components";
 import { RouterItemsController } from "./RouterItemsController.routes";
 import { RouterItems } from "./RouterItems.routes";
@@ -27,21 +27,6 @@ export const Router: React.FC<Props> = observer((props: Props) => {
       navigate("/app/home", { replace: true });
     }, 2000);
   };
-
-  useEffect(() => {
-    const handleBeforeUnload = (event: any) => {
-      event.preventDefault();
-      const confirmationMessage = "¿Desea salir de esta página?";
-      event.returnValue = confirmationMessage;
-      return confirmationMessage;
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, []);
 
   return (
     <Routes>
@@ -79,6 +64,7 @@ export const Router: React.FC<Props> = observer((props: Props) => {
             <Box sx={{ p: 2 }}>
               <Routes>
                 <Route path="/auth" element={<AuthScreen />} />
+                <Route path="/recovery" element={<RecoveryScreen />} />
                 <Route path="/home" element={<HomeScreen />} />
                 <Route element={<ProtectedRoute conditions={[{ redirectIf: () => !state, redirectTo: "/app/home" }]} />}>
                   <Route path="/purchase" element={<PurchaseScreen />} />

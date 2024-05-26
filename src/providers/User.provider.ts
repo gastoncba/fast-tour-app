@@ -45,32 +45,18 @@ class UserProvider {
     return toJS(role);
   }
 
-  public signup = (newUser: { firstName: string; lastName: string; email: string; password: string }) => {
-    return new Promise<void>(async (resolve, reject) => {
-      try {
-        await UserService.signUp(newUser);
-        await this.login(newUser.email, newUser.password);
-        resolve();
-      } catch (error) {
-        reject(error);
-      }
-    });
+  public signup = async (newUser: { firstName: string; lastName: string; email: string; password: string }) => {
+    await UserService.signUp(newUser);
+    await this.login(newUser.email, newUser.password);
   };
 
-  public login = (email: string, password: string) => {
-    return new Promise<void>(async (resolve, reject) => {
-      try {
-        let login_data: { user: User; token: Token } = await UserService.login(email, password);
-        tokenProvider.token(login_data.token);
-        this.user = { ...login_data.user, isLogged: true };
-        resolve();
-      } catch (error) {
-        reject(error);
-      }
-    });
+  public login = async (email: string, password: string) => {
+    let login_data: { user: User; token: Token } = await UserService.login(email, password);
+    tokenProvider.token(login_data.token);
+    this.user = { ...login_data.user, isLogged: true };
   };
 
-  public loginByToken = () => {
+  public loginByToken = async () => {
     return new Promise<void>(async (resolve, reject) => {
       try {
         const user = await tokenProvider.isTokenValid();
@@ -88,12 +74,12 @@ class UserProvider {
   };
 
   public getOrders = async () => {
-    return await UserService.getOrders(this.user.id)
-  }
+    return await UserService.getOrders(this.user.id);
+  };
 
   public getUsers = async () => {
     return await UserService.getUsers(this.isAdmin());
-  }
+  };
 
   public isAdmin = () => {
     return this.role.name === RoleType.ADMIN;
@@ -106,6 +92,14 @@ class UserProvider {
   public getRolName() {
     return this.isAdmin() ? "Administrador" : "Cliente";
   }
+
+  public recoverPassword = async (email: string, url: string) => {
+    await UserService.recoverPassword(email, url);
+  };
+
+  public changePassword = async (token: string, newPassword: string) => {
+    await UserService.changePassword(token, newPassword);
+  };
 }
 
 export const userProvider = new UserProvider();
