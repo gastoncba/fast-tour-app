@@ -38,7 +38,8 @@ export const Router: React.FC<Props> = observer((props: Props) => {
             <NavBar
               elevation={2}
               handleClick={() => setShowSidebar(!showSidebar)}
-              icons={
+              showIconMenu
+              icons={[
                 <>
                   <Menu
                     icon={<Icon type="ACCOUNT" sx={{ color: "black" }} />}
@@ -55,8 +56,8 @@ export const Router: React.FC<Props> = observer((props: Props) => {
                       },
                     ]}
                   />
-                </>
-              }
+                </>,
+              ]}
             />
             <Sidebar show={showSidebar} onClose={() => setShowSidebar(false)} variant="temporary" anchor="left" top={"0px"}>
               <RouterItems generalItems={generalItems} />

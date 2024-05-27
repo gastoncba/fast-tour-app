@@ -36,3 +36,5 @@ export { Tabs } from "./Tabs/Tabs.component";
 export { PopChart } from "./Chart/Chart.component";
 export { Avatar } from "./Avatar/Avatar.component";
 export { Pagination } from "./Pagination/Pagination.component";
+export { Image } from "./Image/Image.component";
+export { Animation } from './Animation/Animation.component';

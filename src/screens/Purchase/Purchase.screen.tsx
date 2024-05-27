@@ -29,6 +29,7 @@ export const PurchaseScreen: React.FC<PropsPurchase> = () => {
   const [numberPeople, setNumberPeople] = useState<number>(1);
   const total = userProvider.user.isLogged ? trip.price - trip.price * 0.2 : trip.price;
   const discount = trip.price - trip.price * 0.2;
+  const [finish, setFinish] = useState<boolean>(false);
 
   const addPlaceVisited = (hotel: Hotel, place: Place) => {
     const index = placesVisited.findIndex((item) => item.place === place);
@@ -66,135 +67,148 @@ export const PurchaseScreen: React.FC<PropsPurchase> = () => {
         numberPeople,
         total,
       };
-      console.log(order);
       await OrderServices.createOrder(order);
       showToast({ message: "Su orden fue registrada correctamente", type: "success" });
+      setFinish(true);
     } catch (error) {
       showToast({ message: "Error al intentar registrar su orden", type: "error" });
-      console.log(error);
     }
   };
 
   return (
     <>
-      <Heading title={"Compra de viaje"} />
-      <Wrapper sx={{ my: 2, p: 2 }}>
-        {showSummary ? (
-          <Grid container>
-            <Grid item lg={6}>
-              <Box sx={{ px: 4, py: 2 }}>
-                <Paragraph text={trip.name} variant="h5" sx={{ pb: 1 }} />
-                <Box sx={{ display: "flex", columnGap: 1 }}>
-                  <Paragraph text={"Descripción:"} fontWeight={"bold"} sx={{ fontStyle: "italic" }} />
-                  <Paragraph text={trip.description || "Sin Descripción"} />
-                </Box>
-                <Paragraph text={"Desde el " + trip.startDate + " hasta el " + trip.endDate} />
-                <Box sx={{ display: "flex", columnGap: 1 }}>
-                  <Paragraph text={"Precio: "} fontWeight={"bold"} sx={{ fontStyle: "italic" }} />
-                  <Paragraph text={"USD " + trip.price} />
-                </Box>
-                <Box sx={{ display: "flex", columnGap: 1 }}>
-                  <Paragraph text={"Cantidad de personas: "} fontWeight={"bold"} sx={{ fontStyle: "italic" }} />
-                  <Paragraph text={numberPeople} />
-                </Box>
-                <Paragraph text={"hoteles elegidos: "} fontWeight={"bold"} sx={{ fontStyle: "italic", py: 1 }} />
-                {placesVisited.map((pv) => (
-                  <HotelSelector key={pv.place.id} place={pv.place} hotel={pv.hotel} addHotel={() => {}} removeHotel={() => {}} readonly />
-                ))}
-              </Box>
-            </Grid>
-            <Grid item lg={6}>
-              <Paragraph text={"Datos de contacto"} variant="h5" sx={{ py: 2 }} />
-              {userProvider.user.isLogged || contact.firstName !== "" ? (
-                <Box>
-                  <Box sx={{ display: "flex", columnGap: 1 }}>
+      {!finish ? (
+        <>
+          <Heading title={"Compra de viaje"} />
+          <Wrapper sx={{ my: 2, p: 2 }}>
+            {showSummary ? (
+              <Grid container>
+                <Grid item lg={6}>
+                  <Box sx={{ px: 4, py: 2 }}>
+                    <Paragraph text={trip.name} variant="h5" sx={{ pb: 1 }} />
                     <Box sx={{ display: "flex", columnGap: 1 }}>
-                      <Paragraph text={"Nombre:"} fontWeight={"bold"} sx={{ fontStyle: "italic" }} />
-                      <Paragraph text={userProvider.user.firstName || contact.firstName} />
+                      <Paragraph text={"Descripción:"} fontWeight={"bold"} sx={{ fontStyle: "italic" }} />
+                      <Paragraph text={trip.description || "Sin Descripción"} />
+                    </Box>
+                    <Paragraph text={"Desde el " + trip.startDate + " hasta el " + trip.endDate} />
+                    <Box sx={{ display: "flex", columnGap: 1 }}>
+                      <Paragraph text={"Precio: "} fontWeight={"bold"} sx={{ fontStyle: "italic" }} />
+                      <Paragraph text={"USD " + trip.price} />
                     </Box>
                     <Box sx={{ display: "flex", columnGap: 1 }}>
-                      <Paragraph text={"Apellido:"} fontWeight={"bold"} sx={{ fontStyle: "italic" }} />
-                      <Paragraph text={userProvider.user.lastName || contact.lastName} />
+                      <Paragraph text={"Cantidad de personas: "} fontWeight={"bold"} sx={{ fontStyle: "italic" }} />
+                      <Paragraph text={numberPeople} />
                     </Box>
+                    <Paragraph text={"hoteles elegidos: "} fontWeight={"bold"} sx={{ fontStyle: "italic", py: 1 }} />
+                    {placesVisited.map((pv) => (
+                      <HotelSelector key={pv.place.id} place={pv.place} hotel={pv.hotel} addHotel={() => {}} removeHotel={() => {}} readonly />
+                    ))}
                   </Box>
-                  <Box sx={{ display: "flex", columnGap: 1 }}>
-                    <Paragraph text={"Email:"} fontWeight={"bold"} sx={{ fontStyle: "italic" }} />
-                    <Paragraph text={userProvider.user.email || contact.email} />
-                  </Box>
-                  {!userProvider.user.isLogged && (
-                    <Box sx={{ py: 2 }}>
-                      <Button title="Borrar datos" color="inherit" onClick={() => setContact({ firstName: "", lastName: "", email: "" })} />
+                </Grid>
+                <Grid item lg={6}>
+                  <Paragraph text={"Datos de contacto"} variant="h5" sx={{ py: 2 }} />
+                  {userProvider.user.isLogged || contact.firstName !== "" ? (
+                    <Box>
+                      <Box sx={{ display: "flex", columnGap: 1 }}>
+                        <Box sx={{ display: "flex", columnGap: 1 }}>
+                          <Paragraph text={"Nombre:"} fontWeight={"bold"} sx={{ fontStyle: "italic" }} />
+                          <Paragraph text={userProvider.user.firstName || contact.firstName} />
+                        </Box>
+                        <Box sx={{ display: "flex", columnGap: 1 }}>
+                          <Paragraph text={"Apellido:"} fontWeight={"bold"} sx={{ fontStyle: "italic" }} />
+                          <Paragraph text={userProvider.user.lastName || contact.lastName} />
+                        </Box>
+                      </Box>
+                      <Box sx={{ display: "flex", columnGap: 1 }}>
+                        <Paragraph text={"Email:"} fontWeight={"bold"} sx={{ fontStyle: "italic" }} />
+                        <Paragraph text={userProvider.user.email || contact.email} />
+                      </Box>
+                      {!userProvider.user.isLogged && (
+                        <Box sx={{ py: 2 }}>
+                          <Button title="Borrar datos" color="inherit" onClick={() => setContact({ firstName: "", lastName: "", email: "" })} />
+                        </Box>
+                      )}
                     </Box>
+                  ) : (
+                    <>
+                      <Form
+                        inputs={[
+                          {
+                            label: "Nombre",
+                            type: "text",
+                            initialValue: { firstName: "" },
+                          },
+                          {
+                            label: "Apellido",
+                            type: "text",
+                            initialValue: { lastName: "" },
+                          },
+                          {
+                            label: "Email",
+                            type: "email",
+                            initialValue: { email: "" },
+                          },
+                        ]}
+                        colorButton="inherit"
+                        onAction={send}
+                      />
+                      <Box sx={{ py: 1 }}>
+                        <Button variant="text" title="Tengo cuenta!" onClick={() => navigate("/app/auth", { state: { type: "login", redirect: "/app/purchase", content: { trip, summary: true, visited: placesVisited } } })} />
+                        <Button variant="text" title="Registrame" onClick={() => navigate("/app/auth", { state: { type: "signup", redirect: "/app/purchase", content: { trip, summary: true, visited: placesVisited } } })} />
+                      </Box>
+                    </>
                   )}
-                </Box>
-              ) : (
-                <>
-                  <Form
-                    inputs={[
-                      {
-                        label: "Nombre",
-                        type: "text",
-                        initialValue: { firstName: "" },
-                      },
-                      {
-                        label: "Apellido",
-                        type: "text",
-                        initialValue: { lastName: "" },
-                      },
-                      {
-                        label: "Email",
-                        type: "email",
-                        initialValue: { email: "" },
-                      },
-                    ]}
-                    colorButton="inherit"
-                    onAction={send}
-                  />
                   <Box sx={{ py: 1 }}>
-                    <Button variant="text" title="Tengo cuenta!" onClick={() => navigate("/app/auth", { state: { type: "login", redirect: "/app/purchase", content: { trip, summary: true, visited: placesVisited } } })} />
-                    <Button variant="text" title="Registrame" onClick={() => navigate("/app/auth", { state: { type: "signup", redirect: "/app/purchase", content: { trip, summary: true, visited: placesVisited } } })} />
+                    {!userProvider.user.isLogged ? (
+                      <Paragraph text={"Total a pagar : USD " + total} variant="h5" />
+                    ) : (
+                      <Box>
+                        <Paragraph text={"Total sin descuento : USD " + trip.price} color="primary" fontWeight={"bold"} />
+                        <Paragraph text={"20% de descuento : USD " + discount} color="primary" fontWeight={"bold"} />
+                        <Divider sx={{ pt: 1 }} />
+                        <Paragraph text={"Total a pagar : USD " + total} variant="h5" sx={{ py: 2 }} />
+                      </Box>
+                    )}
                   </Box>
-                </>
+                  {!userProvider.user.isLogged && <Paragraph text={"Si tenes cuenta recibis un 20% de descuento"} color="success.main" sx={{ fontStyle: "italic" }} fontWeight={"bold"} />}
+                </Grid>
+              </Grid>
+            ) : (
+              <>
+                <Paragraph text={"Seleccione hoteles para los lugares a visitar"} />
+                {placesVisited.map((pv) => (
+                  <HotelSelector place={pv.place} hotel={pv.hotel} addHotel={(hotel) => addPlaceVisited(hotel, pv.place)} removeHotel={(hotel) => removePlaceVisited(hotel, pv.place)} key={pv.place.id} />
+                ))}
+                <Box sx={{ display: "flex", flexDirection: "row", columnGap: 1, alignItems: "center", pt: 2 }}>
+                  <Paragraph text={`Cantidad de días para reclamar el premio`} />
+                  <Counter onChange={(number) => setNumberPeople(number)} initialValue={numberPeople} />
+                </Box>
+              </>
+            )}
+            <Box sx={{ display: "flex", justifyContent: "space-between", py: 1 }}>
+              <Button title={showSummary ? "Atras" : "Continuar"} onClick={() => setShowSummary(!showSummary)} style={{ mt: 2 }} disabled={placesVisited.some((pv) => !pv.hotel)} />
+              {showSummary && (
+                <Button
+                  title="Confirmar"
+                  onClick={() => showToast({ message: "Comprar viaje", type: "confirmation", confirmOptions: { description: "Desea comprar este viaje?", confirm: { onClick: () => buy() } } })}
+                  style={{ mt: 2 }}
+                  disabled={contact.firstName === ""}
+                />
               )}
-              <Box sx={{ py: 1 }}>
-                {!userProvider.user.isLogged ? (
-                  <Paragraph text={"Total a pagar : USD " + total} variant="h5" />
-                ) : (
-                  <Box>
-                    <Paragraph text={"Total sin descuento : USD " + trip.price} color="primary" fontWeight={"bold"} />
-                    <Paragraph text={"20% de descuento : USD " + discount} color="primary" fontWeight={"bold"} />
-                    <Divider sx={{ pt: 1 }} />
-                    <Paragraph text={"Total a pagar : USD " + total} variant="h5" sx={{ py: 2 }} />
-                  </Box>
-                )}
-              </Box>
-              {!userProvider.user.isLogged && <Paragraph text={"Si tenes cuenta recibis un 20% de descuento"} color="success.main" sx={{ fontStyle: "italic" }} fontWeight={"bold"} />}
-            </Grid>
-          </Grid>
-        ) : (
-          <>
-            <Paragraph text={"Seleccione hoteles para los lugares a visitar"} />
-            {placesVisited.map((pv) => (
-              <HotelSelector place={pv.place} hotel={pv.hotel} addHotel={(hotel) => addPlaceVisited(hotel, pv.place)} removeHotel={(hotel) => removePlaceVisited(hotel, pv.place)} key={pv.place.id} />
-            ))}
-            <Box sx={{ display: "flex", flexDirection: "row", columnGap: 1, alignItems: "center", pt: 2 }}>
-              <Paragraph text={`Cantidad de días para reclamar el premio`} />
-              <Counter onChange={(number) => setNumberPeople(number)} initialValue={numberPeople} />
             </Box>
-          </>
-        )}
-        <Box sx={{ display: "flex", justifyContent: "space-between", py: 1 }}>
-          <Button title={showSummary ? "Atras" : "Continuar"} onClick={() => setShowSummary(!showSummary)} style={{ mt: 2 }} disabled={placesVisited.some((pv) => !pv.hotel)} />
-          {showSummary && (
-            <Button
-              title="Confirmar"
-              onClick={() => showToast({ message: "Comprar viaje", type: "confirmation", confirmOptions: { description: "Desea comprar este viaje?", confirm: { onClick: () => buy() } } })}
-              style={{ mt: 2 }}
-              disabled={contact.firstName === ""}
-            />
-          )}
-        </Box>
-      </Wrapper>
+          </Wrapper>
+        </>
+      ) : (
+        <>
+          <Wrapper sx={{ p: 2 }}>
+            <Paragraph text={"¡Muchas gracias por su compra!"} variant="h5" color="primary" align="center" />
+            <Box sx={{ my: 4, display: "flex", flexDirection: "column", rowGap: 2, alignItems: "center" }}>
+              <Paragraph text={"Le estaremos notificando por email el estado de su pedido"} fontWeight={"bold"} />
+              <Button title="Volver al inicio" onClick={() => navigate("/app/home")} />
+            </Box>
+          </Wrapper>
+        </>
+      )}
     </>
   );
 };

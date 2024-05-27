@@ -9,33 +9,35 @@ import { Avatar } from "../Avatar/Avatar.component";
 import { iconStyles } from "./styles";
 
 interface Props {
-  icon?: JSX.Element;
+  showIconMenu?: boolean;
   handleClick?: () => void;
   position?: "absolute" | "fixed" | "relative" | "static" | "sticky";
   elevation?: number;
-  navigate?: boolean;
-  icons?: JSX.Element;
+  showNavigate?: boolean;
+  icons?: JSX.Element[];
 }
 
-export const NavBar: React.FunctionComponent<Props> = (props: Props) => {
+export const NavBar: React.FunctionComponent<Props> = ({ showIconMenu = false, handleClick, position, elevation, showNavigate, icons }) => {
   const navigate = useNavigate();
-
+  
   return (
     <>
       <AppBar
-        position={props.position || "sticky"}
-        elevation={props.elevation || 0}
+        position={position || "sticky"}
+        elevation={elevation || 0}
         sx={{
           backgroundColor: "white",
         }}>
         <Toolbar>
           <Box sx={{ display: "flex", alignItems: "center", columnGap: 2 }}>
-            <Avatar sx={iconStyles} onClick={() => props.handleClick && props.handleClick()}>
-              <Icon type="MENU" />
-            </Avatar>
+            {showIconMenu && (
+              <Avatar sx={iconStyles} onClick={() => handleClick && handleClick()}>
+                <Icon type="MENU" />
+              </Avatar>
+            )}
             <Paragraph text={"FastTour"} color={"primary.dark"} variant="h5" />
           </Box>
-          {props.navigate && (
+          {showNavigate && (
             <Box sx={{ display: "flex", flexDirection: "row", columnGap: 0, alignItems: "center" }}>
               <Box>
                 <IconButton icon={<Icon type="BACK" />} onClick={() => navigate(-1)} />
@@ -46,7 +48,9 @@ export const NavBar: React.FunctionComponent<Props> = (props: Props) => {
             </Box>
           )}
           <Box sx={{ flexGrow: 1 }} />
-          {props.icons && props.icons}
+          <Box sx={{ display: "flex", columnGap: 2 }}>
+            {icons && icons.map((icon, index) => <React.Fragment key={index}>{icon}</React.Fragment>)}
+          </Box>
         </Toolbar>
       </AppBar>
     </>
