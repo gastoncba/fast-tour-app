@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { ItemChildren } from "./RouterList.component";
 import { Paragraph } from "../Paragraph/Paragraph.component";
 import { styles } from "../../settings/customStyles.setting";
+import { Icon } from "../Icon/Icon.component";
 
 interface Props {
   children: ItemChildren;
@@ -14,6 +15,7 @@ interface Props {
 
 export const NavItem: React.FunctionComponent<Props> = (props: Props) => {
   const navigate = useNavigate();
+  const { disabled = false } = props.children
 
   return (
     <ListItemButton
@@ -22,8 +24,11 @@ export const NavItem: React.FunctionComponent<Props> = (props: Props) => {
         navigate(props.children.url);
         props.handlerIndex(props.children.id);
       }}
+      disabled={disabled}
       sx={{ ...styles.navItem }}>
-      <ListItemIcon sx={{ my: "auto", minWidth: 36 }}>{props.children.icon}</ListItemIcon>
+      <ListItemIcon sx={{ my: "auto", minWidth: 36 }}>
+        <Icon type={props.children.icon} className="setting-item-icon" />
+      </ListItemIcon>
       <ListItemText primary={<Paragraph text={props.children.title} fontSize={15} className={"setting-item-text"} />} />
     </ListItemButton>
   );

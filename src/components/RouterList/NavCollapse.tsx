@@ -19,6 +19,7 @@ export const NavCollapse: React.FC<Props> = ({ children, selectedIndex, handlerI
   const [selected, setSelected] = useState<number>(children.subItems ? children.subItems[0].id : -1);
 
   const navigate = useNavigate();
+  const { disabled = false } = children;
 
   const handleClick = () => {
     setOpen(!open);
@@ -27,16 +28,15 @@ export const NavCollapse: React.FC<Props> = ({ children, selectedIndex, handlerI
 
   return (
     <>
-      <ListItemButton sx={{ ...styles.navItem }} selected={selectedIndex === children.id} onClick={handleClick}>
-        <ListItemIcon sx={{ my: "auto", minWidth: 36 }}>{children.icon}</ListItemIcon>
+      <ListItemButton sx={{ ...styles.navItem }} selected={selectedIndex === children.id} onClick={handleClick} disabled={disabled}>
+        <ListItemIcon sx={{ my: "auto", minWidth: 36 }}>
+          <Icon type={children.icon} className="setting-item-icon" />
+        </ListItemIcon>
         <ListItemText primary={<Paragraph text={children.title} fontSize={15} className={"setting-item-text"} />} />
         {open ? <Icon type="ARROW-DROP-UP" sx={{ mt: "auto", mb: "auto", stroke: 1.5, fontSize: "1rem" }} /> : <Icon type="ARROW-DROP-DOWN" sx={{ mt: "auto", mb: "auto", stroke: 1.5, fontSize: "1rem" }} />}
       </ListItemButton>
       <Collapse in={open} timeout="auto" unmountOnExit>
-        <List
-          component="div"
-          disablePadding
-          sx={{ ...styles.navCollapse }}>
+        <List component="div" disablePadding sx={{ ...styles.navCollapse }}>
           {subItems.map((sub, index) => (
             <ListItemButton
               key={index}

@@ -4,7 +4,7 @@ import { Box } from "@mui/material";
 
 import { AuthScreen, HomeScreen, LandingScreen, NotFoundScreen, PanelScreen, PurchaseScreen, DashboardScreen, ProfileScreen, RecoveryScreen } from "../screens";
 import { NavBar, Sidebar, Icon, Menu } from "../components";
-import { RouterItemsController } from "./RouterItemsController.routes";
+import { useRouterItemsController } from "./RouterItemsController.routes";
 import { RouterItems } from "./RouterItems.routes";
 import { ProtectedRoute } from "./ProtectedRoute.routes";
 import { userProvider, tokenProvider } from "../providers";
@@ -14,7 +14,7 @@ interface Props {}
 
 export const Router: React.FC<Props> = observer((props: Props) => {
   const [showSidebar, setShowSidebar] = useState<boolean>(false);
-  const generalItems = RouterItemsController();
+  const generalItems = useRouterItemsController();
   const navigate = useNavigate();
   const location = useLocation();
   const { state } = location;
@@ -59,7 +59,7 @@ export const Router: React.FC<Props> = observer((props: Props) => {
                 </>,
               ]}
             />
-            <Sidebar show={showSidebar} onClose={() => setShowSidebar(false)} variant="temporary" anchor="left" top={"0px"}>
+            <Sidebar show={true} onClose={() => setShowSidebar(false)} variant={"persistent"} anchor="left" top={"0px"}>
               <RouterItems generalItems={generalItems} />
             </Sidebar>
             <Box sx={{ p: 2 }}>

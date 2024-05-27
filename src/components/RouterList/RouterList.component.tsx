@@ -2,22 +2,24 @@ import React, { useState, useEffect } from "react";
 import { Box, SxProps, Theme } from "@mui/material";
 
 import { NavGroup } from "./NavGroup";
+import { IconType } from "../Icon/Icon.component";
 
 export type ItemChildren = {
   id: number;
   title: string;
   url: string;
-  icon: JSX.Element;
+  icon: IconType;
   value?: any;
   type: "item" | "collapse";
   subItems?: SubItem[];
+  disabled?: boolean;
 };
 
 export type SubItem = {
-  id: number,
-  title: string,
-  value?: any
-}
+  id: number;
+  title: string;
+  value?: any;
+};
 
 export type Item = {
   title: string;
