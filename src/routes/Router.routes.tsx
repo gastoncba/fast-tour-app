@@ -59,7 +59,7 @@ export const Router: React.FC<Props> = observer((props: Props) => {
                 </>,
               ]}
             />
-            <Sidebar show={true} onClose={() => setShowSidebar(false)} variant={"persistent"} anchor="left" top={"0px"}>
+            <Sidebar show={showSidebar} onClose={() => setShowSidebar(false)} variant={"temporary"} anchor="left" top={"0px"}>
               <RouterItems generalItems={generalItems} />
             </Sidebar>
             <Box sx={{ p: 2 }}>
