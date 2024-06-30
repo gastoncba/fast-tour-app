@@ -38,3 +38,4 @@ export { Avatar } from "./Avatar/Avatar.component";
 export { Pagination } from "./Pagination/Pagination.component";
 export { Image } from "./Image/Image.component";
 export { Animation } from './Animation/Animation.component';
+export { FlexBox } from './FlexBox/FlexBox.component';
