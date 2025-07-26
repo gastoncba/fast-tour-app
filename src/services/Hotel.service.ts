@@ -1,5 +1,7 @@
 import { del, get, post, put } from "./Fetch.service";
 import { Hotel } from "../models";
+import { PaginatedResponse } from "../models/Pagination.model";
+import { QueryBuilder } from "../utils";
 
 const SERVICE_ENDPOINT = "hotels";
 
@@ -7,10 +9,22 @@ export const HotelService = (() => {
   const getHotels = (params?: string) => {
     return new Promise<Hotel[]>(async (resolve, reject) => {
       try {
-        let hotels = await get(SERVICE_ENDPOINT, params, false);
+        let hotels = await get(SERVICE_ENDPOINT + "/all", params, false);
         resolve(hotels);
       } catch (error) {
         reject(newError("GET-HOTELS-FAIL"));
+      }
+    });
+  };
+
+  const getHotelsPaginated = (page: number = 1, limit: number = 10, query?: string) => {
+    return new Promise<PaginatedResponse<Hotel>>(async (resolve, reject) => {
+      try {
+        const queryString = QueryBuilder.buildPaginatedQuery(page, limit, query);
+        let response = await get(SERVICE_ENDPOINT, queryString, false);
+        resolve(response);
+      } catch (error) {
+        reject(newError("GET-HOTELS-PAGINATED-FAIL", error));
       }
     });
   };
@@ -59,7 +73,7 @@ export const HotelService = (() => {
     });
   };
 
-  type HotelServiceError = "GET-HOTELS-FAIL" | "GET-HOTEL-FAIL" | "POST-HOTEL-FAIL" | "PUT-HOTEL-FAIL" | "DELETE-HOTEL-FAIL";
+  type HotelServiceError = "GET-HOTELS-FAIL" | "GET-HOTELS-PAGINATED-FAIL" | "GET-HOTEL-FAIL" | "POST-HOTEL-FAIL" | "PUT-HOTEL-FAIL" | "DELETE-HOTEL-FAIL";
 
   const newError = (code: HotelServiceError, error?: any) => {
     return {
@@ -68,5 +82,5 @@ export const HotelService = (() => {
     };
   };
 
-  return { getHotels, getHotel, createHotel, updateHotel, deleteHotel };
+  return { getHotels, getHotelsPaginated, getHotel, createHotel, updateHotel, deleteHotel };
 })();

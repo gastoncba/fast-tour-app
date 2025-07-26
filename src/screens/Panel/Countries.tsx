@@ -1,41 +1,34 @@
 import React, { useEffect, useState } from "react";
 import { Box } from "@mui/material";
 
-import { Heading, Tooltip, IconButton, Icon, Loader, GridList, Paragraph, Card, showToast, Modal, Form, Menu, Filter, Pagination } from "../../components";
-import { Country } from "../../models";
+import { Heading, Tooltip, IconButton, Icon, Loader, GridList, Paragraph, Card, showToast, Modal, Form, Menu, Filter } from "../../components";
+import { Pagination } from "../../components/Pagination/Pagination.component";
+import { Country, PaginatedResponse } from "../../models";
 import { CountryService } from "../../services";
-import { PAGINATION } from "../../settings/const.setting";
 
 interface CountriesProps {}
 
 export const Countries: React.FC<CountriesProps> = () => {
   const [loading, setLoading] = useState<boolean>(false);
-  const [countries, setCountries] = useState<Country[]>([]);
+  const [countriesData, setCountriesData] = useState<PaginatedResponse<Country>>({
+    page: 1,
+    items: [],
+    count: 0,
+    totalItems: 0,
+    totalPages: 0,
+    hasNext: false,
+    hasPrevious: false,
+  });
   const [form, setForm] = useState<any>(null);
   const [open, setOpen] = useState<boolean>(false);
-  const [page, setPage] = useState<number>(1);
-  const [totalPages, setTotalPages] = useState<number>(1);
-  const [totalCountries, setTotalCountries] = useState<number>(0);
-  const [showPagination, setShowPagination] = useState<boolean>(false);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(10);
 
-  const fetchTotalCountries = async () => {
-    try {
-      const countries = await CountryService.getCountries();
-      const total = countries.length;
-      setTotalPages(Math.ceil(total / PAGINATION));
-      setTotalCountries(countries.length);
-    } catch (error) {
-      console.error("Error al obtener el total de países", error);
-    }
-  };
-
-  const getCountries = async (params?: string) => {
+  const fetchCountries = async (page: number = 1, limit: number = 10, query?: string) => {
     setLoading(true);
-    setShowPagination(!params);
     try {
-      const skip = (page - 1) * PAGINATION;
-      let cts = await CountryService.getCountries(params ? params : `take=${PAGINATION}&skip=${skip}`);
-      setCountries(cts);
+      const response = await CountryService.getCountriesPaginated(page, limit, query);
+      setCountriesData(response);
     } catch (error) {
       showToast({ message: "Error al consultar los paises", type: "error" });
     } finally {
@@ -43,21 +36,20 @@ export const Countries: React.FC<CountriesProps> = () => {
     }
   };
 
-  useEffect(() => {
-    fetchTotalCountries();
-  }, []);
+  const handlePageChange = (page: number, size: number) => {
+    setCurrentPage(page);
+    setPageSize(size);
+  };
 
   useEffect(() => {
-    getCountries();
-  }, [page]);
+    fetchCountries(currentPage, pageSize);
+  }, [currentPage, pageSize]);
 
   const createCountry = async (value: any) => {
     try {
       await CountryService.createCountry({ name: value.name, code: value.code });
       showToast({ message: "País creado exitosamente", type: "success" });
-      setTotalCountries((prev) => prev + 1);
-      setTotalPages(Math.ceil((totalCountries + 1) / PAGINATION));
-      getCountries();
+      fetchCountries(currentPage, pageSize);
     } catch (error) {
       showToast({ message: "Error al agregar país", type: "error" });
     } finally {
@@ -69,7 +61,7 @@ export const Countries: React.FC<CountriesProps> = () => {
     try {
       await CountryService.updateCountry(value.id, { name: value.name, code: value.code });
       showToast({ message: "País actualizado exitosamente", type: "success" });
-      getCountries();
+      fetchCountries(currentPage, pageSize);
     } catch (error) {
       showToast({ message: "Error al actualizar país", type: "error" });
     } finally {
@@ -81,13 +73,9 @@ export const Countries: React.FC<CountriesProps> = () => {
     try {
       await CountryService.deleteCountry(countryId);
       showToast({ message: "País eliminado exitosamente", type: "success" });
-      setTotalCountries((prev) => prev - 1);
-      setTotalPages(Math.ceil((totalCountries - 1) / PAGINATION));
-      getCountries();
+      fetchCountries(currentPage, pageSize);
     } catch (error) {
       showToast({ message: "Error al intentar eliminar país", type: "error" });
-    } finally {
-      setPage(1);
     }
   };
 
@@ -113,14 +101,13 @@ export const Countries: React.FC<CountriesProps> = () => {
   };
 
   const searchByName = async (name: string) => {
-    const params = name ? `name=${encodeURIComponent(name)}` : "";
-    if (!params) await fetchTotalCountries();
-    getCountries(params);
+    const query = name ? `name=${encodeURIComponent(name)}` : "";
+    fetchCountries(1, pageSize, query);
+    setCurrentPage(1);
   };
 
   const handlerClose = async () => {
-    await fetchTotalCountries();
-    await getCountries();
+    fetchCountries(currentPage, pageSize);
   };
 
   return (
@@ -138,10 +125,10 @@ export const Countries: React.FC<CountriesProps> = () => {
         <Loader />
       ) : (
         <>
-          {countries.length > 0 ? (
+          {countriesData.items.length > 0 ? (
             <>
               <GridList
-                items={countries}
+                items={countriesData.items}
                 renderItem={(item: Country) => (
                   <Card title={item.name} key={item.id}>
                     <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
@@ -166,11 +153,14 @@ export const Countries: React.FC<CountriesProps> = () => {
                   </Card>
                 )}
               />
-              {showPagination && (
-                <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-                  <Pagination page={page} count={totalPages} changePage={(value) => setPage(value)} showFirstButton showLastButton color="primary" />
-                </Box>
-              )}
+              <Pagination
+                data={countriesData}
+                onPageChange={handlePageChange}
+                loading={loading}
+                showSizeChanger={true}
+                showQuickJumper={true}
+                showTotal={true}
+              />
             </>
           ) : (
             <Paragraph text="No hay paises disponibles" variant="h5" align="center" />

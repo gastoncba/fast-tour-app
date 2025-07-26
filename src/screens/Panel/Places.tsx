@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Box } from "@mui/material";
 
-import { Heading, Tooltip, IconButton, Icon, showToast, Form, SearchBar, Paragraph, Modal, Loader, GridList, Card, Menu, Filter, Pagination } from "../../components";
-import { Country, Place } from "../../models";
+import { Heading, Tooltip, IconButton, Icon, showToast, Form, SearchBar, Paragraph, Modal, Loader, GridList, Card, Menu, Filter } from "../../components";
+import { Pagination } from "../../components/Pagination/Pagination.component";
+import { Country, Place, PaginatedResponse } from "../../models";
 import { CountryService, PlaceService } from "../../services";
-import { PAGINATION } from "../../settings/const.setting";
 
 const CountryEmpty: Country = { id: -1, name: "", img: null, code: "" };
 const PlaceEmpty: Place = { id: -1, name: "", description: null, img: null, country: { id: -1, name: "", img: null, code: "" }, hotels: [] };
@@ -12,7 +12,15 @@ const PlaceEmpty: Place = { id: -1, name: "", description: null, img: null, coun
 interface PlacesProps {}
 
 export const Places: React.FC<PlacesProps> = () => {
-  const [places, setPlaces] = useState<Place[]>([]);
+  const [placesData, setPlacesData] = useState<PaginatedResponse<Place>>({
+    page: 1,
+    items: [],
+    count: 0,
+    totalItems: 0,
+    totalPages: 0,
+    hasNext: false,
+    hasPrevious: false,
+  });
   const [countries, setCountries] = useState<Country[]>([]);
   const [selectedCountry, setSelectedCountry] = useState<Country>(CountryEmpty);
   const [place, setPlace] = useState<Place>(PlaceEmpty);
@@ -20,34 +28,24 @@ export const Places: React.FC<PlacesProps> = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [loadingDetail, setLoadingDetail] = useState<boolean>(true);
   const [openDetail, setOpenDetail] = useState<boolean>(false);
-  const [page, setPage] = useState<number>(1);
-  const [totalPages, setTotalPages] = useState<number>(1);
-  const [totalPlaces, setTotalPlaces] = useState<number>(0);
-  const [showPagination, setShowPagination] = useState<boolean>(false);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(10);
 
-  const fetchTotalPlaces = async () => {
-    try {
-      const places = await PlaceService.getPlaces();
-      const total = places.length;
-      setTotalPages(Math.ceil(total / PAGINATION));
-      setTotalPlaces(places.length);
-    } catch (error) {
-      console.error("Error al obtener el total de destinos", error);
-    }
-  };
-
-  const getPlaces = async (params?: string) => {
+  const fetchPlaces = async (page: number = 1, limit: number = 10, query?: string) => {
     setLoading(true);
-    setShowPagination(!params);
     try {
-      const skip = (page - 1) * PAGINATION;
-      let pls = await PlaceService.getPlaces(params ? params : `take=${PAGINATION}&skip=${skip}`);
-      setPlaces(pls);
+      const response = await PlaceService.getPlacesPaginated(page, limit, query);
+      setPlacesData(response);
     } catch (error) {
       showToast({ message: "Error al cargar los destinos disponibles", type: "error" });
     } finally {
       setLoading(false);
     }
+  };
+
+  const handlePageChange = (page: number, size: number) => {
+    setCurrentPage(page);
+    setPageSize(size);
   };
 
   const getCountries = async () => {
@@ -73,12 +71,11 @@ export const Places: React.FC<PlacesProps> = () => {
 
   useEffect(() => {
     getCountries();
-    fetchTotalPlaces();
   }, []);
 
   useEffect(() => {
-    getPlaces();
-  }, [page]);
+    fetchPlaces(currentPage, pageSize);
+  }, [currentPage, pageSize]);
 
   const createPlace = async (value: any) => {
     if (selectedCountry.id === -1) {
@@ -88,9 +85,7 @@ export const Places: React.FC<PlacesProps> = () => {
     try {
       await PlaceService.createPlace({ ...value, countryId: selectedCountry.id });
       showToast({ message: "Destino creado con exito", type: "info" });
-      setTotalPlaces((prev) => prev + 1);
-      setTotalPages(Math.ceil((totalPlaces + 1) / PAGINATION));
-      getPlaces();
+      fetchPlaces(currentPage, pageSize);
     } catch (error) {
       showToast({ message: "Error al agregar nuevo destino", type: "error" });
     } finally {
@@ -106,7 +101,7 @@ export const Places: React.FC<PlacesProps> = () => {
     try {
       await PlaceService.updatePlace(place.id, { ...value, countryId: selectedCountry.id });
       showToast({ message: "Destino actualizado con exito", type: "success" });
-      getPlaces();
+      fetchPlaces(currentPage, pageSize);
     } catch (error) {
       showToast({ message: "Error al actualizar el destino", type: "error" });
     } finally {
@@ -118,14 +113,11 @@ export const Places: React.FC<PlacesProps> = () => {
     try {
       await PlaceService.deletePlace(placeId);
       showToast({ message: "Destino eliminado con exito", type: "success" });
-      setTotalPlaces((prev) => prev - 1);
-      setTotalPages(Math.ceil((totalPlaces - 1) / PAGINATION));
-      getPlaces();
+      fetchPlaces(currentPage, pageSize);
     } catch (error) {
       showToast({ message: "Error al intentar eliminar destino", type: "error" });
     } finally {
       setOpenDetail(false);
-      setPage(1);
     }
   };
 
@@ -210,9 +202,9 @@ export const Places: React.FC<PlacesProps> = () => {
   };
 
   const searchByName = async (name: string) => {
-    const params = name ? `name=${encodeURIComponent(name)}` : "";
-    if (!params) await fetchTotalPlaces();
-    await getPlaces(params);
+    const query = name ? `name=${encodeURIComponent(name)}` : "";
+    fetchPlaces(1, pageSize, query);
+    setCurrentPage(1);
   };
 
   const resetSelectedCountry = () => {
@@ -220,8 +212,7 @@ export const Places: React.FC<PlacesProps> = () => {
   };
 
   const handlerClose = async () => {
-    await fetchTotalPlaces();
-    await getPlaces();
+    fetchPlaces(currentPage, pageSize);
   };
 
   return (
@@ -246,10 +237,10 @@ export const Places: React.FC<PlacesProps> = () => {
         <Loader />
       ) : (
         <>
-          {places.length > 0 ? (
+          {placesData.items.length > 0 ? (
             <>
               <GridList
-                items={places}
+                items={placesData.items}
                 renderItem={(item: Place) => (
                   <Card
                     title={item.name}
@@ -262,11 +253,14 @@ export const Places: React.FC<PlacesProps> = () => {
                   />
                 )}
               />
-              {showPagination && (
-                <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-                  <Pagination page={page} count={totalPages} changePage={(value) => setPage(value)} showFirstButton showLastButton color="primary" />
-                </Box>
-              )}
+              <Pagination
+                data={placesData}
+                onPageChange={handlePageChange}
+                loading={loading}
+                showSizeChanger={true}
+                showQuickJumper={true}
+                showTotal={true}
+              />
             </>
           ) : (
             <Paragraph text="No se encontraron destinos destinos" variant="h5" align="center" />

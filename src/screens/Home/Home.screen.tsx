@@ -2,16 +2,24 @@ import React, { useEffect, useState } from "react";
 import { Box } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
-import { Card, GridList, Loader, Paragraph, showToast, Modal, List, Collapse, Icon, IconButton, Banner, Filter, Pagination } from "../../components/index";
+import { Card, GridList, Loader, Paragraph, showToast, Modal, List, Collapse, Icon, IconButton, Banner, Filter } from "../../components/index";
+import { Pagination } from "../../components/Pagination/Pagination.component";
 import { Trip } from "../../models/Trip.model";
 import { CountryService, PlaceService, TripService } from "../../services";
-import { Country, Place } from "../../models";
-import { PAGINATION } from "../../settings/const.setting";
+import { Country, Place, PaginatedResponse } from "../../models";
 
 interface HomeProps {}
 
 export const HomeScreen: React.FC<HomeProps> = (props: HomeProps) => {
-  const [trips, setTrips] = useState<Trip[]>([]);
+  const [tripsData, setTripsData] = useState<PaginatedResponse<Trip>>({
+    page: 1,
+    items: [],
+    count: 0,
+    totalItems: 0,
+    totalPages: 0,
+    hasNext: false,
+    hasPrevious: false,
+  });
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isLoadingDetail, setIsLoadingDetail] = useState<boolean>(false);
   const [modalTitle, setModalTitle] = useState<string>("");
@@ -20,34 +28,26 @@ export const HomeScreen: React.FC<HomeProps> = (props: HomeProps) => {
   const [expanded, setExpanded] = useState<boolean>(false);
   const [countries, setCountries] = useState<Country[]>([]);
   const [places, setPlaces] = useState<Place[]>([]);
-  const [page, setPage] = useState<number>(1);
-  const [totalPages, setTotalPages] = useState<number>(1);
-  const [showPagination, setShowPagination] = useState<boolean>(false);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(10);
 
   let navigate = useNavigate();
 
-  const fetchTotalTrips = async () => {
-    try {
-      const trips = await TripService.getTrips();
-      const total = trips.length;
-      setTotalPages(Math.ceil(total / PAGINATION));
-    } catch (error) {
-      console.error("Error al obtener el total de viajes", error);
-    }
-  };
-
-  const getTrips = async (params?: string) => {
+  const fetchTrips = async (page: number = 1, limit: number = 10, query?: string) => {
     setIsLoading(true);
-    setShowPagination(!params);
     try {
-      const skip = (page - 1) * PAGINATION;
-      let trips = await TripService.getTrips(params ? params : `take=${PAGINATION}&skip=${skip}`);
-      setTrips(trips);
-    } catch {
+      const response = await TripService.getTripsPaginated(page, limit, query);
+      setTripsData(response);
+    } catch (error) {
       showToast({ message: "Error al cargar los viajes disponibles", type: "error" });
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handlePageChange = (page: number, size: number) => {
+    setCurrentPage(page);
+    setPageSize(size);
   };
 
   const getCountries = async () => {
@@ -60,13 +60,12 @@ export const HomeScreen: React.FC<HomeProps> = (props: HomeProps) => {
   };
 
   useEffect(() => {
-    fetchTotalTrips();
     getCountries();
   }, []);
 
   useEffect(() => {
-    getTrips();
-  }, [page]);
+    fetchTrips(currentPage, pageSize);
+  }, [currentPage, pageSize]);
 
   const getTrip = async (tripId: number) => {
     setIsLoadingDetail(true);
@@ -80,9 +79,9 @@ export const HomeScreen: React.FC<HomeProps> = (props: HomeProps) => {
   };
 
   const searchByName = async (name: string) => {
-    const params = name ? `name=${encodeURIComponent(name)}` : "";
-    if (!params) await fetchTotalTrips();
-    getTrips(params);
+    const query = name ? `name=${encodeURIComponent(name)}` : "";
+    fetchTrips(1, pageSize, query);
+    setCurrentPage(1);
   };
 
   const getPlaces = async (params?: string) => {
@@ -104,12 +103,12 @@ export const HomeScreen: React.FC<HomeProps> = (props: HomeProps) => {
   };
 
   const applyFilter = (params: string) => {
-    getTrips(params);
+    fetchTrips(1, pageSize, params);
+    setCurrentPage(1);
   };
 
   const handlerClose = async () => {
-    await fetchTotalTrips();
-    await getTrips();
+    fetchTrips(currentPage, pageSize);
   };
 
   return (
@@ -131,11 +130,11 @@ export const HomeScreen: React.FC<HomeProps> = (props: HomeProps) => {
         <Loader sx={{ py: 6 }} />
       ) : (
         <>
-          {trips.length > 0 ? (
+          {tripsData.items.length > 0 ? (
             <>
               <GridList
                 direction="row"
-                items={trips}
+                items={tripsData.items}
                 renderItem={(item: Trip) => (
                   <Card
                     title={item.name}
@@ -150,11 +149,14 @@ export const HomeScreen: React.FC<HomeProps> = (props: HomeProps) => {
                   />
                 )}
               />
-              {showPagination && (
-                <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-                  <Pagination page={page} count={totalPages} changePage={(value) => setPage(value)} showFirstButton showLastButton color="primary" />
-                </Box>
-              )}
+              <Pagination
+                data={tripsData}
+                onPageChange={handlePageChange}
+                loading={isLoading}
+                showSizeChanger={true}
+                showQuickJumper={true}
+                showTotal={true}
+              />
             </>
           ) : (
             <Paragraph text="No se encontraron viajes" variant="h5" align="center" />

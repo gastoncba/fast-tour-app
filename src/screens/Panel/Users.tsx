@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { Box } from "@mui/material";
 
-import { Pagination, Avatar, Button, GridList, Heading, Icon, List, Loader, Menu, Modal, Paragraph, Wrapper, showToast, Form } from "../../components";
-import { Order, User } from "../../models";
+import { Avatar, Button, GridList, Heading, Icon, List, Loader, Menu, Modal, Paragraph, Wrapper, showToast, Form } from "../../components";
+import { Pagination } from "../../components/Pagination/Pagination.component";
+import { Order, User, PaginatedResponse } from "../../models";
 import { userProvider } from "../../providers";
 import { styles } from "../../settings/customStyles.setting";
 import { themeMaterial } from "../../settings/materialTheme.setting";
-import { PAGINATION } from "../../settings/const.setting";
 import { UserService } from "../../services/private/User.service";
 
 const { success, primary, error } = themeMaterial.palette;
@@ -14,49 +14,45 @@ const { success, primary, error } = themeMaterial.palette;
 interface UserProps {}
 
 export const Users: React.FC<UserProps> = () => {
-  const [users, setUsers] = useState<User[]>([]);
+  const [usersData, setUsersData] = useState<PaginatedResponse<User>>({
+    page: 1,
+    items: [],
+    count: 0,
+    totalItems: 0,
+    totalPages: 0,
+    hasNext: false,
+    hasPrevious: false,
+  });
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [page, setPage] = useState<number>(1);
-  const [totalPages, setTotalPages] = useState<number>(1);
-  const [totalUsers, setTotalUsers] = useState<number>(1);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(10);
 
-  const fetchTotalUsers = async () => {
-    try {
-      const users = await userProvider.getUsers();
-      const total = users.length;
-      setTotalPages(Math.ceil(total / PAGINATION));
-      setTotalUsers(users.length);
-    } catch (error) {
-      console.error("Error al obtener el total de usuarios", error);
-    }
-  };
-
-  const getUsers = async () => {
+  const fetchUsers = async (page: number = 1, limit: number = 10) => {
     setIsLoading(true);
     try {
-      const users = await userProvider.getUsers();
-      setUsers(users);
-      setIsLoading(false);
+      const response = await UserService.getUsersPaginated(page, limit, undefined, userProvider.isAdmin());
+      setUsersData(response);
     } catch (error) {
       showToast({ message: "Error al cargar los usuarios", type: "error" });
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchTotalUsers();
-  }, []);
+  const handlePageChange = (page: number, size: number) => {
+    setCurrentPage(page);
+    setPageSize(size);
+  };
 
   useEffect(() => {
-    getUsers();
-  }, [page]);
+    fetchUsers(currentPage, pageSize);
+  }, [currentPage, pageSize]);
 
   const deleteUser = async (userId: number) => {
     try {
       await UserService.deleteUser(userId);
-      setTotalUsers((prev) => prev - 1);
-      setTotalPages(Math.ceil((totalUsers - 1) / PAGINATION));
       showToast({ message: "Usuario eliminado exitosamente", type: "success" });
-      getUsers();
+      fetchUsers(currentPage, pageSize);
     } catch (error) {
       showToast({ message: "Error al eliminar usuario", type: "error" });
     }
@@ -70,13 +66,13 @@ export const Users: React.FC<UserProps> = () => {
           <Loader />
         ) : (
           <>
-            {users.length > 0 ? (
+            {usersData.items.length > 0 ? (
               <>
                 <GridList
                   md={4}
                   lg={3}
                   xl={2}
-                  items={users}
+                  items={usersData.items}
                   renderItem={(item: User) => (
                     <UserCard
                       user={item}
@@ -84,9 +80,14 @@ export const Users: React.FC<UserProps> = () => {
                     />
                   )}
                 />
-                <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-                  <Pagination page={page} count={totalPages} changePage={(value) => setPage(value)} showFirstButton showLastButton color="primary" />
-                </Box>
+                <Pagination
+                  data={usersData}
+                  onPageChange={handlePageChange}
+                  loading={isLoading}
+                  showSizeChanger={true}
+                  showQuickJumper={true}
+                  showTotal={true}
+                />
               </>
             ) : (
               <Paragraph text={"No se encontraron usuarios"} variant="h5" />

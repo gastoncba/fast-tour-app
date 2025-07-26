@@ -1,5 +1,7 @@
 import { del, get, post, put } from "./Fetch.service";
 import { Country } from "../models/Country.model";
+import { PaginatedResponse } from "../models";
+import { QueryBuilder } from "../utils";
 
 const SERVICE_ENDPOINT = "countries";
 
@@ -7,10 +9,22 @@ export const CountryService = (() => {
   const getCountries = (params?: string) => {
     return new Promise<Country[]>(async (resolve, reject) => {
       try {
-        let countries = await get(SERVICE_ENDPOINT, params, false);
+        let countries = await get(SERVICE_ENDPOINT + "/all", params, false);
         resolve(countries);
       } catch (error) {
         reject(newError("GET-COUNTRIES-FAIL", error));
+      }
+    });
+  };
+
+  const getCountriesPaginated = (page: number = 1, limit: number = 10, query?: string) => {
+    return new Promise<PaginatedResponse<Country>>(async (resolve, reject) => {
+      try {
+        const queryString = QueryBuilder.buildPaginatedQuery(page, limit, query);
+        let response = await get(SERVICE_ENDPOINT, queryString, false);
+        resolve(response);
+      } catch (error) {
+        reject(newError("GET-COUNTRIES-PAGINATED-FAIL", error));
       }
     });
   };
@@ -48,7 +62,7 @@ export const CountryService = (() => {
     });
   };
 
-  type CountryServiceError = "GET-COUNTRIES-FAIL" | "POST-COUNTRY-FAIL" | "PUT-COUNTRY-FAIL" | "DELETE-COUNTRY-FAIL";
+  type CountryServiceError = "GET-COUNTRIES-FAIL" | "GET-COUNTRIES-PAGINATED-FAIL" | "POST-COUNTRY-FAIL" | "PUT-COUNTRY-FAIL" | "DELETE-COUNTRY-FAIL";
 
   const newError = (code: CountryServiceError, error?: any) => {
     return {
@@ -57,5 +71,5 @@ export const CountryService = (() => {
     };
   };
 
-  return { getCountries, createCountry, updateCountry, deleteCountry };
+  return { getCountries, getCountriesPaginated, createCountry, updateCountry, deleteCountry };
 })();

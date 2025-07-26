@@ -1,18 +1,26 @@
 import React, { useState, useEffect } from "react";
 import { Box } from "@mui/material";
 
-import { Pagination, Collapse, List, Chip, Heading, GridList, Card, Paragraph, showToast, Loader, Icon, Form, Modal, Tooltip, Range, SearchBar, Menu, Filter } from "../../components";
-import { Country, Place, Trip } from "../../models";
+import { Collapse, List, Chip, Heading, GridList, Card, Paragraph, showToast, Loader, Icon, Form, Modal, Tooltip, Range, SearchBar, Menu, Filter } from "../../components";
+import { Pagination } from "../../components/Pagination/Pagination.component";
+import { Country, Place, Trip, PaginatedResponse } from "../../models";
 import { CountryService, PlaceService, TripService } from "../../services";
 import { IconButton } from "../../components/IconButton/IconButton.component";
-import { PAGINATION } from "../../settings/const.setting";
 
 export const TripEmpty: Trip = { id: -1, name: "", description: null, img: null, price: 0, startDate: "", endDate: "", places: [] };
 
 interface TripProps {}
 
 export const Trips: React.FC<TripProps> = () => {
-  const [trips, setTrips] = useState<Trip[]>([]);
+  const [tripsData, setTripsData] = useState<PaginatedResponse<Trip>>({
+    page: 1,
+    items: [],
+    count: 0,
+    totalItems: 0,
+    totalPages: 0,
+    hasNext: false,
+    hasPrevious: false,
+  });
   const [countries, setCountries] = useState<Country[]>([]);
   const [places, setPlaces] = useState<Place[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -24,19 +32,18 @@ export const Trips: React.FC<TripProps> = () => {
   const [trip, setTrip] = useState<Trip>(TripEmpty);
   const [isLoadingDetail, setIsLoadingDetail] = useState<boolean>(false);
   const [openModalDetail, setOpenDetail] = useState<boolean>(false);
-  const [page, setPage] = useState<number>(1);
-  const [totalPages, setTotalPages] = useState<number>(1);
-  const [totalTrips, setTotalTrips] = useState<number>(0);
-  const [showPagination, setShowPagination] = useState<boolean>(false);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(10);
 
-  const fetchTotalTrips = async () => {
+  const fetchTrips = async (page: number = 1, limit: number = 10, query?: string) => {
+    setIsLoading(true);
     try {
-      const trips = await TripService.getTrips();
-      const total = trips.length;
-      setTotalPages(Math.ceil(total / PAGINATION));
-      setTotalTrips(trips.length);
+      const response = await TripService.getTripsPaginated(page, limit, query);
+      setTripsData(response);
     } catch (error) {
-      console.error("Error al obtener el total de viajes", error);
+      showToast({ message: "Error al cargar los viajes disponibles", type: "error" });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -76,18 +83,9 @@ export const Trips: React.FC<TripProps> = () => {
     setSelectedPlaces(newItems);
   };
 
-  const getTrips = async (params?: string) => {
-    setIsLoading(true);
-    setShowPagination(!params);
-    try {
-      const skip = (page - 1) * PAGINATION;
-      let trips = await TripService.getTrips(params ? params : `take=${PAGINATION}&skip=${skip}`);
-      setTrips(trips);
-    } catch {
-      showToast({ message: "Error al cargar los viajes disponibles", type: "error" });
-    } finally {
-      setIsLoading(false);
-    }
+  const handlePageChange = (page: number, size: number) => {
+    setCurrentPage(page);
+    setPageSize(size);
   };
 
   const getCountries = async () => {
@@ -100,13 +98,12 @@ export const Trips: React.FC<TripProps> = () => {
   };
 
   useEffect(() => {
-    fetchTotalTrips();
     getCountries();
   }, []);
 
   useEffect(() => {
-    getTrips();
-  }, [page]);
+    fetchTrips(currentPage, pageSize);
+  }, [currentPage, pageSize]);
 
   const createTrip = async (value: any) => {
     let placesId = selectedPlaces.map((p) => p.placeId);
@@ -124,9 +121,7 @@ export const Trips: React.FC<TripProps> = () => {
     try {
       await TripService.createTrip({ name: value.name, description: value.description, price: value.price, startDate: dates[0], endDate: dates[1], placesId });
       showToast({ message: "Viaje agregado exitosamente", type: "success" });
-      setTotalTrips((prev) => prev + 1);
-      setTotalPages(Math.ceil((totalTrips + 1) / PAGINATION));
-      getTrips();
+      fetchTrips(currentPage, pageSize);
     } catch (error) {
       showToast({ message: "Error al agregar un nuevo viaje", type: "error" });
     } finally {
@@ -152,7 +147,7 @@ export const Trips: React.FC<TripProps> = () => {
     try {
       await TripService.updateTrip(trip.id, { name: value.name, description: value.description, price: value.price, startDate: dates[0], endDate: dates[1], placesId });
       showToast({ message: "Viaje actualizado exitosamente", type: "success" });
-      getTrips();
+      fetchTrips(currentPage, pageSize);
     } catch (error) {
       showToast({ message: "Error al actualizar el viaje", type: "error" });
     } finally {
@@ -165,9 +160,7 @@ export const Trips: React.FC<TripProps> = () => {
   const deleteTrip = async (tripId: number) => {
     try {
       await TripService.deleteTrip(tripId);
-      setTotalTrips((prev) => prev - 1);
-      setTotalPages(Math.ceil((totalTrips - 1) / PAGINATION));
-      getTrips();
+      fetchTrips(currentPage, pageSize);
       showToast({ message: "Viaje eliminado exitosamente", type: "success" });
     } catch (error) {
       showToast({ message: "Error al eliminar el viaje", type: "error" });
@@ -241,14 +234,13 @@ export const Trips: React.FC<TripProps> = () => {
   };
 
   const searchByName = async (name: string) => {
-    const params = name ? `name=${encodeURIComponent(name)}` : "";
-    if (!params) await fetchTotalTrips();
-    getTrips(params);
+    const query = name ? `name=${encodeURIComponent(name)}` : "";
+    fetchTrips(1, pageSize, query);
+    setCurrentPage(1);
   };
 
   const handlerClose = async () => {
-    await fetchTotalTrips();
-    await getTrips();
+    fetchTrips(currentPage, pageSize);
   };
 
   const renderDetail = () => {
@@ -296,7 +288,8 @@ export const Trips: React.FC<TripProps> = () => {
   };
 
   const applyFilter = (params: string) => {
-    getTrips(params);
+    fetchTrips(1, pageSize, params);
+    setCurrentPage(1);
   };
 
   return (
@@ -331,11 +324,11 @@ export const Trips: React.FC<TripProps> = () => {
         <Loader />
       ) : (
         <>
-          {trips.length > 0 ? (
+          {tripsData.items.length > 0 ? (
             <>
               <GridList
                 direction="row"
-                items={trips}
+                items={tripsData.items}
                 renderItem={(item: Trip) => (
                   <Card
                     title={item.name}
@@ -349,11 +342,14 @@ export const Trips: React.FC<TripProps> = () => {
                   />
                 )}
               />
-              {showPagination && (
-                <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-                  <Pagination page={page} count={totalPages} changePage={(value) => setPage(value)} showFirstButton showLastButton color="primary" />
-                </Box>
-              )}
+              <Pagination
+                data={tripsData}
+                onPageChange={handlePageChange}
+                loading={isLoading}
+                showSizeChanger={true}
+                showQuickJumper={true}
+                showTotal={true}
+              />
             </>
           ) : (
             <Paragraph text="No se encontraron viajes" variant="h5" align="center" />

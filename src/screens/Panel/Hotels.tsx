@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Box } from "@mui/material";
 
-import { Heading, IconButton, Icon, Tooltip, showToast, Paragraph, GridList, Card, Loader, Rate, Form, Modal, SearchBar, Menu, Filter, Pagination } from "../../components";
-import { Country, Hotel, Place } from "../../models";
+import { Heading, IconButton, Icon, Tooltip, showToast, Paragraph, GridList, Card, Loader, Rate, Form, Modal, SearchBar, Menu, Filter } from "../../components";
+import { Pagination } from "../../components/Pagination/Pagination.component";
+import { Country, Hotel, Place, PaginatedResponse } from "../../models";
 import { CountryService, HotelService, PlaceService } from "../../services";
-import { PAGINATION } from "../../settings/const.setting";
 
 interface HotelProps {}
 
@@ -12,7 +12,15 @@ const PlaceEmpty: Place = { id: -1, name: "", description: null, img: null, coun
 const HotelEmpty: Hotel = { id: -1, name: "", description: "", stars: 0 };
 
 export const Hotels: React.FC<HotelProps> = () => {
-  const [hotels, setHotels] = useState<Hotel[]>([]);
+  const [hotelsData, setHotelsData] = useState<PaginatedResponse<Hotel>>({
+    page: 1,
+    items: [],
+    count: 0,
+    totalItems: 0,
+    totalPages: 0,
+    hasNext: false,
+    hasPrevious: false,
+  });
   const [countries, setCountries] = useState<Country[]>([]);
   const [places, setPlaces] = useState<Place[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -23,34 +31,24 @@ export const Hotels: React.FC<HotelProps> = () => {
   const [hotel, setHotel] = useState<Hotel>(HotelEmpty);
   const [loadinDetail, setLoadingDetail] = useState<boolean>(false);
   const [openDetail, setOpenDetail] = useState<boolean>(false);
-  const [page, setPage] = useState<number>(1);
-  const [totalPages, setTotalPages] = useState<number>(1);
-  const [totalHotels, setTotalHotels] = useState<number>(0);
-  const [showPagination, setShowPagination] = useState<boolean>(false);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(10);
 
-  const fetchTotalHotels = async () => {
-    try {
-      const hotels = await HotelService.getHotels();
-      const total = hotels.length;
-      setTotalPages(Math.ceil(total / PAGINATION));
-      setTotalHotels(hotels.length);
-    } catch (error) {
-      console.error("Error al obtener el total de hoteles", error);
-    }
-  };
-
-  const getHotels = async (params?: string) => {
+  const fetchHotels = async (page: number = 1, limit: number = 10, query?: string) => {
     setLoading(true);
-    setShowPagination(!params);
     try {
-      const skip = (page - 1) * PAGINATION;
-      let hotels = await HotelService.getHotels(params ? params : `take=${PAGINATION}&skip=${skip}`);
-      setHotels(hotels);
+      const response = await HotelService.getHotelsPaginated(page, limit, query);
+      setHotelsData(response);
     } catch (error) {
       showToast({ message: "Error al cargar los hoteles disponibles", type: "error" });
     } finally {
       setLoading(false);
     }
+  };
+
+  const handlePageChange = (page: number, size: number) => {
+    setCurrentPage(page);
+    setPageSize(size);
   };
 
   const getHotel = async (hotelId: number) => {
@@ -91,9 +89,7 @@ export const Hotels: React.FC<HotelProps> = () => {
     try {
       await HotelService.createHotel({ ...value, placeId: selectedPlace.id, stars });
       showToast({ message: "Hotel creado exitosamente", type: "success" });
-      setTotalHotels((prev) => prev + 1);
-      setTotalPages(Math.ceil((totalHotels + 1) / PAGINATION));
-      getHotels();
+      fetchHotels(currentPage, pageSize);
     } catch (error) {
       showToast({ message: "Error al crear nuevo hotel", type: "error" });
     } finally {
@@ -115,7 +111,7 @@ export const Hotels: React.FC<HotelProps> = () => {
     try {
       await HotelService.updateHotel(hotel.id, { ...value, placeId: selectedPlace.id, stars });
       showToast({ message: "Hotel actualizado exitosamente", type: "success" });
-      getHotels();
+      fetchHotels(currentPage, pageSize);
     } catch (error) {
       showToast({ message: "Error al actualizar hotel", type: "error" });
     } finally {
@@ -127,14 +123,11 @@ export const Hotels: React.FC<HotelProps> = () => {
     try {
       await HotelService.deleteHotel(hotelId);
       showToast({ message: "Hotel eliminado exitosamente", type: "success" });
-      setTotalHotels((prev) => prev - 1);
-      setTotalPages(Math.ceil((totalHotels - 1) / PAGINATION));
-      getHotels();
+      fetchHotels(currentPage, pageSize);
     } catch (error) {
       showToast({ message: "Error al intentar eliminar hotel", type: "error" });
     } finally {
       setOpenDetail(false);
-      setPage(1);
     }
   };
 
@@ -167,11 +160,10 @@ export const Hotels: React.FC<HotelProps> = () => {
   };
 
   useEffect(() => {
-    getHotels();
-  }, [page]);
+    fetchHotels(currentPage, pageSize);
+  }, [currentPage, pageSize]);
 
   useEffect(() => {
-    fetchTotalHotels();
     getCountries();
   }, []);
 
@@ -266,14 +258,13 @@ export const Hotels: React.FC<HotelProps> = () => {
   };
 
   const searchByName = async (name: string) => {
-    const params = name ? `name=${encodeURIComponent(name)}` : "";
-    if (!params) await fetchTotalHotels();
-    await getHotels(params);
+    const query = name ? `name=${encodeURIComponent(name)}` : "";
+    fetchHotels(1, pageSize, query);
+    setCurrentPage(1);
   };
 
   const handlerClose = async () => {
-    await fetchTotalHotels();
-    await getHotels();
+    fetchHotels(currentPage, pageSize);
   };
 
   return (
@@ -299,11 +290,11 @@ export const Hotels: React.FC<HotelProps> = () => {
         <Loader />
       ) : (
         <>
-          {hotels.length > 0 ? (
+          {hotelsData.items.length > 0 ? (
             <>
               <GridList
                 direction="row"
-                items={hotels}
+                items={hotelsData.items}
                 renderItem={(item: Hotel) => (
                   <Card
                     title={item.name}
@@ -316,11 +307,14 @@ export const Hotels: React.FC<HotelProps> = () => {
                   </Card>
                 )}
               />
-              {showPagination && (
-                <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-                  <Pagination page={page} count={totalPages} changePage={(value) => setPage(value)} showFirstButton showLastButton color="primary" />
-                </Box>
-              )}
+              <Pagination
+                data={hotelsData}
+                onPageChange={handlePageChange}
+                loading={loading}
+                showSizeChanger={true}
+                showQuickJumper={true}
+                showTotal={true}
+              />
             </>
           ) : (
             <Paragraph text="No se encontraron hoteles" variant="h5" align="center" />

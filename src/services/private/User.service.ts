@@ -1,5 +1,6 @@
-import { User, Token, Order } from "../../models/index";
+import { User, Token, Order, PaginatedResponse } from "../../models/index";
 import { get, post, put, del } from "../Fetch.service";
+import { QueryBuilder } from "../../utils";
 
 const SERVICE_ENDPOINT = "users";
 
@@ -90,7 +91,18 @@ export const UserService = (() => {
     }
   };
 
-  type UserServiceError = "LOGIN-FAIL" | "SIGNUP-FAIL" | "RECOVER-PASSWORD-FAIL" | "CHANGE_PASSWORD-FAIL" | "UPDATE-FAIL" | "GET-ORDER-USER-FAIL" | "GET-USERS-ADMIN-FAIL" | "GET-USERS-ADMIN-UNAUTHORIZED" | "SEND-MESSAGE-ERROR" | "DELETE-USER-FAIL";
+  const getUsersPaginated = async (page: number = 1, limit: number = 10, query?: string, isAdmin: boolean = false) => {
+    if (!isAdmin) throw newError("GET-USERS-ADMIN-UNAUTHORIZED", { message: "Unaurhorized action" });
+    try {
+      const queryString = QueryBuilder.buildPaginatedQuery(page, limit, query);
+      let response = await get(SERVICE_ENDPOINT + "/all", queryString);
+      return response as PaginatedResponse<User>;
+    } catch (error) {
+      throw newError("GET-USERS-PAGINATED-FAIL", error);
+    }
+  };
+
+  type UserServiceError = "LOGIN-FAIL" | "SIGNUP-FAIL" | "RECOVER-PASSWORD-FAIL" | "CHANGE_PASSWORD-FAIL" | "UPDATE-FAIL" | "GET-ORDER-USER-FAIL" | "GET-USERS-ADMIN-FAIL" | "GET-USERS-ADMIN-UNAUTHORIZED" | "SEND-MESSAGE-ERROR" | "DELETE-USER-FAIL" | "GET-USERS-PAGINATED-FAIL";
 
   const newError = (code: UserServiceError, error?: any) => {
     return {
@@ -99,5 +111,5 @@ export const UserService = (() => {
     };
   };
 
-  return { sendMessage, deleteUser, isTokenValid, signUp, login, recoverPassword, changePassword, update, getOrders, getUsers };
+  return { sendMessage, deleteUser, isTokenValid, signUp, login, recoverPassword, changePassword, update, getOrders, getUsers, getUsersPaginated };
 })();

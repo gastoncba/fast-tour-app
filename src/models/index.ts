@@ -8,3 +8,4 @@ export * from "./Token.model";
 export * from "./Order.model";
 export * from "./Statistic.model";
 export * from "./State.model";
+export * from "./Pagination.model";

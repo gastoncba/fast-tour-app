@@ -1,7 +1,18 @@
 import { del, get, post, put } from "./Fetch.service";
 import { Trip } from "../models/Trip.model";
+import { QueryBuilder } from "../utils";
 
 const SERVICE_ENDPOINT = "trips";
+
+export interface PaginatedResponse<T> {
+  page: number;
+  items: T[];
+  count: number;
+  totalItems: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+}
 
 export const TripService = (() => {
   const getTrips = (query?: string) => {
@@ -11,6 +22,18 @@ export const TripService = (() => {
         resolve(trips);
       } catch (error) {
         reject(newError("GET-TRIPS-FAIL", error));
+      }
+    });
+  };
+
+  const getTripsPaginated = (page: number = 1, limit: number = 10, query?: string) => {
+    return new Promise<PaginatedResponse<Trip>>(async (resolve, reject) => {
+      try {
+        const queryString = QueryBuilder.buildPaginatedQuery(page, limit, query);
+        let response = await get(SERVICE_ENDPOINT, queryString, false);
+        resolve(response);
+      } catch (error) {
+        reject(newError("GET-TRIPS-PAGINATED-FAIL", error));
       }
     });
   };
@@ -59,7 +82,7 @@ export const TripService = (() => {
     });
   };
 
-  type TripServiceError = "GET-TRIPS-FAIL" | "GET-TRIP-FAIL" | "POST-TRIP-FAIL" | "PUT-TRIP-FAIL" | "DELETE-TRIP-FAIL";
+  type TripServiceError = "GET-TRIPS-FAIL" | "GET-TRIPS-PAGINATED-FAIL" | "GET-TRIP-FAIL" | "POST-TRIP-FAIL" | "PUT-TRIP-FAIL" | "DELETE-TRIP-FAIL";
 
   const newError = (code: TripServiceError, error?: any) => {
     return {
@@ -68,5 +91,5 @@ export const TripService = (() => {
     };
   };
 
-  return { getTrip, getTrips, createTrip, updateTrip, deleteTrip };
+  return { getTrip, getTrips, getTripsPaginated, createTrip, updateTrip, deleteTrip };
 })();
