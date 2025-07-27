@@ -32,12 +32,11 @@ export const Hotels: React.FC<HotelProps> = () => {
   const [loadinDetail, setLoadingDetail] = useState<boolean>(false);
   const [openDetail, setOpenDetail] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [pageSize, setPageSize] = useState<number>(10);
 
-  const fetchHotels = async (page: number = 1, limit: number = 10, query?: string) => {
+  const fetchHotels = async (page: number = 1, query?: string) => {
     setLoading(true);
     try {
-      const response = await HotelService.getHotelsPaginated(page, limit, query);
+      const response = await HotelService.getHotelsPaginated(page, 5, query);
       setHotelsData(response);
     } catch (error) {
       showToast({ message: "Error al cargar los hoteles disponibles", type: "error" });
@@ -46,9 +45,8 @@ export const Hotels: React.FC<HotelProps> = () => {
     }
   };
 
-  const handlePageChange = (page: number, size: number) => {
+  const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    setPageSize(size);
   };
 
   const getHotel = async (hotelId: number) => {
@@ -89,7 +87,7 @@ export const Hotels: React.FC<HotelProps> = () => {
     try {
       await HotelService.createHotel({ ...value, placeId: selectedPlace.id, stars });
       showToast({ message: "Hotel creado exitosamente", type: "success" });
-      fetchHotels(currentPage, pageSize);
+      fetchHotels(currentPage);
     } catch (error) {
       showToast({ message: "Error al crear nuevo hotel", type: "error" });
     } finally {
@@ -111,7 +109,7 @@ export const Hotels: React.FC<HotelProps> = () => {
     try {
       await HotelService.updateHotel(hotel.id, { ...value, placeId: selectedPlace.id, stars });
       showToast({ message: "Hotel actualizado exitosamente", type: "success" });
-      fetchHotels(currentPage, pageSize);
+      fetchHotels(currentPage);
     } catch (error) {
       showToast({ message: "Error al actualizar hotel", type: "error" });
     } finally {
@@ -123,7 +121,7 @@ export const Hotels: React.FC<HotelProps> = () => {
     try {
       await HotelService.deleteHotel(hotelId);
       showToast({ message: "Hotel eliminado exitosamente", type: "success" });
-      fetchHotels(currentPage, pageSize);
+      fetchHotels(currentPage);
     } catch (error) {
       showToast({ message: "Error al intentar eliminar hotel", type: "error" });
     } finally {
@@ -160,8 +158,8 @@ export const Hotels: React.FC<HotelProps> = () => {
   };
 
   useEffect(() => {
-    fetchHotels(currentPage, pageSize);
-  }, [currentPage, pageSize]);
+    fetchHotels(currentPage);
+  }, [currentPage]);
 
   useEffect(() => {
     getCountries();
@@ -259,12 +257,12 @@ export const Hotels: React.FC<HotelProps> = () => {
 
   const searchByName = async (name: string) => {
     const query = name ? `name=${encodeURIComponent(name)}` : "";
-    fetchHotels(1, pageSize, query);
+    fetchHotels(1, query);
     setCurrentPage(1);
   };
 
   const handlerClose = async () => {
-    fetchHotels(currentPage, pageSize);
+    fetchHotels(currentPage);
   };
 
   return (
@@ -311,7 +309,6 @@ export const Hotels: React.FC<HotelProps> = () => {
                 data={hotelsData}
                 onPageChange={handlePageChange}
                 loading={loading}
-                showSizeChanger={true}
                 showQuickJumper={true}
                 showTotal={true}
               />

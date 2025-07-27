@@ -29,14 +29,13 @@ export const HomeScreen: React.FC<HomeProps> = (props: HomeProps) => {
   const [countries, setCountries] = useState<Country[]>([]);
   const [places, setPlaces] = useState<Place[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [pageSize, setPageSize] = useState<number>(10);
 
   let navigate = useNavigate();
 
-  const fetchTrips = async (page: number = 1, limit: number = 10, query?: string) => {
+  const fetchTrips = async (page: number = 1, query?: string) => {
     setIsLoading(true);
     try {
-      const response = await TripService.getTripsPaginated(page, limit, query);
+      const response = await TripService.getTripsPaginated(page, 5, query);
       setTripsData(response);
     } catch (error) {
       showToast({ message: "Error al cargar los viajes disponibles", type: "error" });
@@ -45,9 +44,8 @@ export const HomeScreen: React.FC<HomeProps> = (props: HomeProps) => {
     }
   };
 
-  const handlePageChange = (page: number, size: number) => {
+  const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    setPageSize(size);
   };
 
   const getCountries = async () => {
@@ -64,8 +62,8 @@ export const HomeScreen: React.FC<HomeProps> = (props: HomeProps) => {
   }, []);
 
   useEffect(() => {
-    fetchTrips(currentPage, pageSize);
-  }, [currentPage, pageSize]);
+    fetchTrips(currentPage);
+  }, [currentPage]);
 
   const getTrip = async (tripId: number) => {
     setIsLoadingDetail(true);
@@ -80,7 +78,7 @@ export const HomeScreen: React.FC<HomeProps> = (props: HomeProps) => {
 
   const searchByName = async (name: string) => {
     const query = name ? `name=${encodeURIComponent(name)}` : "";
-    fetchTrips(1, pageSize, query);
+    fetchTrips(1, query);
     setCurrentPage(1);
   };
 
@@ -103,12 +101,12 @@ export const HomeScreen: React.FC<HomeProps> = (props: HomeProps) => {
   };
 
   const applyFilter = (params: string) => {
-    fetchTrips(1, pageSize, params);
+    fetchTrips(1, params);
     setCurrentPage(1);
   };
 
   const handlerClose = async () => {
-    fetchTrips(currentPage, pageSize);
+    fetchTrips(currentPage);
   };
 
   return (
@@ -153,7 +151,6 @@ export const HomeScreen: React.FC<HomeProps> = (props: HomeProps) => {
                 data={tripsData}
                 onPageChange={handlePageChange}
                 loading={isLoading}
-                showSizeChanger={true}
                 showQuickJumper={true}
                 showTotal={true}
               />

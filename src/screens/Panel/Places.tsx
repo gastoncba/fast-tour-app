@@ -29,12 +29,11 @@ export const Places: React.FC<PlacesProps> = () => {
   const [loadingDetail, setLoadingDetail] = useState<boolean>(true);
   const [openDetail, setOpenDetail] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [pageSize, setPageSize] = useState<number>(10);
 
-  const fetchPlaces = async (page: number = 1, limit: number = 10, query?: string) => {
+  const fetchPlaces = async (page: number = 1, query?: string) => {
     setLoading(true);
     try {
-      const response = await PlaceService.getPlacesPaginated(page, limit, query);
+      const response = await PlaceService.getPlacesPaginated(page, 5, query);
       setPlacesData(response);
     } catch (error) {
       showToast({ message: "Error al cargar los destinos disponibles", type: "error" });
@@ -43,9 +42,8 @@ export const Places: React.FC<PlacesProps> = () => {
     }
   };
 
-  const handlePageChange = (page: number, size: number) => {
+  const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    setPageSize(size);
   };
 
   const getCountries = async () => {
@@ -74,8 +72,8 @@ export const Places: React.FC<PlacesProps> = () => {
   }, []);
 
   useEffect(() => {
-    fetchPlaces(currentPage, pageSize);
-  }, [currentPage, pageSize]);
+    fetchPlaces(currentPage);
+  }, [currentPage]);
 
   const createPlace = async (value: any) => {
     if (selectedCountry.id === -1) {
@@ -85,7 +83,7 @@ export const Places: React.FC<PlacesProps> = () => {
     try {
       await PlaceService.createPlace({ ...value, countryId: selectedCountry.id });
       showToast({ message: "Destino creado con exito", type: "info" });
-      fetchPlaces(currentPage, pageSize);
+      fetchPlaces(currentPage);
     } catch (error) {
       showToast({ message: "Error al agregar nuevo destino", type: "error" });
     } finally {
@@ -101,7 +99,7 @@ export const Places: React.FC<PlacesProps> = () => {
     try {
       await PlaceService.updatePlace(place.id, { ...value, countryId: selectedCountry.id });
       showToast({ message: "Destino actualizado con exito", type: "success" });
-      fetchPlaces(currentPage, pageSize);
+      fetchPlaces(currentPage);
     } catch (error) {
       showToast({ message: "Error al actualizar el destino", type: "error" });
     } finally {
@@ -113,7 +111,7 @@ export const Places: React.FC<PlacesProps> = () => {
     try {
       await PlaceService.deletePlace(placeId);
       showToast({ message: "Destino eliminado con exito", type: "success" });
-      fetchPlaces(currentPage, pageSize);
+      fetchPlaces(currentPage);
     } catch (error) {
       showToast({ message: "Error al intentar eliminar destino", type: "error" });
     } finally {
@@ -203,7 +201,7 @@ export const Places: React.FC<PlacesProps> = () => {
 
   const searchByName = async (name: string) => {
     const query = name ? `name=${encodeURIComponent(name)}` : "";
-    fetchPlaces(1, pageSize, query);
+    fetchPlaces(1, query);
     setCurrentPage(1);
   };
 
@@ -212,7 +210,7 @@ export const Places: React.FC<PlacesProps> = () => {
   };
 
   const handlerClose = async () => {
-    fetchPlaces(currentPage, pageSize);
+    fetchPlaces(currentPage);
   };
 
   return (
@@ -257,7 +255,6 @@ export const Places: React.FC<PlacesProps> = () => {
                 data={placesData}
                 onPageChange={handlePageChange}
                 loading={loading}
-                showSizeChanger={true}
                 showQuickJumper={true}
                 showTotal={true}
               />

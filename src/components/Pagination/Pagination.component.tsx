@@ -3,9 +3,8 @@ import { PaginatedResponse } from '../../models/Pagination.model';
 
 interface PaginationProps<T> {
   data: PaginatedResponse<T>;
-  onPageChange: (page: number, pageSize: number) => void;
+  onPageChange: (page: number) => void;
   loading?: boolean;
-  showSizeChanger?: boolean;
   showQuickJumper?: boolean;
   showTotal?: boolean;
 }
@@ -14,14 +13,13 @@ export const Pagination = <T extends any>({
   data,
   onPageChange,
   loading = false,
-  showSizeChanger = true,
   showQuickJumper = true,
   showTotal = true,
 }: PaginationProps<T>) => {
-  const { page, totalItems, totalPages } = data;
+  const { page, totalItems } = data;
 
-  const handlePageChange = (page: number, pageSize: number) => {
-    onPageChange(page, pageSize);
+  const handlePageChange = (page: number) => {
+    onPageChange(page);
   };
 
   const showTotalText = (total: number, range: [number, number]) => {
@@ -39,10 +37,8 @@ export const Pagination = <T extends any>({
       <AntPagination
         current={page}
         total={totalItems}
-        pageSize={data.items.length > 0 ? Math.ceil(totalItems / totalPages) : 10}
+        pageSize={5}
         onChange={handlePageChange}
-        onShowSizeChange={handlePageChange}
-        showSizeChanger={showSizeChanger}
         showQuickJumper={showQuickJumper}
         showTotal={showTotal ? showTotalText : undefined}
         disabled={loading}

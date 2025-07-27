@@ -33,12 +33,11 @@ export const Trips: React.FC<TripProps> = () => {
   const [isLoadingDetail, setIsLoadingDetail] = useState<boolean>(false);
   const [openModalDetail, setOpenDetail] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [pageSize, setPageSize] = useState<number>(10);
 
-  const fetchTrips = async (page: number = 1, limit: number = 10, query?: string) => {
+  const fetchTrips = async (page: number = 1, query?: string) => {
     setIsLoading(true);
     try {
-      const response = await TripService.getTripsPaginated(page, limit, query);
+      const response = await TripService.getTripsPaginated(page, 5, query);
       setTripsData(response);
     } catch (error) {
       showToast({ message: "Error al cargar los viajes disponibles", type: "error" });
@@ -83,9 +82,8 @@ export const Trips: React.FC<TripProps> = () => {
     setSelectedPlaces(newItems);
   };
 
-  const handlePageChange = (page: number, size: number) => {
+  const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    setPageSize(size);
   };
 
   const getCountries = async () => {
@@ -102,8 +100,8 @@ export const Trips: React.FC<TripProps> = () => {
   }, []);
 
   useEffect(() => {
-    fetchTrips(currentPage, pageSize);
-  }, [currentPage, pageSize]);
+    fetchTrips(currentPage);
+  }, [currentPage]);
 
   const createTrip = async (value: any) => {
     let placesId = selectedPlaces.map((p) => p.placeId);
@@ -121,7 +119,7 @@ export const Trips: React.FC<TripProps> = () => {
     try {
       await TripService.createTrip({ name: value.name, description: value.description, price: value.price, startDate: dates[0], endDate: dates[1], placesId });
       showToast({ message: "Viaje agregado exitosamente", type: "success" });
-      fetchTrips(currentPage, pageSize);
+      fetchTrips(currentPage);
     } catch (error) {
       showToast({ message: "Error al agregar un nuevo viaje", type: "error" });
     } finally {
@@ -147,7 +145,7 @@ export const Trips: React.FC<TripProps> = () => {
     try {
       await TripService.updateTrip(trip.id, { name: value.name, description: value.description, price: value.price, startDate: dates[0], endDate: dates[1], placesId });
       showToast({ message: "Viaje actualizado exitosamente", type: "success" });
-      fetchTrips(currentPage, pageSize);
+      fetchTrips(currentPage);
     } catch (error) {
       showToast({ message: "Error al actualizar el viaje", type: "error" });
     } finally {
@@ -160,7 +158,7 @@ export const Trips: React.FC<TripProps> = () => {
   const deleteTrip = async (tripId: number) => {
     try {
       await TripService.deleteTrip(tripId);
-      fetchTrips(currentPage, pageSize);
+      fetchTrips(currentPage);
       showToast({ message: "Viaje eliminado exitosamente", type: "success" });
     } catch (error) {
       showToast({ message: "Error al eliminar el viaje", type: "error" });
@@ -235,12 +233,12 @@ export const Trips: React.FC<TripProps> = () => {
 
   const searchByName = async (name: string) => {
     const query = name ? `name=${encodeURIComponent(name)}` : "";
-    fetchTrips(1, pageSize, query);
+    fetchTrips(1, query);
     setCurrentPage(1);
   };
 
   const handlerClose = async () => {
-    fetchTrips(currentPage, pageSize);
+    fetchTrips(currentPage);
   };
 
   const renderDetail = () => {
@@ -288,7 +286,7 @@ export const Trips: React.FC<TripProps> = () => {
   };
 
   const applyFilter = (params: string) => {
-    fetchTrips(1, pageSize, params);
+    fetchTrips(1, params);
     setCurrentPage(1);
   };
 
@@ -346,7 +344,6 @@ export const Trips: React.FC<TripProps> = () => {
                 data={tripsData}
                 onPageChange={handlePageChange}
                 loading={isLoading}
-                showSizeChanger={true}
                 showQuickJumper={true}
                 showTotal={true}
               />

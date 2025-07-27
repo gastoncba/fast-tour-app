@@ -22,12 +22,11 @@ export const Countries: React.FC<CountriesProps> = () => {
   const [form, setForm] = useState<any>(null);
   const [open, setOpen] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [pageSize, setPageSize] = useState<number>(10);
 
-  const fetchCountries = async (page: number = 1, limit: number = 10, query?: string) => {
+  const fetchCountries = async (page: number = 1, query?: string) => {
     setLoading(true);
     try {
-      const response = await CountryService.getCountriesPaginated(page, limit, query);
+      const response = await CountryService.getCountriesPaginated(page, 5, query);
       setCountriesData(response);
     } catch (error) {
       showToast({ message: "Error al consultar los paises", type: "error" });
@@ -36,20 +35,19 @@ export const Countries: React.FC<CountriesProps> = () => {
     }
   };
 
-  const handlePageChange = (page: number, size: number) => {
+  const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    setPageSize(size);
   };
 
   useEffect(() => {
-    fetchCountries(currentPage, pageSize);
-  }, [currentPage, pageSize]);
+    fetchCountries(currentPage);
+  }, [currentPage]);
 
   const createCountry = async (value: any) => {
     try {
       await CountryService.createCountry({ name: value.name, code: value.code });
       showToast({ message: "País creado exitosamente", type: "success" });
-      fetchCountries(currentPage, pageSize);
+      fetchCountries(currentPage);
     } catch (error) {
       showToast({ message: "Error al agregar país", type: "error" });
     } finally {
@@ -61,7 +59,7 @@ export const Countries: React.FC<CountriesProps> = () => {
     try {
       await CountryService.updateCountry(value.id, { name: value.name, code: value.code });
       showToast({ message: "País actualizado exitosamente", type: "success" });
-      fetchCountries(currentPage, pageSize);
+      fetchCountries(currentPage);
     } catch (error) {
       showToast({ message: "Error al actualizar país", type: "error" });
     } finally {
@@ -73,7 +71,7 @@ export const Countries: React.FC<CountriesProps> = () => {
     try {
       await CountryService.deleteCountry(countryId);
       showToast({ message: "País eliminado exitosamente", type: "success" });
-      fetchCountries(currentPage, pageSize);
+      fetchCountries(currentPage);
     } catch (error) {
       showToast({ message: "Error al intentar eliminar país", type: "error" });
     }
@@ -102,12 +100,12 @@ export const Countries: React.FC<CountriesProps> = () => {
 
   const searchByName = async (name: string) => {
     const query = name ? `name=${encodeURIComponent(name)}` : "";
-    fetchCountries(1, pageSize, query);
+    fetchCountries(1, query);
     setCurrentPage(1);
   };
 
   const handlerClose = async () => {
-    fetchCountries(currentPage, pageSize);
+    fetchCountries(currentPage);
   };
 
   return (
@@ -153,14 +151,13 @@ export const Countries: React.FC<CountriesProps> = () => {
                   </Card>
                 )}
               />
-              <Pagination
-                data={countriesData}
-                onPageChange={handlePageChange}
-                loading={loading}
-                showSizeChanger={true}
-                showQuickJumper={true}
-                showTotal={true}
-              />
+                              <Pagination
+                  data={countriesData}
+                  onPageChange={handlePageChange}
+                  loading={loading}
+                  showQuickJumper={true}
+                  showTotal={true}
+                />
             </>
           ) : (
             <Paragraph text="No hay paises disponibles" variant="h5" align="center" />

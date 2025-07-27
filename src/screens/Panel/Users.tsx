@@ -25,12 +25,11 @@ export const Users: React.FC<UserProps> = () => {
   });
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [pageSize, setPageSize] = useState<number>(10);
 
-  const fetchUsers = async (page: number = 1, limit: number = 10) => {
+  const fetchUsers = async (page: number = 1) => {
     setIsLoading(true);
     try {
-      const response = await UserService.getUsersPaginated(page, limit, undefined, userProvider.isAdmin());
+      const response = await UserService.getUsersPaginated(page, 5, undefined, userProvider.isAdmin());
       setUsersData(response);
     } catch (error) {
       showToast({ message: "Error al cargar los usuarios", type: "error" });
@@ -39,20 +38,19 @@ export const Users: React.FC<UserProps> = () => {
     }
   };
 
-  const handlePageChange = (page: number, size: number) => {
+  const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    setPageSize(size);
   };
 
   useEffect(() => {
-    fetchUsers(currentPage, pageSize);
-  }, [currentPage, pageSize]);
+    fetchUsers(currentPage);
+  }, [currentPage]);
 
   const deleteUser = async (userId: number) => {
     try {
       await UserService.deleteUser(userId);
       showToast({ message: "Usuario eliminado exitosamente", type: "success" });
-      fetchUsers(currentPage, pageSize);
+      fetchUsers(currentPage);
     } catch (error) {
       showToast({ message: "Error al eliminar usuario", type: "error" });
     }
@@ -84,7 +82,6 @@ export const Users: React.FC<UserProps> = () => {
                   data={usersData}
                   onPageChange={handlePageChange}
                   loading={isLoading}
-                  showSizeChanger={true}
                   showQuickJumper={true}
                   showTotal={true}
                 />
